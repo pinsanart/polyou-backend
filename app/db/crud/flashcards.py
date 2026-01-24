@@ -1,19 +1,17 @@
 from sqlalchemy.orm import Session
 from sqlalchemy import select
-
-from ...schemas.flashcards import FlashcardIdentity, FlashcardCreate, FlashcardTypes
-from ...db.models import Flashcard, FlashcardType
-
 from sqlalchemy.orm import Session
 import datetime
 
+from ...schemas.flashcards import FlashcardIdentity, FlashcardCreate, FlashcardTypes, FlashcardReviewFSRS
 from ...db.models import (
     Flashcard,
     FlashcardContent,
-    FlashcardReviewFSRS,
+    FlashcardFSRS,
     FlashcardsStatistics,
     FlashcardsImages,
     FSRSStates,
+    FlashcardType
 )
 
 def create_flashcard(db: Session, user_id: int, flashcard_create: FlashcardCreate) -> Flashcard:
@@ -22,12 +20,12 @@ def create_flashcard(db: Session, user_id: int, flashcard_create: FlashcardCreat
         back_field_content=flashcard_create.content.back_field,
     )
 
-    fsrs = FlashcardReviewFSRS(
-        stability=0.0,
+    fsrs = FlashcardFSRS(
+        stability=0.1,
         difficulty=5.0,
         due=datetime.datetime.now(datetime.timezone.utc),
         last_review=None,
-        state=FSRSStates.NEW,
+        state=FSRSStates.LEARNING,
     )
 
     statistics = FlashcardsStatistics(
@@ -88,3 +86,18 @@ def get_flashcards_types(db: Session) -> list[FlashcardTypes]:
         ) 
         for flashcard_types in flashcards_types
     ]
+
+def get_flashcard_fsrs(db: Session, flashcard_id: int, user_id: int) -> FlashcardFSRS | None:
+    stmt = select(FlashcardFSRS).join(Flashcard).where(FlashcardFSRS.flashcard_id == flashcard_id, Flashcard.user_id == user_id)
+    flashcard_fsrs = db.execute(stmt).scalar_one_or_none()
+
+    if flashcard_fsrs is None:
+        return None
+
+    return FlashcardReviewFSRS(
+        stability= flashcard_fsrs.stability, 
+        difficulty=flashcard_fsrs.difficulty,
+        due=flashcard_fsrs.due,
+        last_review=flashcard_fsrs.last_review,
+        state=flashcard_fsrs.state
+    )

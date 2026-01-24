@@ -1,6 +1,6 @@
 from pydantic import BaseModel, Field
 from enum import Enum
-from datetime import date
+from datetime import datetime
 
 
 class FlashcardTypes(BaseModel):
@@ -25,19 +25,22 @@ class FlashcardContent(BaseModel):
 
 
 class StateEnum(int, Enum):
-    NEW = 0
     LEARNING = 1
     REVIEW = 2
     RELEARNING = 3
 
+class RatingEnum(int, Enum):
+    AGAIN = 1
+    HARD = 2
+    GOOD = 3
+
 
 class FlashcardReviewFSRS(BaseModel):
-    stability: float = 0.0
+    stability: float = 0.1
     difficulty: float = 5.0
-    due: date = Field(default_factory=date.today)
-    last_review: date | None = None
-    state: StateEnum = StateEnum.NEW
-
+    due: datetime = Field(default_factory=datetime.today)
+    last_review: datetime | None = None
+    state: StateEnum = StateEnum.LEARNING
 
 class FlashcardCreate(BaseModel):
     language_id: int

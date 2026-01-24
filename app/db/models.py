@@ -224,7 +224,7 @@ class Flashcard(PolyouDB):
         cascade="all, delete-orphan"
     )
 
-    fsrs: Mapped["FlashcardReviewFSRS"] = relationship(
+    fsrs: Mapped["FlashcardFSRS"] = relationship(
         back_populates="flashcard",
         uselist=False,
         cascade="all, delete-orphan"
@@ -261,14 +261,13 @@ class FlashcardContent(PolyouDB):
 # =========================================================
 
 class FSRSStates(Enum):
-    NEW = 0
     LEARNING = 1
     REVIEW = 2
     RELEARNING = 3
 
 
-class FlashcardReviewFSRS(PolyouDB):
-    __tablename__ = "flashcards_review_fsrs"
+class FlashcardFSRS(PolyouDB):
+    __tablename__ = "flashcards_fsrs"
 
     flashcard_id: Mapped[int] = mapped_column(
         ForeignKey("flashcards.flashcard_id"),
@@ -292,7 +291,7 @@ class FlashcardReviewFSRS(PolyouDB):
     state: Mapped[FSRSStates] = mapped_column(
         SQLEnum(FSRSStates),
         nullable=False,
-        default=FSRSStates.NEW
+        default=FSRSStates.LEARNING
     )
 
     flashcard: Mapped["Flashcard"] = relationship(back_populates="fsrs")
@@ -330,7 +329,6 @@ class FlashcardsImages(PolyouDB):
     image_url: Mapped[str] = mapped_column(String, nullable=False)
 
     flashcard: Mapped["Flashcard"] = relationship(back_populates="images")
-
 
 # =========================================================
 # Create / Drop (opcional)
