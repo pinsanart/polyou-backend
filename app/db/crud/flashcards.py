@@ -1,5 +1,5 @@
 from sqlalchemy.orm import Session
-from sqlalchemy import select
+from sqlalchemy import select, update
 from sqlalchemy.orm import Session
 import datetime
 
@@ -101,3 +101,12 @@ def get_flashcard_fsrs(db: Session, flashcard_id: int, user_id: int) -> Flashcar
         last_review=flashcard_fsrs.last_review,
         state=flashcard_fsrs.state
     )
+
+def update_flashcard_fsrs(db: Session, user_id:int, flashcard_id: int, new_flashcard_fsrs: FlashcardReviewFSRS) -> bool:
+    subquery = select(Flashcard.flashcard_id).where(Flashcard.flashcard_id == flashcard_id, Flashcard.user_id == user_id)
+    stmt = update(FlashcardFSRS).where(FlashcardFSRS.flashcard_id.in_(subquery)).values(**new_flashcard_fsrs.model_dump())
+
+    result = db.execute(stmt)
+    db.commit()
+    
+    return result.rowcount == 1

@@ -1,4 +1,5 @@
 from pydantic_settings import BaseSettings
+from datetime import timedelta
 
 class Settings(BaseSettings):
     APP_NAME: str = "Polyou API"
@@ -16,3 +17,12 @@ class Settings(BaseSettings):
         case_sensitive = True
 
 settings = Settings()
+
+class FSRSConfig:
+    #LEARNING
+    LEARNING_MIN_STABILITY: float = 0.1
+    LEARNING_STABILITY_INCREMENT: float = 2.0
+    
+    MINIMUM_REVIEW_INTERVAL: timedelta = timedelta(days=1)
+
+DEFAULT_FSRS_CONFIG = FSRSConfig()

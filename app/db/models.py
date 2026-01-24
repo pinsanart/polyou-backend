@@ -260,7 +260,7 @@ class FlashcardContent(PolyouDB):
 # FSRS
 # =========================================================
 
-class FSRSStates(Enum):
+class FSRSStates(int, Enum):
     LEARNING = 1
     REVIEW = 2
     RELEARNING = 3

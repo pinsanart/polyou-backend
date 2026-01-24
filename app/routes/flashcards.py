@@ -10,7 +10,8 @@ from ..db.crud.flashcards import (
     get_all_flashcards_by_user_id, 
     create_flashcard,
     get_flashcards_types,
-    get_flashcard_fsrs
+    get_flashcard_fsrs,
+    update_flashcard_fsrs
 )
 from ..services.flashcards import review_card
 
@@ -59,10 +60,18 @@ def review_flashcard_endpoint(user: Annotated[UserIdentity, Depends(get_active_u
     user_id = user.user_id
     flashcard_fsrs = get_flashcard_fsrs(db, flashcard_id, user_id)
 
-    if flashcard_fsrs:
-        updated_flashcard = review_card(flashcard_fsrs, rating)
+    if not flashcard_fsrs:
+        return
     
-    return updated_flashcard
+    updated_flashcard = review_card(flashcard_fsrs, rating)
+    
+    result = update_flashcard_fsrs(db, user_id, flashcard_id, updated_flashcard)
+
+    if result:
+        return updated_flashcard
+    else:
+        return
+    
 
 @router.get('/types', response_model=list[FlashcardTypes])
 def get_flashcard_types_endpoint(db: Annotated[Session, Depends(get_db)]):
