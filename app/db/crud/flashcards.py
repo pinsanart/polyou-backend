@@ -8,7 +8,9 @@ from ...schemas.flashcards import (
     FlashcardCreate, 
     FlashcardTypes, 
     FlashcardReviewFSRS,
-    FlashcardInfo
+    FlashcardInfo,
+    FlashcardImages,
+    FlashcardContent
 )
 
 from ...db.models import (
@@ -133,4 +135,19 @@ def delete_flashcard(db: Session, user_id: int, flashcard_id:int) -> FlashcardId
     return FlashcardIdentity(flashcard_id=flashcard_id)
 
 def get_flashcard_info(db: Session, user_id: int, flashcard_id: int)->FlashcardInfo | None:
-    pass
+    stmt = select(FlashcardModel).where(FlashcardModel.user_id == user_id, FlashcardModel.flashcard_id == flashcard_id)
+    flashcard = db.execute(stmt).scalar_one_or_none()
+
+    if not flashcard:
+        return None
+    
+    images = [FlashcardImages(field=image.field, image_url=image.image_url) for image in flashcard.images]
+
+    content = FlashcardContent(front_field=flashcard.content.front_field_content, back_field=flashcard.content.back_field_content)
+
+    return FlashcardInfo(
+        flashcard_id=flashcard.flashcard_id,
+        flashcard_type_id=flashcard.flashcard_type_id,
+        images= images,
+        content=content
+    )

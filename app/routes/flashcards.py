@@ -52,7 +52,9 @@ def find_flashcard_by_id_endpoint(
 
 @router.get("/info")
 def get_flashcard_info_endpoint(user: Annotated[UserIdentity, Depends(get_active_user)], db: Annotated[Session, Depends(get_db)], flashcard_id: int):
-    pass
+    user_id = user.user_id
+    flashcard = get_flashcard_info(db, user_id, flashcard_id)
+    return flashcard
 
 @router.put("/update")
 def update_flashcard_endpoint(user: Annotated[UserIdentity, Depends(get_active_user)], db: Annotated[Session, Depends(get_db)], flashcard_id: int, new_flashcard: FlashcardCreate):
