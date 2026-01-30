@@ -17,7 +17,7 @@ from ..core.utc_safe import utcnow
 # =========================================================
 # Base
 # =========================================================
-class PolyouDBModel(DeclarativeBase):
+class PolyouDB(DeclarativeBase):
     pass
 
 # =========================================================
@@ -37,7 +37,7 @@ class FSRSStates(int, Enum):
 # =========================================================
 # Users
 # =========================================================
-class UserModel(PolyouDBModel):
+class UserModel(PolyouDB):
     __tablename__ = "users"
 
     user_id: Mapped[int] = mapped_column(primary_key=True)
@@ -69,7 +69,7 @@ class UserModel(PolyouDBModel):
     )
 
 
-class UserProfileModel(PolyouDBModel):
+class UserProfileModel(PolyouDB):
     __tablename__ = "users_profile"
 
     user_id: Mapped[int] = mapped_column(
@@ -86,7 +86,7 @@ class UserProfileModel(PolyouDBModel):
 # =========================================================
 # Languages
 # =========================================================
-class LanguageModel(PolyouDBModel):
+class LanguageModel(PolyouDB):
     __tablename__ = "languages"
 
     language_id: Mapped[int] = mapped_column(primary_key=True)
@@ -98,7 +98,7 @@ class LanguageModel(PolyouDBModel):
     flashcards: Mapped[List["FlashcardModel"]] = relationship(back_populates="language")
 
 
-class UserKnownLanguageModel(PolyouDBModel):
+class UserKnownLanguageModel(PolyouDB):
     __tablename__ = "user_known_languages"
 
     user_id: Mapped[int] = mapped_column(
@@ -117,7 +117,7 @@ class UserKnownLanguageModel(PolyouDBModel):
 # =========================================================
 # Target Languages / Goals / Levels
 # =========================================================
-class CEFRLevelModel(PolyouDBModel):
+class CEFRLevelModel(PolyouDB):
     __tablename__ = "cefr_levels"
 
     level_id: Mapped[int] = mapped_column(primary_key=True)
@@ -126,7 +126,7 @@ class CEFRLevelModel(PolyouDBModel):
     user_targets: Mapped[List["UserTargetLanguageModel"]] = relationship(back_populates="level")
 
 
-class GoalModel(PolyouDBModel):
+class GoalModel(PolyouDB):
     __tablename__ = "goals"
 
     goal_id: Mapped[int] = mapped_column(primary_key=True)
@@ -135,7 +135,7 @@ class GoalModel(PolyouDBModel):
     user_targets: Mapped[List["UserTargetLanguageModel"]] = relationship(back_populates="goal")
 
 
-class UserTargetLanguageModel(PolyouDBModel):
+class UserTargetLanguageModel(PolyouDB):
     __tablename__ = "user_target_languages"
 
     user_id: Mapped[int] = mapped_column(
@@ -159,7 +159,7 @@ class UserTargetLanguageModel(PolyouDBModel):
 # =========================================================
 # Flashcards
 # =========================================================
-class FlashcardTypeModel(PolyouDBModel):
+class FlashcardTypeModel(PolyouDB):
     __tablename__ = "flashcard_types"
 
     flashcard_type_id: Mapped[int] = mapped_column(primary_key=True)
@@ -169,7 +169,7 @@ class FlashcardTypeModel(PolyouDBModel):
     flashcards: Mapped[List["FlashcardModel"]] = relationship(back_populates="flashcard_type")
 
 
-class FlashcardModel(PolyouDBModel):
+class FlashcardModel(PolyouDB):
     __tablename__ = "flashcards"
 
     flashcard_id: Mapped[int] = mapped_column(primary_key=True)
@@ -208,7 +208,7 @@ class FlashcardModel(PolyouDBModel):
     )
 
 
-class FlashcardContentModel(PolyouDBModel):
+class FlashcardContentModel(PolyouDB):
     __tablename__ = "flashcards_content"
 
     flashcard_id: Mapped[int] = mapped_column(
@@ -224,7 +224,7 @@ class FlashcardContentModel(PolyouDBModel):
     )
 
 
-class FlashcardFSRSModel(PolyouDBModel):
+class FlashcardFSRSModel(PolyouDB):
     __tablename__ = "flashcards_fsrs"
 
     flashcard_id: Mapped[int] = mapped_column(
@@ -243,7 +243,7 @@ class FlashcardFSRSModel(PolyouDBModel):
     )
 
 
-class FlashcardsStatisticsModel(PolyouDBModel):
+class FlashcardsStatisticsModel(PolyouDB):
     __tablename__ = "flashcards_statistics"
 
     flashcard_id: Mapped[int] = mapped_column(
@@ -259,7 +259,7 @@ class FlashcardsStatisticsModel(PolyouDBModel):
     )
 
 
-class FlashcardImagesModel(PolyouDBModel):
+class FlashcardImagesModel(PolyouDB):
     __tablename__ = "flashcards_images"
 
     image_id: Mapped[int] = mapped_column(primary_key=True)
@@ -279,5 +279,5 @@ class FlashcardImagesModel(PolyouDBModel):
 # Create / Drop (opcional)
 # =========================================================
 # from connection import engine
-# PolyouDBModel.metadata.create_all(engine)
-# PolyouDBModel.metadata.drop_all(engine)
+# PolyouDB.metadata.create_all(engine)
+# PolyouDB.metadata.drop_all(engine)
