@@ -1,6 +1,7 @@
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 from sqlalchemy import (
     String,
+    Integer,
     ForeignKey,
     SmallInteger,
     DateTime,
@@ -195,12 +196,13 @@ class FlashcardModel(PolyouDB):
         cascade="all, delete-orphan",
         passive_deletes=True
     )
-    statistics: Mapped["FlashcardsStatisticsModel"] = relationship(
+    
+    reviews: Mapped[List["FlashcardReviewModel"]] = relationship(
         back_populates="flashcard",
-        uselist=False,
         cascade="all, delete-orphan",
         passive_deletes=True
     )
+
     images: Mapped[List["FlashcardImagesModel"]] = relationship(
         back_populates="flashcard",
         cascade="save-update, merge",
@@ -243,20 +245,39 @@ class FlashcardFSRSModel(PolyouDB):
     )
 
 
-class FlashcardsStatisticsModel(PolyouDB):
-    __tablename__ = "flashcards_statistics"
+class FlashcardReviewModel(PolyouDB):
+    __tablename__ = "flashcards_reviews"
 
+    review_id: Mapped[int] = mapped_column(primary_key=True)
+    
     flashcard_id: Mapped[int] = mapped_column(
         ForeignKey("flashcards.flashcard_id", ondelete="CASCADE"),
-        primary_key=True
+        nullable=False,
+        index=True
     )
-    repetitions: Mapped[int] = mapped_column(nullable=False, default=0)
-    lapses: Mapped[int] = mapped_column(nullable=False, default=0)
+    
+    reviewed_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), 
+        default=utcnow, 
+        nullable=False
+    )
+    
+    rating: Mapped[int] = mapped_column(SmallInteger, nullable=False)
+    
+    response_time_ms: Mapped[int] = mapped_column(Integer, nullable=False)
+    
+    scheduled_days: Mapped[int] = mapped_column(Integer, nullable=False)
+    actual_days: Mapped[int] = mapped_column(Integer, nullable=False)
+    
+    prev_stability: Mapped[float] = mapped_column(nullable=False)
+    prev_difficulty: Mapped[float] = mapped_column(nullable=False)
+    new_stability: Mapped[float] = mapped_column(nullable=False)
+    new_difficulty: Mapped[float] = mapped_column(nullable=False)
+    
+    state_before: Mapped[FSRSStates] = mapped_column(SQLEnum(FSRSStates), nullable=False)
+    state_after: Mapped[FSRSStates] = mapped_column(SQLEnum(FSRSStates), nullable=False)
 
-    flashcard: Mapped["FlashcardModel"] = relationship(
-        back_populates="statistics",
-        passive_deletes=True
-    )
+    flashcard: Mapped["FlashcardModel"] = relationship(back_populates="reviews")
 
 
 class FlashcardImagesModel(PolyouDB):
