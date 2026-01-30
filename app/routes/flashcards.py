@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends, Query, HTTPException, status
-from typing import Annotated
+from typing import Annotated, List
 from sqlalchemy.orm import Session
 
 from ..schemas.user import UserIdentity
@@ -7,7 +7,8 @@ from ..schemas.flashcards import (
     FlashcardCreate, 
     FlashcardTypes, 
     RatingEnum, 
-    FlashcardIdentity
+    FlashcardIdentity,
+    FlashcardInfo
 )
 
 from ..dependencies.session import get_db
@@ -69,13 +70,18 @@ def find_flashcard_by_id_endpoint(
     return [flashcard_id.flashcard_id for flashcard_id in flashcards_id]
 
 @router.get("/info")
-def get_flashcard_info_endpoint(user: Annotated[UserIdentity, Depends(get_active_user)], db: Annotated[Session, Depends(get_db)], flashcard_id: int):
+def get_flashcards_info_endpoint(user: Annotated[UserIdentity, Depends(get_active_user)], db: Annotated[Session, Depends(get_db)], flashcards_ids: Annotated[List[int], Query()]) -> List[FlashcardInfo]:
     user_id = user.user_id
     
-    validade_flashcard(db, flashcard_id, user_id)
+    for flashcard_id in flashcards_ids:
+        validade_flashcard(db, flashcard_id, user_id)
+
+    flashcards_info = []
+    for flashcard_id in flashcards_ids:
+        flashcard_info = get_flashcard_info(db, user_id, flashcard_id)
+        flashcards_info.append(flashcard_info)
     
-    flashcard = get_flashcard_info(db, user_id, flashcard_id)
-    return flashcard
+    return flashcards_info
 
 @router.put("/update")
 def update_flashcard_endpoint(user: Annotated[UserIdentity, Depends(get_active_user)], db: Annotated[Session, Depends(get_db)], flashcard_id: int, new_flashcard: FlashcardCreate):

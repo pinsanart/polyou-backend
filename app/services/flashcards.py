@@ -3,7 +3,7 @@ from fastapi import HTTPException, status
 from fsrs import Scheduler, Card, Rating, State
 from sqlalchemy.orm import Session
 
-from ..schemas.flashcards import FlashcardReviewFSRS, StateEnum, RatingEnum, FlashcardCreate
+from ..schemas.flashcards import FlashcardFSRS, StateEnum, RatingEnum, FlashcardCreate
 from ..core.utc_safe import utcnow
 from ..core.config import DEFAULT_FSRS_CONFIG
 from ..db.crud.flashcards import get_flashcard_by_id, get_flashcard_by_id_and_user_id, get_flashcard_type_by_id
@@ -26,7 +26,7 @@ FSRS_STATE_MAP = {
 
 REVERSE_STATE_MAP = {v: k for k, v in FSRS_STATE_MAP.items()}
 
-def review_card(old_flashcard: FlashcardReviewFSRS, rating: RatingEnum) -> FlashcardReviewFSRS:
+def review_card(old_flashcard: FlashcardFSRS, rating: RatingEnum) -> FlashcardFSRS:
     now = utcnow()
 
     if old_flashcard.state == StateEnum.LEARNING:
@@ -39,7 +39,7 @@ def review_card(old_flashcard: FlashcardReviewFSRS, rating: RatingEnum) -> Flash
             stability += DEFAULT_FSRS_CONFIG.LEARNING_STABILITY_INCREMENT 
             state = StateEnum.REVIEW
         
-        return FlashcardReviewFSRS(
+        return FlashcardFSRS(
             stability=stability,
             difficulty=old_flashcard.difficulty,
             due=due,
@@ -62,7 +62,7 @@ def review_card(old_flashcard: FlashcardReviewFSRS, rating: RatingEnum) -> Flash
     if updated_card.due.date() <= now.date():
         updated_card.due = (now + DEFAULT_FSRS_CONFIG.MINIMUM_REVIEW_INTERVAL).replace(hour=0, minutes=0, second=0, microsecond=0)
 
-    return FlashcardReviewFSRS(
+    return FlashcardFSRS(
         stability=updated_card.stability,
         difficulty=updated_card.difficulty,
         due=updated_card.due,

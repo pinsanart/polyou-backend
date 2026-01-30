@@ -29,6 +29,11 @@ class Fields(Enum):
     back = "back"
 
 
+class FSRSRating(int, Enum):
+    AGAIN = 1
+    HARD = 2
+    GOOD = 3
+
 class FSRSStates(int, Enum):
     LEARNING = 1
     REVIEW = 2
@@ -268,7 +273,7 @@ class FlashcardReviewModel(PolyouDB):
         nullable=False
     )
     
-    rating: Mapped[int] = mapped_column(SmallInteger, nullable=False)
+    rating: Mapped[FSRSRating] = mapped_column(SQLEnum(FSRSRating), nullable=False)
     
     response_time_ms: Mapped[int] = mapped_column(Integer, nullable=False)
     

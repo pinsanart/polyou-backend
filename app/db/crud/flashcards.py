@@ -7,11 +7,12 @@ from ...schemas.flashcards import (
     FlashcardIdentity,
     FlashcardCreate, 
     FlashcardTypes, 
-    FlashcardReviewFSRS,
+    FlashcardFSRS,
     FlashcardInfo,
     FlashcardImage,
     FlashcardAudio,
-    FlashcardContent
+    FlashcardContent,
+    FlashcardReview
 )
 
 from ...db.models import (
@@ -100,14 +101,14 @@ def get_flashcards_types(db: Session) -> list[FlashcardTypes]:
         for flashcard_types in flashcards_types
     ]
 
-def get_flashcard_fsrs(db: Session, flashcard_id: int, user_id: int) -> FlashcardReviewFSRS | None:
+def get_flashcard_fsrs(db: Session, flashcard_id: int, user_id: int) -> FlashcardFSRS | None:
     stmt = select(FlashcardFSRSModel).join(FlashcardModel).where(FlashcardFSRSModel.flashcard_id == flashcard_id, FlashcardModel.user_id == user_id)
     flashcard_fsrs = db.execute(stmt).scalar_one_or_none()
 
     if flashcard_fsrs is None:
         return None
 
-    return FlashcardReviewFSRS(
+    return FlashcardFSRS(
         stability= flashcard_fsrs.stability, 
         difficulty=flashcard_fsrs.difficulty,
         due=flashcard_fsrs.due,
@@ -115,7 +116,7 @@ def get_flashcard_fsrs(db: Session, flashcard_id: int, user_id: int) -> Flashcar
         state=flashcard_fsrs.state
     )
 
-def update_flashcard_fsrs(db: Session, user_id:int, flashcard_id: int, new_flashcard_fsrs: FlashcardReviewFSRS) -> bool:
+def update_flashcard_fsrs(db: Session, user_id:int, flashcard_id: int, new_flashcard_fsrs: FlashcardFSRS) -> bool:
     subquery = select(FlashcardModel.flashcard_id).where(FlashcardModel.flashcard_id == flashcard_id, FlashcardModel.user_id == user_id)
     stmt = update(FlashcardFSRSModel).where(FlashcardFSRSModel.flashcard_id.in_(subquery)).values(**new_flashcard_fsrs.model_dump())
 
@@ -147,14 +148,46 @@ def get_flashcard_info(db: Session, user_id: int, flashcard_id: int)->FlashcardI
     
     images = [FlashcardImage(field=image.field, image_url=image.image_url) for image in flashcard.images]
     audios = [FlashcardAudio(field=audio.field, audio_url=audio.audio_url) for audio in flashcard.audios]
+    reviews = [FlashcardReview(
+        reviewd_at=review.reviewed_at,
+        rating=review.rating, 
+        response_time_ms=review.response_time_ms, 
+        scheduled_days=review.scheduled_days, 
+        actual_days=review.actual_days, 
+        prev_stability=review.prev_stability, 
+        prev_difficulty=review.prev_difficulty,
+        new_stability=review.new_stability,
+        new_difficulty=review.new_difficulty,
+        state_before=review.state_before,
+        state_after=review.state_after
+        ) 
+        for review in flashcard.reviews
+    ]
+    
+
     content = FlashcardContent(front_field=flashcard.content.front_field_content, back_field=flashcard.content.back_field_content)
+    fsrs = FlashcardFSRS(
+        stability=flashcard.fsrs.stability, 
+        difficult=flashcard.fsrs.difficulty, 
+        due=flashcard.fsrs.due,
+        last_review=flashcard.fsrs.last_review,
+        state=flashcard.fsrs.state
+    )
 
     return FlashcardInfo(
         flashcard_id=flashcard.flashcard_id,
-        flashcard_type_id=flashcard.flashcard_type_id,
+        
+        language_id= flashcard.language_id,
+        flashcard_type_id= flashcard.flashcard_type_id,
+        created_at= flashcard.created_at,
+        updated_at= flashcard.updated_at,
+
+        content=content,
+        fsrs = fsrs,
+
+        reviews=reviews,
         images= images,
-        audios= audios,
-        content=content
+        audios= audios
     )
 
 def update_flashcard(db: Session, user_id: int, flashcard_id: int, new_flashcard: FlashcardCreate) -> bool:
