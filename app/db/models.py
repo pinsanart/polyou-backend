@@ -51,7 +51,7 @@ class UserModel(PolyouDB):
     hashed_password: Mapped[str] = mapped_column(String(255), nullable=False)
     disabled: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow, nullable=False)
-    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow, onupdate=utcnow, nullable=False)
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow, nullable=False)
 
     profile: Mapped["UserProfileModel"] = relationship(
         back_populates="user",
@@ -183,7 +183,7 @@ class FlashcardModel(PolyouDB):
     language_id: Mapped[int] = mapped_column(ForeignKey("languages.language_id"), nullable=False)
     flashcard_type_id: Mapped[int] = mapped_column(ForeignKey("flashcard_types.flashcard_type_id"), nullable=False)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow, nullable=False)
-    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow, onupdate=utcnow, nullable=False)
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow, nullable=False)
 
     user: Mapped["UserModel"] = relationship(back_populates="flashcards")
     language: Mapped["LanguageModel"] = relationship(back_populates="flashcards")

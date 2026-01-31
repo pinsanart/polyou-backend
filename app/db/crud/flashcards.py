@@ -3,6 +3,8 @@ from sqlalchemy import select, update, delete
 from sqlalchemy.orm import Session
 import datetime
 
+from ...core.utc_safe import utcnow
+
 from ...schemas.flashcards import (
     FlashcardIdentity,
     FlashcardCreate, 
@@ -206,6 +208,7 @@ def update_flashcard(db: Session, user_id: int, flashcard_id: int, new_flashcard
 
         flashcard.language_id = new_flashcard.language_id
         flashcard.flashcard_type_id = new_flashcard.flashcard_type_id
+        flashcard.updated_at = utcnow()
 
         flashcard.content.front_field_content = new_flashcard.content.front_field
         flashcard.content.back_field_content = new_flashcard.content.back_field
@@ -219,6 +222,15 @@ def update_flashcard(db: Session, user_id: int, flashcard_id: int, new_flashcard
                     FlashcardImagesModel(
                         field=image.field,
                         image_url=image.image_url
+                    )
+                )
+
+        if new_flashcard.audios:
+            for audio in new_flashcard.audios:
+                flashcard.audios.append(
+                    FlashcardAudiosModel(
+                        field=audio.field,
+                        audio_url=audio.audio_url
                     )
                 )
 
