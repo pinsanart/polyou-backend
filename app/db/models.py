@@ -1,4 +1,5 @@
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
+from sqlalchemy.dialects.postgresql import UUID as PGUUID
 from sqlalchemy import (
     String,
     Integer,
@@ -9,6 +10,8 @@ from sqlalchemy import (
     Boolean,
     Enum as SQLEnum,
 )
+from uuid import UUID, uuid4
+
 from typing import List, Optional
 from enum import Enum
 from datetime import datetime
@@ -179,6 +182,15 @@ class FlashcardModel(PolyouDB):
     __tablename__ = "flashcards"
 
     flashcard_id: Mapped[int] = mapped_column(primary_key=True)
+    
+    public_id: Mapped[UUID] = mapped_column(
+        PGUUID(as_uuid=True),
+        default=uuid4,
+        unique=True,
+        nullable=False,
+        index=True      
+    )
+
     user_id: Mapped[int] = mapped_column(ForeignKey("users.user_id", ondelete="CASCADE"), nullable=False)
     language_id: Mapped[int] = mapped_column(ForeignKey("languages.language_id"), nullable=False)
     flashcard_type_id: Mapped[int] = mapped_column(ForeignKey("flashcard_types.flashcard_type_id"), nullable=False)

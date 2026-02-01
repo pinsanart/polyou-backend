@@ -3,7 +3,6 @@ from enum import Enum
 from datetime import datetime
 from typing import List
 
-
 class FieldsEnum(str, Enum):
     front = "front"
     back = "back"

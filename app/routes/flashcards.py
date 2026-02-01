@@ -37,7 +37,7 @@ router = APIRouter(
     responses={404: {"description": "Not found"}}
 )
 
-@router.post("/create", response_model=list[FlashcardIdentity])
+@router.post("/create")
 def create_flashcard_endpoint(user: Annotated[UserIdentity, Depends(get_active_user)], db: Annotated[Session, Depends(get_db)], flashcards: list[FlashcardCreate]):
     user_id = user.user_id
    
@@ -48,7 +48,7 @@ def create_flashcard_endpoint(user: Annotated[UserIdentity, Depends(get_active_u
     for flashcard in flashcards:
         responses.append(create_flashcard(db, user_id, flashcard))
     
-    return [FlashcardIdentity(flashcard_id=response.flashcard_id) for response in responses]
+    return {"flashcards_ids": [response.flashcard_id for response in responses]}
 
 @router.get("/find", response_model=list[int])
 def find_flashcard_by_id_endpoint(
@@ -91,11 +91,15 @@ def update_flashcard_endpoint(user: Annotated[UserIdentity, Depends(get_active_u
     update_flashcard(db, user_id, flashcard_id, new_flashcard)        
     
 @router.delete("/delete")
-def delete_flashcard_endpoint(user: Annotated[UserIdentity, Depends(get_active_user)], db: Annotated[Session, Depends(get_db)], flashcard_id: int):
+def delete_flashcard_endpoint(user: Annotated[UserIdentity, Depends(get_active_user)], db: Annotated[Session, Depends(get_db)], flashcards_ids: Annotated[List[int], Query()]):
     user_id = user.user_id
-    validade_flashcard(db, flashcard_id, user_id)
-    result = delete_flashcard(db, user_id, flashcard_id)
-    return result
+    for flashcard_id in flashcards_ids:
+        validade_flashcard(db, flashcard_id, user_id)
+    
+    for flashcard_id in flashcards_ids:
+        delete_flashcard(db, user_id, flashcard_id)
+        
+    return flashcards_ids
 
 @router.patch('/review')
 def review_flashcard_endpoint(user: Annotated[UserIdentity, Depends(get_active_user)], db: Annotated[Session, Depends(get_db)], flashcard_id: int, rating: RatingEnum):
