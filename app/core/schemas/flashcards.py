@@ -3,6 +3,12 @@ from enum import Enum
 from datetime import datetime
 from typing import List
 
+from uuid import UUID
+
+# =============================
+# ENUMS
+# =============================
+
 class FieldsEnum(str, Enum):
     front = "front"
     back = "back"
@@ -17,13 +23,14 @@ class RatingEnum(int, Enum):
     HARD = 2
     GOOD = 3
 
+# =============================
+# SCHEMAS
+# =============================
+
 class FlashcardTypes(BaseModel):
     flashcard_type_id: int
     type: str
     description: str | None = None
-
-
-
 
 class FlashcardImage(BaseModel):
     field: FieldsEnum
@@ -32,7 +39,6 @@ class FlashcardImage(BaseModel):
 class FlashcardAudio(BaseModel):
     field: FieldsEnum
     audio_url: str
-
 
 class FlashcardContent(BaseModel):
     front_field: str
@@ -45,17 +51,8 @@ class FlashcardFSRS(BaseModel):
     last_review: datetime | None = None
     state: StateEnum = StateEnum.LEARNING
 
-class FlashcardCreate(BaseModel):
-    language_id: int
-    flashcard_type_id: int
-
-    images: list[FlashcardImage] | None = None
-    audios: list[FlashcardAudio] | None = None
-    content: FlashcardContent
-
-
 class FlashcardIdentity(BaseModel):
-    flashcard_id: int
+    public_id: UUID
 
 class FlashcardReview(BaseModel):
     reviewd_at: datetime
@@ -73,12 +70,11 @@ class FlashcardReview(BaseModel):
     state_before: StateEnum
     state_after: StateEnum
 
-
 class FlashcardInfo(BaseModel):
-    flashcard_id: int
+    public_id: UUID
 
-    language_id: int
-    flashcard_type_id: int
+    language_iso_639_1: str
+    flashcard_type: str
     created_at: datetime
     updated_at: datetime
 
@@ -88,3 +84,17 @@ class FlashcardInfo(BaseModel):
     reviews: List[FlashcardReview] | None
     images: List[FlashcardImage] | None
     audios: List[FlashcardAudio] | None
+
+class FlashcardCreateInfo(BaseModel):
+    language_iso_639_1: str
+    flashcard_type_name: str
+
+    content: FlashcardContent
+    images: list[FlashcardImage] | None = None
+    audios: list[FlashcardAudio] | None = None
+
+class FlashcardCreateResponse(BaseModel):
+    public_id: UUID
+
+class FlashcardsCreateBatchReponseModel(BaseModel):
+    public_ids: list[UUID]

@@ -1,48 +1,43 @@
-from fastapi import Depends, HTTPException, status
+from fastapi import Depends
 from typing import Annotated
 from sqlalchemy.orm import Session
-from jwt import ExpiredSignatureError, InvalidTokenError
 
-from ..db.crud.user import get_user_identity_by_email
-from ..core.security import verify_token
+from jwt import ExpiredSignatureError, InvalidTokenError
+from ..core.exceptions.auth import UserNotFound, UserDisabled
+
+from ..core.security.jwt import verify_token
 from ..routes.auth import oauth2_scheme
 from .session import get_db
-from ..schemas.user import UserIdentity
+from ..core.schemas.user import UserIdentity
+from ..infrastructure.repository.users_sqlalchemy import UsersRepositorySQLAlchemy 
+from ..core.exceptions.jwt import JWTTokenExpiredSignatureError, JWTInvalidTokenError, JWTTokenMissingSubjectError
 
 def get_current_user(token: Annotated[str, Depends(oauth2_scheme)], db: Annotated[Session, Depends(get_db)])->UserIdentity:
     try:
         payload = verify_token(token)
     except ExpiredSignatureError:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Token expired",
-            headers={"WWW-Authenticate": "Bearer"}
-        )
+        raise JWTTokenExpiredSignatureError("The access token is expired.")
     except InvalidTokenError:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid token",
-            headers={"WWW-Authenticate": "Bearer"}
-        )
+        raise JWTInvalidTokenError("The access token is invalid.")
+     
+    user_id = payload.get('sub')
     
-    email = payload.get('sub')
-    if not email:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Token missing subject"
-        )
+    if not user_id:
+        raise JWTTokenMissingSubjectError("The token has no subject (sub).")    
     
-    user = get_user_identity_by_email(db, email)
+    user_repository = UsersRepositorySQLAlchemy(db)
+    
+    user = user_repository.get_by_id(user_id)
     
     if not user:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="User not found"
-        )
+        raise UserNotFound(f"The user_id {user_id} was not found in the database.")
     
-    return user
+    return UserIdentity(
+        user_id= user.user_id,
+        disabled= user.disabled
+    )
 
 def get_active_user(current_user: Annotated[UserIdentity, Depends(get_current_user)]) -> UserIdentity:
     if current_user.disabled:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Inative user")
+        raise UserDisabled(f"The user_id {current_user.user_id} is disabled.")
     return current_user

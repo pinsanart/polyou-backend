@@ -1,6 +1,14 @@
 from pydantic import BaseModel, EmailStr
 from datetime import date
-from .languages import KnownLanguageCreate, TargetLanguagesCreate
+
+class UserTargetLanguagesCreateInfo(BaseModel):
+    language_iso_639_1: str
+
+class UserTargetLanguagesRemoveInfo(BaseModel):
+    language_iso_639_1: str
+
+class UserKnownLanguageCreateInfo(BaseModel):
+    language_iso_639_1: str
 
 class UserIdentity(BaseModel):
     user_id: int
@@ -22,12 +30,4 @@ class UserLoginCredentials(BaseModel):
 class UserRegisterInformation(BaseModel):
     credentials: UserLoginCredentials
     profile: UserProfile
-    known_languages: list[KnownLanguageCreate]
-    target_languages: list[TargetLanguagesCreate]
-
-class UserCreate(BaseModel):
-    credentials: UserCredentials
-    profile: UserProfile
-    known_languages: list[KnownLanguageCreate]
-    target_languages: list[TargetLanguagesCreate]
-
+    known_languages: list[UserKnownLanguageCreateInfo]

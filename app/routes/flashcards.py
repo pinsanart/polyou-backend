@@ -1,35 +1,27 @@
-from fastapi import APIRouter, Depends, Query, HTTPException, status
+from fastapi import APIRouter, Depends, Query
 from typing import Annotated, List
 from sqlalchemy.orm import Session
-
-from ..schemas.user import UserIdentity
-from ..schemas.flashcards import (
-    FlashcardCreate, 
-    FlashcardTypes, 
-    RatingEnum, 
-    FlashcardIdentity,
-    FlashcardInfo
-)
+from uuid import UUID
 
 from ..dependencies.session import get_db
 from ..dependencies.auth import get_active_user
-from ..db.crud.flashcards import (
-    get_all_flashcards_by_user_id, 
-    create_flashcard,
-    get_flashcards_types,
-    get_flashcard_fsrs,
-    update_flashcard_fsrs,
-    delete_flashcard,
-    get_flashcard_info,
-    update_flashcard,
+
+from ..core.schemas.user import UserIdentity
+from ..core.schemas.flashcards import (
+    FlashcardCreateInfo, 
+    FlashcardCreateResponse, 
+    FlashcardsCreateBatchReponseModel,
+    FlashcardInfo
 )
-from ..services.flashcards import (
-    review_card, 
-    validade_flashcard, 
-    validade_flashcard_type, 
-    validade_flashcard_create
-)
-from ..services.languages import validade_language
+
+from ..services.flashcards_sqlalchemy import FlashcardServiceSQLAlchemy
+from ..services.user_target_language import UserTargetLanguageServiceSQLAlchemy
+from ..services.languages_sqlalchemy import LanguageServiceSQLAlchemy
+from ..services.flascards_types_sqlalchemy import FlashcardsTypesServiceSQLAlchemy
+from ..infrastructure.repository.flashcards_type_sqlalchemy import FlashcardTypesRepositorySQLAlchemy
+from ..infrastructure.repository.flashcards_sqlalchemy import FlashcardRepositorySQLAlchemy
+from ..infrastructure.repository.users_target_language import UsersTargetLanguagesRepositoriesSQLAlchemy
+from ..infrastructure.repository.languages_sqlalchemy import LanguageRepositorySQLAlchemy
 
 router = APIRouter(
     prefix="/flashcards",
@@ -37,83 +29,114 @@ router = APIRouter(
     responses={404: {"description": "Not found"}}
 )
 
-@router.post("/create")
-def create_flashcard_endpoint(user: Annotated[UserIdentity, Depends(get_active_user)], db: Annotated[Session, Depends(get_db)], flashcards: list[FlashcardCreate]):
+@router.post("/", response_model=FlashcardCreateResponse)
+def create_flashcard_endpoint(user: Annotated[UserIdentity, Depends(get_active_user)], db: Annotated[Session, Depends(get_db)], flashcard_create_info: FlashcardCreateInfo):
     user_id = user.user_id
-   
-    for flashcard in flashcards:
-        validade_flashcard_create(db, flashcard)
-    
-    responses = []
-    for flashcard in flashcards:
-        responses.append(create_flashcard(db, user_id, flashcard))
-    
-    return {"flashcards_ids": [response.flashcard_id for response in responses]}
 
-@router.get("/find", response_model=list[int])
-def find_flashcard_by_id_endpoint(
-    user: Annotated[UserIdentity, Depends(get_active_user)],
-    db: Annotated[Session, Depends(get_db)],
-    language_id: Annotated[int | None, Query()] = None,
-    flashcard_type_id: Annotated[int | None, Query()] = None
-):
+    flashcards_repository = FlashcardRepositorySQLAlchemy(db)
+    languages_repository = LanguageRepositorySQLAlchemy(db)
+    users_target_languages_repository = UsersTargetLanguagesRepositoriesSQLAlchemy(db)
+    flashcards_types_repository = FlashcardTypesRepositorySQLAlchemy(db)
+
+    flashcard_type_service = FlashcardsTypesServiceSQLAlchemy(flashcards_types_repository)
+    language_service = LanguageServiceSQLAlchemy(languages_repository)
+    user_target_language_service = UserTargetLanguageServiceSQLAlchemy(users_target_languages_repository, language_service)
+    
+    flashcard_service = FlashcardServiceSQLAlchemy(flashcards_repository, user_target_language_service, flashcard_type_service, language_service)
+
+    public_id = flashcard_service.create_one(user_id, flashcard_create_info)
+    
+    return FlashcardCreateResponse(
+        public_id = public_id
+    )
+
+@router.post("/batch")
+async def create_flashcards_endpoint(user: Annotated[UserIdentity, Depends(get_active_user)], db: Annotated[Session, Depends(get_db)], flashcards_create_info: List[FlashcardCreateInfo]):
     user_id = user.user_id
-    
-    if language_id:
-        validade_language(db, language_id)
 
-    if flashcard_type_id:
-        validade_flashcard_type(db, flashcard_type_id)
+    flashcards_repository = FlashcardRepositorySQLAlchemy(db)
+    languages_repository = LanguageRepositorySQLAlchemy(db)
+    users_target_languages_repository = UsersTargetLanguagesRepositoriesSQLAlchemy(db)
+    flashcards_types_repository = FlashcardTypesRepositorySQLAlchemy(db)
+
+    flashcard_type_service = FlashcardsTypesServiceSQLAlchemy(flashcards_types_repository)
+    language_service = LanguageServiceSQLAlchemy(languages_repository)
+    user_target_language_service = UserTargetLanguageServiceSQLAlchemy(users_target_languages_repository, language_service)
     
-    flashcards_id = get_all_flashcards_by_user_id(db, user_id, language_id, flashcard_type_id)
-        
-    return [flashcard_id.flashcard_id for flashcard_id in flashcards_id]
+    flashcard_service = FlashcardServiceSQLAlchemy(flashcards_repository, user_target_language_service, flashcard_type_service, language_service)
+    public_ids = flashcard_service.create_many(user_id, flashcards_create_info)
+
+    return FlashcardsCreateBatchReponseModel(
+        public_ids=public_ids
+    )
+
+@router.get("/")
+async def get_flashcards_public_ids(user: Annotated[UserIdentity, Depends(get_active_user)], db: Annotated[Session, Depends(get_db)]):
+    user_id = user.user_id
+
+    flashcards_repository = FlashcardRepositorySQLAlchemy(db)
+    languages_repository = LanguageRepositorySQLAlchemy(db)
+    users_target_languages_repository = UsersTargetLanguagesRepositoriesSQLAlchemy(db)
+    flashcards_types_repository = FlashcardTypesRepositorySQLAlchemy(db)
+
+    flashcard_type_service = FlashcardsTypesServiceSQLAlchemy(flashcards_types_repository)
+    language_service = LanguageServiceSQLAlchemy(languages_repository)
+    user_target_language_service = UserTargetLanguageServiceSQLAlchemy(users_target_languages_repository, language_service)
+    
+    flashcard_service = FlashcardServiceSQLAlchemy(flashcards_repository, user_target_language_service, flashcard_type_service, language_service)
+
+    public_ids = flashcard_service.list_public_ids(user_id)
+    return {"public_ids": public_ids}
+
+@router.delete("/")
+def delete_flashcard_endpoint(user: Annotated[UserIdentity, Depends(get_active_user)], db: Annotated[Session, Depends(get_db)], public_id: Annotated[UUID, Query()]):
+    user_id = user.user_id
+
+    flashcards_repository = FlashcardRepositorySQLAlchemy(db)
+    languages_repository = LanguageRepositorySQLAlchemy(db)
+    users_target_languages_repository = UsersTargetLanguagesRepositoriesSQLAlchemy(db)
+    flashcards_types_repository = FlashcardTypesRepositorySQLAlchemy(db)
+
+    flashcard_type_service = FlashcardsTypesServiceSQLAlchemy(flashcards_types_repository)
+    language_service = LanguageServiceSQLAlchemy(languages_repository)
+    user_target_language_service = UserTargetLanguageServiceSQLAlchemy(users_target_languages_repository, language_service)
+    flashcard_service = FlashcardServiceSQLAlchemy(flashcards_repository, user_target_language_service, flashcard_type_service, language_service)
+
+    flashcard_service.delete_one(user_id, public_id)
+
+    return {"deleted_public_id": public_id}
+
+@router.delete("/batch")
+def delete_flashcard_endpoint(user: Annotated[UserIdentity, Depends(get_active_user)], db: Annotated[Session, Depends(get_db)], public_ids: Annotated[List[UUID], Query()]):
+    user_id = user.user_id
+
+    flashcards_repository = FlashcardRepositorySQLAlchemy(db)
+    languages_repository = LanguageRepositorySQLAlchemy(db)
+    users_target_languages_repository = UsersTargetLanguagesRepositoriesSQLAlchemy(db)
+    flashcards_types_repository = FlashcardTypesRepositorySQLAlchemy(db)
+
+    flashcard_type_service = FlashcardsTypesServiceSQLAlchemy(flashcards_types_repository)
+    language_service = LanguageServiceSQLAlchemy(languages_repository)
+    user_target_language_service = UserTargetLanguageServiceSQLAlchemy(users_target_languages_repository, language_service)
+    flashcard_service = FlashcardServiceSQLAlchemy(flashcards_repository, user_target_language_service, flashcard_type_service, language_service)
+
+    flashcard_service.delete_many(user_id, public_ids)
+    
+    return {"deleted_public_ids": public_ids}
 
 @router.get("/info")
-def get_flashcards_info_endpoint(user: Annotated[UserIdentity, Depends(get_active_user)], db: Annotated[Session, Depends(get_db)], flashcards_ids: Annotated[List[int], Query()]) -> List[FlashcardInfo]:
+def get_flashcards_info_endpoint(user: Annotated[UserIdentity, Depends(get_active_user)], db: Annotated[Session, Depends(get_db)], public_ids: Annotated[List[UUID], Query()]) -> List[FlashcardInfo]:
     user_id = user.user_id
-    
-    for flashcard_id in flashcards_ids:
-        validade_flashcard(db, flashcard_id, user_id)
 
-    flashcards_info = []
-    for flashcard_id in flashcards_ids:
-        flashcard_info = get_flashcard_info(db, user_id, flashcard_id)
-        flashcards_info.append(flashcard_info)
-    
+    flashcards_repository = FlashcardRepositorySQLAlchemy(db)
+    languages_repository = LanguageRepositorySQLAlchemy(db)
+    users_target_languages_repository = UsersTargetLanguagesRepositoriesSQLAlchemy(db)
+    flashcards_types_repository = FlashcardTypesRepositorySQLAlchemy(db)
+
+    flashcard_type_service = FlashcardsTypesServiceSQLAlchemy(flashcards_types_repository)
+    language_service = LanguageServiceSQLAlchemy(languages_repository)
+    user_target_language_service = UserTargetLanguageServiceSQLAlchemy(users_target_languages_repository, language_service)
+    flashcard_service = FlashcardServiceSQLAlchemy(flashcards_repository, user_target_language_service, flashcard_type_service, language_service)
+
+    flashcards_info = flashcard_service.info(user_id, public_ids)
     return flashcards_info
-
-@router.put("/update")
-def update_flashcard_endpoint(user: Annotated[UserIdentity, Depends(get_active_user)], db: Annotated[Session, Depends(get_db)], flashcard_id: int, new_flashcard: FlashcardCreate):
-    user_id = user.user_id
-    validade_flashcard(db, flashcard_id, user_id)
-    validade_flashcard_create(db, new_flashcard)
-    update_flashcard(db, user_id, flashcard_id, new_flashcard)        
-    
-@router.delete("/delete")
-def delete_flashcard_endpoint(user: Annotated[UserIdentity, Depends(get_active_user)], db: Annotated[Session, Depends(get_db)], flashcards_ids: Annotated[List[int], Query()]):
-    user_id = user.user_id
-    for flashcard_id in flashcards_ids:
-        validade_flashcard(db, flashcard_id, user_id)
-    
-    for flashcard_id in flashcards_ids:
-        delete_flashcard(db, user_id, flashcard_id)
-        
-    return flashcards_ids
-
-@router.patch('/review')
-def review_flashcard_endpoint(user: Annotated[UserIdentity, Depends(get_active_user)], db: Annotated[Session, Depends(get_db)], flashcard_id: int, rating: RatingEnum):
-    user_id = user.user_id
-    validade_flashcard(db, flashcard_id, user_id)
-    flashcard_fsrs = get_flashcard_fsrs(db, flashcard_id, user_id)
-   
-    updated_flashcard = review_card(flashcard_fsrs, rating)
-
-    update_flashcard_fsrs(db, user_id, flashcard_id, updated_flashcard)
-
-    return updated_flashcard
-
-@router.get('/types', response_model=list[FlashcardTypes])
-def get_flashcard_types_endpoint(db: Annotated[Session, Depends(get_db)]):
-    flashcard_types = get_flashcards_types(db)
-    return flashcard_types

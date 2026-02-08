@@ -1,18 +1,16 @@
-from datetime import timedelta
-from typing import Annotated
-
-from fastapi import HTTPException, Depends, status, APIRouter
+from fastapi import Depends, APIRouter
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
-
+from typing import Annotated
 from sqlalchemy.orm import Session
-from ..schemas.user import UserLoginCredentials
-from ..schemas.tokens import Token
+from datetime import timedelta
 
+from ..core.security.jwt import create_access_token 
+from ..core.schemas.user import UserLoginCredentials
+from ..core.schemas.tokens import Token
 from ..dependencies.session import get_db
-from ..services.auth import authenticate_user
-from ..core.security import create_access_token
-
-ACCESS_TOKEN_EXPIRE_MINUTES = 30
+from ..infrastructure.repository.users_sqlalchemy import UsersRepositorySQLAlchemy 
+from ..services.auth_sqlalchemy import AuthServiceSQLAlchemy
+from ..core.config.config import settings
 
 router = APIRouter(
     prefix="/auth",
@@ -24,18 +22,19 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/token")
 
 @router.post("/token", tags=['auth'])
 def login_access_token(form_data: Annotated[OAuth2PasswordRequestForm, Depends()], db: Annotated[Session, Depends(get_db)]) -> Token:
-    user = authenticate_user(db, UserLoginCredentials(email=form_data.username, password=form_data.password))
+    user_repository = UsersRepositorySQLAlchemy(db)
+    auth_service = AuthServiceSQLAlchemy(user_repository)
 
-    if not user:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Incorrect username or password",
-            headers={"WWW-Authenticate": "Bearer"},
-        )
+    user_login_credentials = UserLoginCredentials(
+        email=form_data.username,
+        password=form_data.password
+    )
 
-    access_token_expire = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    user_id = auth_service.authenticate_user(user_login_credentials)
+
+    access_token_expire = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = create_access_token(
-        data = {"sub": user.email}, 
+        data = {"sub": str(user_id)}, 
         expire_delta = access_token_expire
     )
     

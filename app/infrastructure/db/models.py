@@ -4,7 +4,6 @@ from sqlalchemy import (
     String,
     Integer,
     ForeignKey,
-    SmallInteger,
     DateTime,
     Date,
     Boolean,
@@ -16,7 +15,7 @@ from typing import List, Optional
 from enum import Enum
 from datetime import datetime
 
-from ..core.utc_safe import utcnow
+from ...dependencies.time.utc_safe import utcnow
 
 # =========================================================
 # Base
@@ -124,25 +123,8 @@ class UserKnownLanguageModel(PolyouDB):
 
 
 # =========================================================
-# Target Languages / Goals / Levels
+# Target Languages
 # =========================================================
-class CEFRLevelModel(PolyouDB):
-    __tablename__ = "cefr_levels"
-
-    level_id: Mapped[int] = mapped_column(primary_key=True)
-    level: Mapped[str] = mapped_column(String(2), nullable=False, unique=True)
-
-    user_targets: Mapped[List["UserTargetLanguageModel"]] = relationship(back_populates="level")
-
-
-class GoalModel(PolyouDB):
-    __tablename__ = "goals"
-
-    goal_id: Mapped[int] = mapped_column(primary_key=True)
-    goal: Mapped[str] = mapped_column(String, nullable=False, unique=True)
-
-    user_targets: Mapped[List["UserTargetLanguageModel"]] = relationship(back_populates="goal")
-
 
 class UserTargetLanguageModel(PolyouDB):
     __tablename__ = "user_target_languages"
@@ -155,14 +137,9 @@ class UserTargetLanguageModel(PolyouDB):
         ForeignKey("languages.language_id", ondelete="CASCADE"),
         primary_key=True
     )
-    level_id: Mapped[int] = mapped_column(ForeignKey("cefr_levels.level_id"), nullable=False)
-    goal_id: Mapped[int] = mapped_column(ForeignKey("goals.goal_id"), nullable=False)
-    priority: Mapped[int] = mapped_column(SmallInteger, nullable=False)
-
+    
     user: Mapped["UserModel"] = relationship(back_populates="target_languages")
     language: Mapped["LanguageModel"] = relationship(back_populates="target_by_users")
-    level: Mapped["CEFRLevelModel"] = relationship(back_populates="user_targets")
-    goal: Mapped["GoalModel"] = relationship(back_populates="user_targets")
 
 
 # =========================================================
@@ -172,7 +149,7 @@ class FlashcardTypeModel(PolyouDB):
     __tablename__ = "flashcard_types"
 
     flashcard_type_id: Mapped[int] = mapped_column(primary_key=True)
-    type: Mapped[str] = mapped_column(String, unique=True, nullable=False)
+    name: Mapped[str] = mapped_column(String, unique=True, nullable=False)
     description: Mapped[Optional[str]] = mapped_column(String)
 
     flashcards: Mapped[List["FlashcardModel"]] = relationship(back_populates="flashcard_type")
@@ -207,6 +184,7 @@ class FlashcardModel(PolyouDB):
         cascade="all, delete-orphan",
         passive_deletes=True
     )
+
     fsrs: Mapped["FlashcardFSRSModel"] = relationship(
         back_populates="flashcard",
         uselist=False,
@@ -231,7 +209,6 @@ class FlashcardModel(PolyouDB):
         cascade="all, delete-orphan",
         passive_deletes=True
     )
-
 
 class FlashcardContentModel(PolyouDB):
     __tablename__ = "flashcards_content"
@@ -342,4 +319,3 @@ class FlashcardAudiosModel(PolyouDB):
 # =========================================================
 # from connection import engine
 # PolyouDB.metadata.create_all(engine)
-# PolyouDB.metadata.drop_all(engine)
