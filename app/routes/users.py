@@ -24,7 +24,7 @@ router = APIRouter(
     responses={404: {"description": "Not found"}}
 )
 
-@router.post("/register", status_code=status.HTTP_201_CREATED)
+@router.post("/", status_code=status.HTTP_201_CREATED)
 async def create_user_endpoint(db: Annotated[Session, Depends(get_db)], user_register_information: UserRegisterInformation):
     users_repository = UsersRepositorySQLAlchemy(db)
     languages_repository = LanguageRepositorySQLAlchemy(db)
@@ -47,7 +47,7 @@ async def add_target_language_endpoint(user: Annotated[UserIdentity, Depends(get
     
     user_target_language_repository = UsersTargetLanguagesRepositoriesSQLAlchemy(db)
     languages_repository = LanguageRepositorySQLAlchemy(db)
-    language_service = LanguagesServiceSQLAlchemy(languages_repository)
+    language_service = LanguageServiceSQLAlchemy(languages_repository)
     user_target_language_service = UserTargetLanguageServiceSQLAlchemy(user_target_language_repository, language_service)
 
     user_target_language_service.add(user_id, new_target_language_info)
@@ -59,7 +59,7 @@ async def get_user_target_languages(user: Annotated[UserIdentity, Depends(get_ac
     
     user_target_language_repository = UsersTargetLanguagesRepositoriesSQLAlchemy(db)
     languages_repository = LanguageRepositorySQLAlchemy(db)
-    language_service = LanguagesServiceSQLAlchemy(languages_repository)
+    language_service = LanguageServiceSQLAlchemy(languages_repository)
     user_target_language_service = UserTargetLanguageServiceSQLAlchemy(user_target_language_repository, language_service)
 
     languages_iso_639_1 = user_target_language_service.list_languages_iso_639_1(user_id)
