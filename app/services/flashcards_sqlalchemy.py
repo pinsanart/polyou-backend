@@ -26,7 +26,7 @@ class FlashcardServiceSQLAlchemy(FlashcardService):
     def __init__(self, flashcards_repository: FlashcardRepositorySQLAlchemy, user_target_language_service: UserTargetLanguageServiceSQLAlchemy, flashcard_type_service: FlashcardsTypesServiceSQLAlchemy, language_service: LanguageServiceSQLAlchemy):
         super().__init__(flashcards_repository, user_target_language_service, flashcard_type_service, language_service)
 
-    def create_one(self, user_id: int, flashcard_info:FlashcardCreateInfo):
+    def _to_flashcard_model(self, user_id: int, flashcard_info: FlashcardCreateInfo) -> FlashcardModel:
         language_iso_639_1 = flashcard_info.language_iso_639_1
         flashcard_type_name = flashcard_info.flashcard_type_name
 
@@ -67,52 +67,85 @@ class FlashcardServiceSQLAlchemy(FlashcardService):
             fsrs = fsrs
         )
 
-        self.flashcards_repository.create(model)
-        return model.public_id
+        return model
+
+    def _to_flashcard_info(self, flashcard_model: FlashcardModel) -> FlashcardInfo:
+        language_iso_639_1 = self.language_service.get_iso_639_1_by_id(flashcard_model.language_id)
+        flashcard_type = self.flashcard_types_service.get_name_by_id(flashcard_model.flashcard_type_id)
+
+        content = FlashcardContent(
+            front_field= flashcard_model.content.front_field_content,
+            back_field= flashcard_model.content.back_field_content
+        )
+
+        fsrs  = FlashcardFSRS(
+            stability= flashcard_model.fsrs.stability,
+            difficulty=flashcard_model.fsrs.difficulty,
+            due= flashcard_model.fsrs.due,
+            last_review= flashcard_model.fsrs.last_review,
+            state= flashcard_model.fsrs.state
+        )
+
+        reviews = [
+            FlashcardReview(
+                reviewd_at = review.reviewd_at,
+                rating = review.rating,
+                response_time_ms = review.response_time_ms,
+                
+                scheduled_days = review.scheduled_days,
+                actual_days = review.actual_days,
+
+                prev_stability = review.prev_stability,
+                prev_difficulty = review.prev_difficulty,
+                new_stability = review.new_stability,
+                new_difficulty = review.new_difficulty,
+
+                state_before = review.state_before,
+                state_after = review.state_after
+            )
+            for review in flashcard_model.reviews
+        ]
+
+        audios = [
+            FlashcardAudio(
+                field = audio.field,
+                audio_url = audio.audio_url
+            )
+            for audio in flashcard_model.audios
+        ]
+
+        images = [
+            FlashcardImage(
+                field= image.field,
+                image_url = image.image_url
+            )
+            for image in flashcard_model.images
+        ]
+
+        flashcard_info = FlashcardInfo(
+            public_id = flashcard_model.public_id,
+            language_iso_639_1 = language_iso_639_1,
+            flashcard_type = flashcard_type,
+            created_at = flashcard_model.created_at,
+            updated_at = flashcard_model.updated_at,
+            content = content,
+            fsrs= fsrs,
+            reviews= reviews,
+            audios= audios,
+            images= images
+        )
+
+        return flashcard_info
+
+    def create_one(self, user_id: int, flashcard_info:FlashcardCreateInfo):
+        flashcard_model = self._to_flashcard_model(user_id, flashcard_info)
+        self.flashcards_repository.create(flashcard_model)
+        return flashcard_model.public_id
 
     def create_many(self, user_id: int, flashcards_info: list[FlashcardCreateInfo]):
         models = []
         for flashcard_info in flashcards_info:
-            language_iso_639_1 = flashcard_info.language_iso_639_1
-            flashcard_type_name = flashcard_info.flashcard_type_name
-
-            language_id = self.user_target_language_service.get_user_language_id_by_iso_639_1(user_id, language_iso_639_1)
-            flashcard_type_id = self.flashcard_types_service.get_id_by_name_or_fail(flashcard_type_name)
-        
-            fsrs = FlashcardFSRSModel()
-
-            content = FlashcardContentModel(
-                front_field_content = flashcard_info.content.front_field, 
-                back_field_content = flashcard_info.content.front_field
-            )
-
-            images = [
-                FlashcardImagesModel(
-                    field = flashcard_image.field,
-                    image_url= flashcard_image.image_url
-                )
-                for flashcard_image in flashcard_info.images
-            ]
-
-            audios = [
-                FlashcardAudiosModel(
-                    field = flashcard_audio.field,
-                    audio_url = flashcard_audio.audio_url
-                )
-                for flashcard_audio in flashcard_info.audios
-            ]
-        
-            model = FlashcardModel(
-                user_id = user_id,
-                language_id = language_id,
-                flashcard_type_id = flashcard_type_id,
-
-                content = content,
-                images = images,
-                audios=audios,
-                fsrs = fsrs
-            )
-
+            model = self._to_flashcard_model(user_id, flashcard_info)
             models.append(model)
         
         public_ids = []
@@ -146,7 +179,6 @@ class FlashcardServiceSQLAlchemy(FlashcardService):
         flashcard_id = self.get_flashcard_id_by_public_id_or_fail(public_id, user_id)
         self.flashcards_repository.delete(flashcard_id)
 
-
     def delete_many(self, user_id, public_ids:list[UUID]):
         flashcards_ids = []
         for public_id in public_ids:
@@ -164,73 +196,8 @@ class FlashcardServiceSQLAlchemy(FlashcardService):
 
         flashcards_info = []
         for flashcard_id in flashcards_ids:
-            flashcard = self.flashcards_repository.get_by_id(flashcard_id)
-
-            language_iso_639_1 = self.language_service.get_iso_639_1_by_id(flashcard.language_id)
-            flashcard_type = self.flashcard_types_service.get_name_by_id(flashcard.flashcard_type_id)
-
-            content = FlashcardContent(
-                front_field= flashcard.content.front_field_content,
-                back_field= flashcard.content.back_field_content
-            )
-
-            fsrs  = FlashcardFSRS(
-                stability= flashcard.fsrs.stability,
-                difficulty=flashcard.fsrs.difficulty,
-                due= flashcard.fsrs.due,
-                last_review= flashcard.fsrs.last_review,
-                state= flashcard.fsrs.state
-            )
-
-            reviews = [
-                FlashcardReview(
-                    reviewd_at = review.reviewd_at,
-                    rating = review.rating,
-                    response_time_ms = review.response_time_ms,
-                    
-                    scheduled_days = review.scheduled_days,
-                    actual_days = review.actual_days,
-
-                    prev_stability = review.prev_stability,
-                    prev_difficulty = review.prev_difficulty,
-                    new_stability = review.new_stability,
-                    new_difficulty = review.new_difficulty,
-
-                    state_before = review.state_before,
-                    state_after = review.state_after
-                )
-                for review in flashcard.reviews
-            ]
-
-            audios = [
-                FlashcardAudio(
-                    field = audio.field,
-                    audio_url = audio.audio_url
-                )
-                for audio in flashcard.audios
-            ]
-
-            images = [
-                FlashcardImage(
-                    field= image.field,
-                    image_url = image.image_url
-                )
-                for image in flashcard.images
-            ]
-
-            flashcard_info = FlashcardInfo(
-                public_id = flashcard.public_id,
-                language_iso_639_1 = language_iso_639_1,
-                flashcard_type = flashcard_type,
-                created_at = flashcard.created_at,
-                updated_at = flashcard.updated_at,
-                content = content,
-                fsrs= fsrs,
-                reviews= reviews,
-                audios= audios,
-                images= images
-            )
-            
+            flashcard_model = self.flashcards_repository.get_by_id(flashcard_id)
+            flashcard_info = self._to_flashcard_info(flashcard_model)
             flashcards_info.append(flashcard_info)
 
         return flashcards_info

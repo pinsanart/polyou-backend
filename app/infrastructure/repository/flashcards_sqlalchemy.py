@@ -1,4 +1,3 @@
-# infrastructure/db/repositories/flashcard_repository_sqlalchemy.py
 from uuid import UUID
 from typing import List
 

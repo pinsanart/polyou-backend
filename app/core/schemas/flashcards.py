@@ -86,12 +86,19 @@ class FlashcardInfo(BaseModel):
     audios: List[FlashcardAudio] | None
 
 class FlashcardCreateInfo(BaseModel):
+    public_id: UUID
+
     language_iso_639_1: str
     flashcard_type_name: str
+    
+    created_at: datetime
+    updated_at: datetime
 
     content: FlashcardContent
-    images: list[FlashcardImage] | None = None
-    audios: list[FlashcardAudio] | None = None
+    fsrs: FlashcardFSRS
+    reviews: List[FlashcardReview] | None = None
+    images: List[FlashcardImage] | None = None
+    audios: List[FlashcardAudio] | None = None
 
 class FlashcardCreateResponse(BaseModel):
     public_id: UUID
