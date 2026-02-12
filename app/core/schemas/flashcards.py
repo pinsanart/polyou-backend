@@ -55,7 +55,7 @@ class FlashcardIdentity(BaseModel):
     public_id: UUID
 
 class FlashcardReview(BaseModel):
-    reviewd_at: datetime
+    reviewed_at: datetime
     rating: RatingEnum
     response_time_ms: int
     
@@ -74,7 +74,7 @@ class FlashcardInfo(BaseModel):
     public_id: UUID
 
     language_iso_639_1: str
-    flashcard_type: str
+    flashcard_type_name: str
     created_at: datetime
     updated_at: datetime
 

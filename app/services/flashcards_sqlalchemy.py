@@ -18,7 +18,8 @@ from ..infrastructure.db.models import (
     FlashcardImagesModel, 
     FlashcardAudiosModel, 
     FlashcardFSRSModel, 
-    FlashcardModel
+    FlashcardModel,
+    FlashcardReviewModel
 )
 from uuid import UUID
 
@@ -30,10 +31,17 @@ class FlashcardServiceSQLAlchemy(FlashcardService):
         language_iso_639_1 = flashcard_info.language_iso_639_1
         flashcard_type_name = flashcard_info.flashcard_type_name
 
+        public_id = flashcard_info.public_id
         language_id = self.user_target_language_service.get_user_language_id_by_iso_639_1(user_id, language_iso_639_1)
         flashcard_type_id = self.flashcard_types_service.get_id_by_name_or_fail(flashcard_type_name)
         
-        fsrs = FlashcardFSRSModel()
+        fsrs = FlashcardFSRSModel(
+            stability = flashcard_info.fsrs.stability, 
+            difficulty = flashcard_info.fsrs.difficulty,
+            due = flashcard_info.fsrs.due,
+            last_review = flashcard_info.fsrs.last_review,
+            state = flashcard_info.fsrs.state
+        )
 
         content = FlashcardContentModel(
             front_field_content = flashcard_info.content.front_field, 
@@ -56,22 +64,42 @@ class FlashcardServiceSQLAlchemy(FlashcardService):
             for flashcard_audio in flashcard_info.audios
         ]
         
+        reviews = [
+            FlashcardReviewModel (
+                reviewed_at = review.reviewed_at,
+                rating = review.rating,
+                response_time_ms = review.response_time_ms,
+                scheduled_days = review.scheduled_days,
+                actual_days = review.actual_days,
+                prev_stability = review.prev_stability,
+                prev_difficulty = review.prev_difficulty,
+                new_stability = review.new_stability,
+                new_difficulty = review.new_difficulty,
+                state_before = review.state_before,
+                state_after = review.state_after
+            )
+
+            for review in flashcard_info.reviews
+        ]
+
         model = FlashcardModel(
+            public_id = public_id,
             user_id = user_id,
             language_id = language_id,
             flashcard_type_id = flashcard_type_id,
 
             content = content,
+            fsrs = fsrs,
+            reviews = reviews,
             images = images,
             audios=audios,
-            fsrs = fsrs
         )
 
         return model
 
     def _to_flashcard_info(self, flashcard_model: FlashcardModel) -> FlashcardInfo:
         language_iso_639_1 = self.language_service.get_iso_639_1_by_id(flashcard_model.language_id)
-        flashcard_type = self.flashcard_types_service.get_name_by_id(flashcard_model.flashcard_type_id)
+        flashcard_type_name = self.flashcard_types_service.get_name_by_id(flashcard_model.flashcard_type_id)
 
         content = FlashcardContent(
             front_field= flashcard_model.content.front_field_content,
@@ -125,7 +153,7 @@ class FlashcardServiceSQLAlchemy(FlashcardService):
         flashcard_info = FlashcardInfo(
             public_id = flashcard_model.public_id,
             language_iso_639_1 = language_iso_639_1,
-            flashcard_type = flashcard_type,
+            flashcard_type_name = flashcard_type_name,
             created_at = flashcard_model.created_at,
             updated_at = flashcard_model.updated_at,
             content = content,
