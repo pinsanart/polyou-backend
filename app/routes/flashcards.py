@@ -11,7 +11,8 @@ from ..core.schemas.flashcards import (
     FlashcardCreateInfo, 
     FlashcardCreateResponse, 
     FlashcardsCreateBatchReponseModel,
-    FlashcardInfo
+    FlashcardInfo,
+    FlashcardServerInformation
 )
 
 from ..services.flashcards_sqlalchemy import FlashcardServiceSQLAlchemy
@@ -140,3 +141,39 @@ def get_flashcards_info_endpoint(user: Annotated[UserIdentity, Depends(get_activ
 
     flashcards_info = flashcard_service.info(user_id, public_ids)
     return flashcards_info
+
+@router.get("/server_information")
+def get_flashcard_server_information_endpoint(user: Annotated[UserIdentity, Depends(get_active_user)], db: Annotated[Session, Depends(get_db)], public_id: UUID) -> FlashcardServerInformation:
+    user_id = user.user_id
+
+    flashcards_repository = FlashcardRepositorySQLAlchemy(db)
+    languages_repository = LanguageRepositorySQLAlchemy(db)
+    users_target_languages_repository = UsersTargetLanguagesRepositoriesSQLAlchemy(db)
+    flashcards_types_repository = FlashcardTypesRepositorySQLAlchemy(db)
+
+    flashcard_type_service = FlashcardsTypesServiceSQLAlchemy(flashcards_types_repository)
+    language_service = LanguageServiceSQLAlchemy(languages_repository)
+    user_target_language_service = UserTargetLanguageServiceSQLAlchemy(users_target_languages_repository, language_service)
+    flashcard_service = FlashcardServiceSQLAlchemy(flashcards_repository, user_target_language_service, flashcard_type_service, language_service)
+
+    server_information = flashcard_service.server_information(user_id, public_id)
+    return server_information
+
+
+@router.get("/all_server_information")
+def get_all_flashcards_server_information_endpoint(user: Annotated[UserIdentity, Depends(get_active_user)], db: Annotated[Session, Depends(get_db)]) -> List[FlashcardServerInformation]:
+    user_id = user.user_id
+
+    flashcards_repository = FlashcardRepositorySQLAlchemy(db)
+    languages_repository = LanguageRepositorySQLAlchemy(db)
+    users_target_languages_repository = UsersTargetLanguagesRepositoriesSQLAlchemy(db)
+    flashcards_types_repository = FlashcardTypesRepositorySQLAlchemy(db)
+
+    flashcard_type_service = FlashcardsTypesServiceSQLAlchemy(flashcards_types_repository)
+    language_service = LanguageServiceSQLAlchemy(languages_repository)
+    user_target_language_service = UserTargetLanguageServiceSQLAlchemy(users_target_languages_repository, language_service)
+    flashcard_service = FlashcardServiceSQLAlchemy(flashcards_repository, user_target_language_service, flashcard_type_service, language_service)
+
+    all_flashcards_server_information = flashcard_service.all_server_information(user_id)
+
+    return all_flashcards_server_information

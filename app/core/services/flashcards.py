@@ -22,10 +22,6 @@ class FlashcardService(ABC):
     @abstractmethod
     def list_public_ids(self, user_id):
         pass
-
-    @abstractmethod
-    def get_flashcard_id_by_public_id_or_fail(self, public_id, user_id):
-        pass
     
     @abstractmethod
     def delete_one(self, user_id, public_id):
@@ -37,4 +33,12 @@ class FlashcardService(ABC):
 
     @abstractmethod
     def info(self, user_id, public_ids:list):
+        pass
+
+    @abstractmethod
+    def server_information(self, user_id, public_id):
+        pass
+
+    @abstractmethod
+    def all_server_information(self, user_id):
         pass

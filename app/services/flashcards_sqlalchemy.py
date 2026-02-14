@@ -210,7 +210,7 @@ class FlashcardServiceSQLAlchemy(FlashcardService):
         
         return public_ids
 
-    def get_flashcard_id_by_public_id_or_fail(self, public_id: UUID, user_id:int):
+    def _get_flashcard_id_by_public_id_or_fail(self, public_id: UUID, user_id:int):
         user_public_ids = self.list_public_ids(user_id)
 
         if public_id not in user_public_ids:
@@ -221,13 +221,13 @@ class FlashcardServiceSQLAlchemy(FlashcardService):
         return flashcard.flashcard_id
 
     def delete_one(self, user_id, public_id: UUID):
-        flashcard_id = self.get_flashcard_id_by_public_id_or_fail(public_id, user_id)
+        flashcard_id = self._get_flashcard_id_by_public_id_or_fail(public_id, user_id)
         self.flashcards_repository.delete(flashcard_id)
 
     def delete_many(self, user_id, public_ids:list[UUID]):
         flashcards_ids = []
         for public_id in public_ids:
-            flashcard_id = self.get_flashcard_id_by_public_id_or_fail(public_id, user_id)
+            flashcard_id = self._get_flashcard_id_by_public_id_or_fail(public_id, user_id)
             flashcards_ids.append(flashcard_id)
         
         for flashcard_id in flashcards_ids:
@@ -236,7 +236,7 @@ class FlashcardServiceSQLAlchemy(FlashcardService):
     def info(self, user_id, public_ids:list) -> list[FlashcardInfo]:
         flashcards_ids = []
         for public_id in public_ids:
-            flashcard_id = self.get_flashcard_id_by_public_id_or_fail(public_id, user_id)
+            flashcard_id = self._get_flashcard_id_by_public_id_or_fail(public_id, user_id)
             flashcards_ids.append(flashcard_id)
 
         flashcards_info = []
@@ -246,3 +246,28 @@ class FlashcardServiceSQLAlchemy(FlashcardService):
             flashcards_info.append(flashcard_info)
 
         return flashcards_info
+    
+    def server_information(self, user_id: int, public_id: UUID) -> FlashcardServerInformation:
+        flashcard_id = self._get_flashcard_id_by_public_id_or_fail(public_id, user_id)
+        flashcard_model = self.flashcards_repository.get_by_id(flashcard_id)
+        
+        return FlashcardServerInformation(
+            created_at= flashcard_model.server_information.created_at,
+            last_review_at= flashcard_model.server_information.last_review_at,
+            last_content_updated_at= flashcard_model.server_information.last_content_updated_at
+        )
+    
+    def all_server_information(self, user_id: int) -> list[FlashcardServerInformation]:
+        flashcards_ids = self.flashcards_repository.list_ids(user_id)
+        
+        server_informations = []
+        for id in flashcards_ids:
+            flashcard_model = self.flashcards_repository.get_by_id(id)
+            server_information = FlashcardServerInformation(
+                created_at= flashcard_model.server_information.created_at,
+                last_review_at= flashcard_model.server_information.last_review_at,
+                last_content_updated_at= flashcard_model.server_information.last_content_updated_at
+            )
+            server_informations.append(server_information)
+
+        return server_informations
