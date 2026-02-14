@@ -36,9 +36,9 @@ class FlashcardService(ABC):
         pass
 
     @abstractmethod
-    def server_information(self, user_id, public_id):
+    def metadata(self, user_id, public_id):
         pass
 
     @abstractmethod
-    def all_server_information(self, user_id):
+    def all_metadata(self, user_id):
         pass

@@ -12,7 +12,7 @@ from ..core.schemas.flashcards import (
     FlashcardCreateResponse, 
     FlashcardsCreateBatchReponseModel,
     FlashcardInfo,
-    FlashcardServerInformation
+    FlashcardMetadataResponse
 )
 
 from ..services.flashcards_sqlalchemy import FlashcardServiceSQLAlchemy
@@ -142,8 +142,8 @@ def get_flashcards_info_endpoint(user: Annotated[UserIdentity, Depends(get_activ
     flashcards_info = flashcard_service.info(user_id, public_ids)
     return flashcards_info
 
-@router.get("/server_information")
-def get_flashcard_server_information_endpoint(user: Annotated[UserIdentity, Depends(get_active_user)], db: Annotated[Session, Depends(get_db)], public_id: UUID) -> FlashcardServerInformation:
+@router.get("/metadata")
+def get_flashcard_metadata_endpoint(user: Annotated[UserIdentity, Depends(get_active_user)], db: Annotated[Session, Depends(get_db)], public_id: UUID) -> FlashcardMetadataResponse:
     user_id = user.user_id
 
     flashcards_repository = FlashcardRepositorySQLAlchemy(db)
@@ -156,12 +156,12 @@ def get_flashcard_server_information_endpoint(user: Annotated[UserIdentity, Depe
     user_target_language_service = UserTargetLanguageServiceSQLAlchemy(users_target_languages_repository, language_service)
     flashcard_service = FlashcardServiceSQLAlchemy(flashcards_repository, user_target_language_service, flashcard_type_service, language_service)
 
-    server_information = flashcard_service.server_information(user_id, public_id)
-    return server_information
+    metadata = flashcard_service.metadata(user_id, public_id)
+    return metadata
 
 
-@router.get("/all_server_information")
-def get_all_flashcards_server_information_endpoint(user: Annotated[UserIdentity, Depends(get_active_user)], db: Annotated[Session, Depends(get_db)]) -> List[FlashcardServerInformation]:
+@router.get("/all_metadata")
+def get_all_flashcards_metadata_endpoint(user: Annotated[UserIdentity, Depends(get_active_user)], db: Annotated[Session, Depends(get_db)]) -> List[FlashcardMetadataResponse]:
     user_id = user.user_id
 
     flashcards_repository = FlashcardRepositorySQLAlchemy(db)
@@ -174,6 +174,6 @@ def get_all_flashcards_server_information_endpoint(user: Annotated[UserIdentity,
     user_target_language_service = UserTargetLanguageServiceSQLAlchemy(users_target_languages_repository, language_service)
     flashcard_service = FlashcardServiceSQLAlchemy(flashcards_repository, user_target_language_service, flashcard_type_service, language_service)
 
-    all_flashcards_server_information = flashcard_service.all_server_information(user_id)
+    all_flashcards_metadata = flashcard_service.all_metadata(user_id)
 
-    return all_flashcards_server_information
+    return all_flashcards_metadata

@@ -7,7 +7,8 @@ from ..core.schemas.flashcards import (
     FlashcardReview,
     FlashcardAudio,
     FlashcardImage,
-    FlashcardServerInformation
+    FlashcardMetadata,
+    FlashcardMetadataResponse
 )
 from ..infrastructure.repository.flashcards_sqlalchemy import FlashcardRepositorySQLAlchemy
 from .user_target_language import UserTargetLanguageServiceSQLAlchemy
@@ -21,7 +22,7 @@ from ..infrastructure.db.models import (
     FlashcardFSRSModel, 
     FlashcardModel,
     FlashcardReviewModel,
-    FlashcardServerInformationModel
+    FlashcardMetadataModel
 )
 from uuid import UUID
 
@@ -37,14 +38,14 @@ class FlashcardServiceSQLAlchemy(FlashcardService):
         language_id = self.user_target_language_service.get_user_language_id_by_iso_639_1(user_id, language_iso_639_1)
         flashcard_type_id = self.flashcard_types_service.get_id_by_name_or_fail(flashcard_type_name)
 
-        if flashcard_info.server_information:
-            server_information = FlashcardServerInformationModel(
-                created_at = flashcard_info.server_information.created_at,
-                last_review_at = flashcard_info.server_information.last_review_at,
-                last_content_updated_at = flashcard_info.server_information.last_content_updated_at
+        if flashcard_info.metadata:
+            metadata = FlashcardMetadataModel(
+                created_at = flashcard_info.metadata.created_at,
+                last_review_at = flashcard_info.metadata.last_review_at,
+                last_content_updated_at = flashcard_info.metadata.last_content_updated_at
             )
         else:
-            server_information = FlashcardServerInformationModel()
+            metadata = FlashcardMetadataModel()
 
         fsrs = FlashcardFSRSModel(
             stability = flashcard_info.fsrs.stability, 
@@ -99,7 +100,7 @@ class FlashcardServiceSQLAlchemy(FlashcardService):
             language_id = language_id,
             flashcard_type_id = flashcard_type_id,
 
-            server_information = server_information,
+            server_metadata = metadata,
             content = content,
             fsrs = fsrs,
             reviews = reviews,
@@ -162,17 +163,17 @@ class FlashcardServiceSQLAlchemy(FlashcardService):
             for image in flashcard_model.images
         ]
 
-        server_information = FlashcardServerInformation(
-            created_at= flashcard_model.server_information.created_at,
-            last_review_at= flashcard_model.server_information.last_review_at,
-            last_content_updated_at= flashcard_model.server_information.last_content_updated_at
+        matadata = FlashcardMetadata(
+            created_at= flashcard_model.server_metadata.created_at,
+            last_review_at= flashcard_model.server_metadata.last_review_at,
+            last_content_updated_at= flashcard_model.server_metadata.last_content_updated_at
         )
 
         flashcard_info = FlashcardInfo(
             public_id = flashcard_model.public_id,
             language_iso_639_1 = language_iso_639_1,
             flashcard_type_name = flashcard_type_name,
-            server_information = server_information,
+            metadata = matadata,
             content = content,
             fsrs= fsrs,
             reviews= reviews,
@@ -247,27 +248,31 @@ class FlashcardServiceSQLAlchemy(FlashcardService):
 
         return flashcards_info
     
-    def server_information(self, user_id: int, public_id: UUID) -> FlashcardServerInformation:
+    def metadata(self, user_id: int, public_id: UUID) -> FlashcardMetadataResponse:
         flashcard_id = self._get_flashcard_id_by_public_id_or_fail(public_id, user_id)
         flashcard_model = self.flashcards_repository.get_by_id(flashcard_id)
         
-        return FlashcardServerInformation(
-            created_at= flashcard_model.server_information.created_at,
-            last_review_at= flashcard_model.server_information.last_review_at,
-            last_content_updated_at= flashcard_model.server_information.last_content_updated_at
+        return FlashcardMetadataResponse(
+            public_id = flashcard_model.public_id,
+            created_at= flashcard_model.server_metadata.created_at,
+            last_review_at= flashcard_model.server_metadata.last_review_at,
+            last_content_updated_at= flashcard_model.server_metadata.last_content_updated_at
         )
     
-    def all_server_information(self, user_id: int) -> list[FlashcardServerInformation]:
+        
+    
+    def all_metadata(self, user_id: int) -> list[FlashcardMetadataResponse]:
         flashcards_ids = self.flashcards_repository.list_ids(user_id)
         
-        server_informations = []
+        metadatas = []
         for id in flashcards_ids:
             flashcard_model = self.flashcards_repository.get_by_id(id)
-            server_information = FlashcardServerInformation(
-                created_at= flashcard_model.server_information.created_at,
-                last_review_at= flashcard_model.server_information.last_review_at,
-                last_content_updated_at= flashcard_model.server_information.last_content_updated_at
+            metadata = FlashcardMetadataResponse(
+                public_id = flashcard_model.public_id,
+                created_at= flashcard_model.server_metadata.created_at,
+                last_review_at= flashcard_model.server_metadata.last_review_at,
+                last_content_updated_at= flashcard_model.server_metadata.last_content_updated_at
             )
-            server_informations.append(server_information)
+            metadatas.append(metadata)
 
-        return server_informations
+        return metadatas

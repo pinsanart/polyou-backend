@@ -155,8 +155,8 @@ class FlashcardTypeModel(PolyouDB):
     flashcards: Mapped[List["FlashcardModel"]] = relationship(back_populates="flashcard_type")
 
 
-class FlashcardServerInformationModel(PolyouDB):
-    __tablename__ = "flashcards_server_information"
+class FlashcardMetadataModel(PolyouDB):
+    __tablename__ = "flashcards_metadata"
 
     flashcard_id: Mapped[int] = mapped_column(
         ForeignKey("flashcards.flashcard_id", ondelete="CASCADE"),
@@ -168,7 +168,7 @@ class FlashcardServerInformationModel(PolyouDB):
     last_content_updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=True)
 
     flashcard: Mapped["FlashcardModel"] = relationship(
-        back_populates="server_information",
+        back_populates="server_metadata",
         passive_deletes=True
     )
 
@@ -193,7 +193,7 @@ class FlashcardModel(PolyouDB):
     language: Mapped["LanguageModel"] = relationship(back_populates="flashcards")
     flashcard_type: Mapped["FlashcardTypeModel"] = relationship(back_populates="flashcards")
 
-    server_information: Mapped["FlashcardServerInformationModel"] = relationship(
+    server_metadata: Mapped["FlashcardMetadataModel"] = relationship(
         back_populates="flashcard",
         uselist=False,
         cascade="all, delete-orphan",
