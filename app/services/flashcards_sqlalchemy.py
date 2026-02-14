@@ -6,7 +6,8 @@ from ..core.schemas.flashcards import (
     FlashcardFSRS,
     FlashcardReview,
     FlashcardAudio,
-    FlashcardImage
+    FlashcardImage,
+    FlashcardServerInformation
 )
 from ..infrastructure.repository.flashcards_sqlalchemy import FlashcardRepositorySQLAlchemy
 from .user_target_language import UserTargetLanguageServiceSQLAlchemy
@@ -19,7 +20,8 @@ from ..infrastructure.db.models import (
     FlashcardAudiosModel, 
     FlashcardFSRSModel, 
     FlashcardModel,
-    FlashcardReviewModel
+    FlashcardReviewModel,
+    FlashcardServerInformationModel
 )
 from uuid import UUID
 
@@ -34,7 +36,16 @@ class FlashcardServiceSQLAlchemy(FlashcardService):
         public_id = flashcard_info.public_id
         language_id = self.user_target_language_service.get_user_language_id_by_iso_639_1(user_id, language_iso_639_1)
         flashcard_type_id = self.flashcard_types_service.get_id_by_name_or_fail(flashcard_type_name)
-        
+
+        if flashcard_info.server_information:
+            server_information = FlashcardServerInformationModel(
+                created_at = flashcard_info.server_information.created_at,
+                last_review_at = flashcard_info.server_information.last_review_at,
+                last_content_updated_at = flashcard_info.server_information.last_content_updated_at
+            )
+        else:
+            server_information = FlashcardServerInformationModel()
+
         fsrs = FlashcardFSRSModel(
             stability = flashcard_info.fsrs.stability, 
             difficulty = flashcard_info.fsrs.difficulty,
@@ -88,6 +99,7 @@ class FlashcardServiceSQLAlchemy(FlashcardService):
             language_id = language_id,
             flashcard_type_id = flashcard_type_id,
 
+            server_information = server_information,
             content = content,
             fsrs = fsrs,
             reviews = reviews,
@@ -116,7 +128,7 @@ class FlashcardServiceSQLAlchemy(FlashcardService):
 
         reviews = [
             FlashcardReview(
-                reviewd_at = review.reviewd_at,
+                reviewed_at = review.reviewed_at,
                 rating = review.rating,
                 response_time_ms = review.response_time_ms,
                 
@@ -150,12 +162,17 @@ class FlashcardServiceSQLAlchemy(FlashcardService):
             for image in flashcard_model.images
         ]
 
+        server_information = FlashcardServerInformation(
+            created_at= flashcard_model.server_information.created_at,
+            last_review_at= flashcard_model.server_information.last_review_at,
+            last_content_updated_at= flashcard_model.server_information.last_content_updated_at
+        )
+
         flashcard_info = FlashcardInfo(
             public_id = flashcard_model.public_id,
             language_iso_639_1 = language_iso_639_1,
             flashcard_type_name = flashcard_type_name,
-            created_at = flashcard_model.created_at,
-            updated_at = flashcard_model.updated_at,
+            server_information = server_information,
             content = content,
             fsrs= fsrs,
             reviews= reviews,
@@ -216,7 +233,7 @@ class FlashcardServiceSQLAlchemy(FlashcardService):
         for flashcard_id in flashcards_ids:
             self.flashcards_repository.delete(flashcard_id)
         
-    def info(self, user_id, public_ids:list):
+    def info(self, user_id, public_ids:list) -> list[FlashcardInfo]:
         flashcards_ids = []
         for public_id in public_ids:
             flashcard_id = self.get_flashcard_id_by_public_id_or_fail(public_id, user_id)

@@ -70,17 +70,21 @@ class FlashcardReview(BaseModel):
     state_before: StateEnum
     state_after: StateEnum
 
+class FlashcardServerInformation(BaseModel):
+    created_at: datetime
+    last_review_at: datetime | None = None
+    last_content_updated_at: datetime | None = None
+
 class FlashcardInfo(BaseModel):
     public_id: UUID
 
     language_iso_639_1: str
     flashcard_type_name: str
-    created_at: datetime
-    updated_at: datetime
-
+    
+    server_information: FlashcardServerInformation
+    
     content: FlashcardContent
     fsrs: FlashcardFSRS
-
     reviews: List[FlashcardReview] | None
     images: List[FlashcardImage] | None
     audios: List[FlashcardAudio] | None
@@ -91,8 +95,7 @@ class FlashcardCreateInfo(BaseModel):
     language_iso_639_1: str
     flashcard_type_name: str
     
-    created_at: datetime
-    updated_at: datetime
+    server_information: FlashcardServerInformation | None = None
 
     content: FlashcardContent
     fsrs: FlashcardFSRS

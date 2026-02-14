@@ -155,6 +155,23 @@ class FlashcardTypeModel(PolyouDB):
     flashcards: Mapped[List["FlashcardModel"]] = relationship(back_populates="flashcard_type")
 
 
+class FlashcardServerInformationModel(PolyouDB):
+    __tablename__ = "flashcards_server_information"
+
+    flashcard_id: Mapped[int] = mapped_column(
+        ForeignKey("flashcards.flashcard_id", ondelete="CASCADE"),
+        primary_key=True
+    )
+
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow, nullable=False)
+    last_review_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=True)
+    last_content_updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=True)
+
+    flashcard: Mapped["FlashcardModel"] = relationship(
+        back_populates="server_information",
+        passive_deletes=True
+    )
+
 class FlashcardModel(PolyouDB):
     __tablename__ = "flashcards"
 
@@ -171,12 +188,17 @@ class FlashcardModel(PolyouDB):
     user_id: Mapped[int] = mapped_column(ForeignKey("users.user_id", ondelete="CASCADE"), nullable=False)
     language_id: Mapped[int] = mapped_column(ForeignKey("languages.language_id"), nullable=False)
     flashcard_type_id: Mapped[int] = mapped_column(ForeignKey("flashcard_types.flashcard_type_id"), nullable=False)
-    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow, nullable=False)
-    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow, nullable=False)
 
     user: Mapped["UserModel"] = relationship(back_populates="flashcards")
     language: Mapped["LanguageModel"] = relationship(back_populates="flashcards")
     flashcard_type: Mapped["FlashcardTypeModel"] = relationship(back_populates="flashcards")
+
+    server_information: Mapped["FlashcardServerInformationModel"] = relationship(
+        back_populates="flashcard",
+        uselist=False,
+        cascade="all, delete-orphan",
+        passive_deletes=True
+    )
 
     content: Mapped["FlashcardContentModel"] = relationship(
         back_populates="flashcard",
@@ -217,6 +239,7 @@ class FlashcardContentModel(PolyouDB):
         ForeignKey("flashcards.flashcard_id", ondelete="CASCADE"),
         primary_key=True
     )
+
     front_field_content: Mapped[str] = mapped_column(String, nullable=False)
     back_field_content: Mapped[Optional[str]] = mapped_column(String)
 
@@ -224,7 +247,6 @@ class FlashcardContentModel(PolyouDB):
         back_populates="content",
         passive_deletes=True
     )
-
 
 class FlashcardFSRSModel(PolyouDB):
     __tablename__ = "flashcards_fsrs"
@@ -243,7 +265,6 @@ class FlashcardFSRSModel(PolyouDB):
         back_populates="fsrs",
         passive_deletes=True
     )
-
 
 class FlashcardReviewModel(PolyouDB):
     __tablename__ = "flashcards_reviews"
@@ -284,10 +305,12 @@ class FlashcardImagesModel(PolyouDB):
     __tablename__ = "flashcards_images"
 
     image_id: Mapped[int] = mapped_column(primary_key=True)
+    
     flashcard_id: Mapped[int] = mapped_column(
         ForeignKey("flashcards.flashcard_id", ondelete="CASCADE"),
         nullable=False
     )
+
     field: Mapped[Fields] = mapped_column(SQLEnum(Fields), nullable=False)
     image_url: Mapped[str] = mapped_column(String, nullable=False)
 
