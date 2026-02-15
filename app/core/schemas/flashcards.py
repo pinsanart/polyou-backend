@@ -74,6 +74,8 @@ class FlashcardMetadata(BaseModel):
     created_at: datetime
     last_review_at: datetime | None = None
     last_content_updated_at: datetime | None = None
+    last_image_updated_at: datetime | None = None
+    last_audio_updated_at: datetime | None = None
 
 class FlashcardMetadataResponse(FlashcardMetadata):
     public_id: UUID

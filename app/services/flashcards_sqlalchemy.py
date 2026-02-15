@@ -42,7 +42,9 @@ class FlashcardServiceSQLAlchemy(FlashcardService):
             metadata = FlashcardMetadataModel(
                 created_at = flashcard_info.metadata.created_at,
                 last_review_at = flashcard_info.metadata.last_review_at,
-                last_content_updated_at = flashcard_info.metadata.last_content_updated_at
+                last_content_updated_at = flashcard_info.metadata.last_content_updated_at,
+                last_image_updated_at = flashcard_info.metadata.last_image_updated_at,
+                last_audio_updated_at = flashcard_info.metadata.last_audio_updated_at
             )
         else:
             metadata = FlashcardMetadataModel()
@@ -166,7 +168,9 @@ class FlashcardServiceSQLAlchemy(FlashcardService):
         matadata = FlashcardMetadata(
             created_at= flashcard_model.server_metadata.created_at,
             last_review_at= flashcard_model.server_metadata.last_review_at,
-            last_content_updated_at= flashcard_model.server_metadata.last_content_updated_at
+            last_content_updated_at= flashcard_model.server_metadata.last_content_updated_at,
+            last_image_updated_at= flashcard_model.server_metadata.last_image_updated_at,
+            last_audio_updated_at= flashcard_model.server_metadata.last_audio_updated_at
         )
 
         flashcard_info = FlashcardInfo(

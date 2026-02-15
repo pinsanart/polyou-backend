@@ -76,7 +76,6 @@ class UserModel(PolyouDB):
         cascade="all, delete-orphan"
     )
 
-
 class UserProfileModel(PolyouDB):
     __tablename__ = "users_profile"
 
@@ -166,6 +165,8 @@ class FlashcardMetadataModel(PolyouDB):
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow, nullable=False)
     last_review_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=True)
     last_content_updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=True)
+    last_image_updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=True)
+    last_audio_updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=True)
 
     flashcard: Mapped["FlashcardModel"] = relationship(
         back_populates="server_metadata",
