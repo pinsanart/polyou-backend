@@ -1,7 +1,4 @@
-from sqlalchemy import update
 from sqlalchemy.orm import Session
-
-from uuid import UUID
 
 from ...core.repositories.flashcard_content import FlashcardContentRepository
 from ...core.schemas.flashcards import FlashcardContent
