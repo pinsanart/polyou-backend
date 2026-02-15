@@ -215,7 +215,7 @@ class FlashcardServiceSQLAlchemy(FlashcardService):
         
         return public_ids
 
-    def _get_flashcard_id_by_public_id_or_fail(self, public_id: UUID, user_id:int):
+    def get_flashcard_id_by_public_id_or_fail(self, public_id: UUID, user_id:int):
         user_public_ids = self.list_public_ids(user_id)
 
         if public_id not in user_public_ids:
@@ -226,13 +226,13 @@ class FlashcardServiceSQLAlchemy(FlashcardService):
         return flashcard.flashcard_id
 
     def delete_one(self, user_id, public_id: UUID):
-        flashcard_id = self._get_flashcard_id_by_public_id_or_fail(public_id, user_id)
+        flashcard_id = self.get_flashcard_id_by_public_id_or_fail(public_id, user_id)
         self.flashcards_repository.delete(flashcard_id)
 
     def delete_many(self, user_id, public_ids:list[UUID]):
         flashcards_ids = []
         for public_id in public_ids:
-            flashcard_id = self._get_flashcard_id_by_public_id_or_fail(public_id, user_id)
+            flashcard_id = self.get_flashcard_id_by_public_id_or_fail(public_id, user_id)
             flashcards_ids.append(flashcard_id)
         
         for flashcard_id in flashcards_ids:
@@ -241,7 +241,7 @@ class FlashcardServiceSQLAlchemy(FlashcardService):
     def info(self, user_id, public_ids:list) -> list[FlashcardInfo]:
         flashcards_ids = []
         for public_id in public_ids:
-            flashcard_id = self._get_flashcard_id_by_public_id_or_fail(public_id, user_id)
+            flashcard_id = self.get_flashcard_id_by_public_id_or_fail(public_id, user_id)
             flashcards_ids.append(flashcard_id)
 
         flashcards_info = []
@@ -253,7 +253,7 @@ class FlashcardServiceSQLAlchemy(FlashcardService):
         return flashcards_info
     
     def metadata(self, user_id: int, public_id: UUID) -> FlashcardMetadataResponse:
-        flashcard_id = self._get_flashcard_id_by_public_id_or_fail(public_id, user_id)
+        flashcard_id = self.get_flashcard_id_by_public_id_or_fail(public_id, user_id)
         flashcard_model = self.flashcards_repository.get_by_id(flashcard_id)
         
         return FlashcardMetadataResponse(

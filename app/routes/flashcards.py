@@ -12,17 +12,20 @@ from ..core.schemas.flashcards import (
     FlashcardCreateResponse, 
     FlashcardsCreateBatchReponseModel,
     FlashcardInfo,
-    FlashcardMetadataResponse
+    FlashcardMetadataResponse,
+    FlashcardContent
 )
 
 from ..services.flashcards_sqlalchemy import FlashcardServiceSQLAlchemy
 from ..services.user_target_language import UserTargetLanguageServiceSQLAlchemy
 from ..services.languages_sqlalchemy import LanguageServiceSQLAlchemy
 from ..services.flascards_types_sqlalchemy import FlashcardsTypesServiceSQLAlchemy
+from ..services.flashcard_content_sqlalchemy import FlashcardContentServiceSQLAlchemy
 from ..infrastructure.repository.flashcards_type_sqlalchemy import FlashcardTypesRepositorySQLAlchemy
 from ..infrastructure.repository.flashcards_sqlalchemy import FlashcardRepositorySQLAlchemy
 from ..infrastructure.repository.users_target_language import UsersTargetLanguagesRepositoriesSQLAlchemy
 from ..infrastructure.repository.languages_sqlalchemy import LanguageRepositorySQLAlchemy
+from ..infrastructure.repository.flashcard_content_sqlalchemy import FlashcardContentRepositorySQLAlchemy
 
 router = APIRouter(
     prefix="/flashcards",
@@ -177,3 +180,23 @@ def get_all_flashcards_metadata_endpoint(user: Annotated[UserIdentity, Depends(g
     all_flashcards_metadata = flashcard_service.all_metadata(user_id)
 
     return all_flashcards_metadata
+
+@router.patch("/update/content", response_model=FlashcardContent)
+def update_flashcard_content_endpoint(user: Annotated[UserIdentity, Depends(get_active_user)], db: Annotated[Session, Depends(get_db)], public_id: UUID, new_content: FlashcardContent):
+    user_id = user.user_id
+
+    flashcards_repository = FlashcardRepositorySQLAlchemy(db)
+    languages_repository = LanguageRepositorySQLAlchemy(db)
+    users_target_languages_repository = UsersTargetLanguagesRepositoriesSQLAlchemy(db)
+    flashcards_types_repository = FlashcardTypesRepositorySQLAlchemy(db)
+    flashcard_content_repository = FlashcardContentRepositorySQLAlchemy(db)
+
+    flashcard_type_service = FlashcardsTypesServiceSQLAlchemy(flashcards_types_repository)
+    language_service = LanguageServiceSQLAlchemy(languages_repository)
+    user_target_language_service = UserTargetLanguageServiceSQLAlchemy(users_target_languages_repository, language_service)
+    flashcard_service = FlashcardServiceSQLAlchemy(flashcards_repository, user_target_language_service, flashcard_type_service, language_service)
+    
+    flashcard_content_service = FlashcardContentServiceSQLAlchemy(flashcard_content_repository, flashcard_service)
+    flashcard_content_service.change(user_id, public_id, new_content)
+
+    return new_content
