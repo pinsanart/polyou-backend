@@ -1,4 +1,4 @@
-from ..core.services.languages import LanguageService
+from ..core.services.languages.languages import LanguageService
 from ..infrastructure.repository.languages_sqlalchemy import LanguageRepositorySQLAlchemy
 from ..core.exceptions.languages import LanguageNotAvailableError
 

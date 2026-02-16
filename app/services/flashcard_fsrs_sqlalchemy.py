@@ -1,6 +1,6 @@
 from uuid import UUID
 
-from ..core.services.flashcard_fsrs import FlashcardFSRSService
+from ..core.services.flashcards.flashcard_fsrs import FlashcardFSRSService
 from ..infrastructure.repository.flashcard_fsrs_sqlalchemy import FlashcardFSRSRepositorySQLAlchemy
 from ..services.flashcards_sqlalchemy import FlashcardServiceSQLAlchemy
 from ..core.schemas.flashcards import FlashcardFSRS

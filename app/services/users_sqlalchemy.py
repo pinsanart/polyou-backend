@@ -1,4 +1,4 @@
-from ..core.services.users import UserService
+from ..core.services.users.users import UserService
 from ..infrastructure.repository.users_sqlalchemy import UsersRepositorySQLAlchemy
 from ..core.exceptions.user import EmailAlreadyExistsError
 from ..core.security.password import hash_password
@@ -16,7 +16,8 @@ from ..infrastructure.db.models import (
 
 class UserServiceSQLAlchemy(UserService):
     def __init__(self, users_repository: UsersRepositorySQLAlchemy, language_service: LanguageServiceSQLAlchemy):
-        super().__init__(users_repository, language_service)
+        self.users_repository = users_repository
+        self.language_service = language_service
     
     def register(self, register_information:UserRegisterInformation) -> int:
         email = register_information.credentials.email

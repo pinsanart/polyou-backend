@@ -7,10 +7,12 @@ from datetime import timedelta
 from ..core.security.jwt import create_access_token 
 from ..core.schemas.user import UserLoginCredentials
 from ..core.schemas.tokens import Token
-from ..dependencies.session import get_db
-from ..infrastructure.repository.users_sqlalchemy import UsersRepositorySQLAlchemy 
 from ..services.auth_sqlalchemy import AuthServiceSQLAlchemy
 from ..core.config.config import settings
+
+from ..dependencies.session import get_db
+from ..dependencies.sqlalchemy.factory import AppFactory
+from ..dependencies.sqlalchemy.container import Container
 
 router = APIRouter(
     prefix="/auth",
@@ -22,9 +24,11 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/token")
 
 @router.post("/token", tags=['auth'])
 def login_access_token(form_data: Annotated[OAuth2PasswordRequestForm, Depends()], db: Annotated[Session, Depends(get_db)]) -> Token:
-    user_repository = UsersRepositorySQLAlchemy(db)
-    auth_service = AuthServiceSQLAlchemy(user_repository)
+    container = Container(db)
+    factory = AppFactory(container)
 
+    auth_service = factory.create(AuthServiceSQLAlchemy)
+    
     user_login_credentials = UserLoginCredentials(
         email=form_data.username,
         password=form_data.password

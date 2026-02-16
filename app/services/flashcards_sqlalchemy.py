@@ -1,4 +1,4 @@
-from ..core.services.flashcards import FlashcardService
+from ..core.services.flashcards.flashcards import FlashcardService
 from ..core.schemas.flashcards import (
     FlashcardCreateInfo, 
     FlashcardInfo,
@@ -28,7 +28,10 @@ from uuid import UUID
 
 class FlashcardServiceSQLAlchemy(FlashcardService):
     def __init__(self, flashcards_repository: FlashcardRepositorySQLAlchemy, user_target_language_service: UserTargetLanguageServiceSQLAlchemy, flashcard_type_service: FlashcardsTypesServiceSQLAlchemy, language_service: LanguageServiceSQLAlchemy):
-        super().__init__(flashcards_repository, user_target_language_service, flashcard_type_service, language_service)
+        self.flashcards_repository = flashcards_repository
+        self.user_target_language_service = user_target_language_service
+        self.flashcard_type_service = flashcard_type_service
+        self.language_service = language_service
 
     def _to_flashcard_model(self, user_id: int, flashcard_info: FlashcardCreateInfo) -> FlashcardModel:
         language_iso_639_1 = flashcard_info.language_iso_639_1
@@ -36,7 +39,7 @@ class FlashcardServiceSQLAlchemy(FlashcardService):
 
         public_id = flashcard_info.public_id
         language_id = self.user_target_language_service.get_user_language_id_by_iso_639_1(user_id, language_iso_639_1)
-        flashcard_type_id = self.flashcard_types_service.get_id_by_name_or_fail(flashcard_type_name)
+        flashcard_type_id = self.flashcard_type_service.get_id_by_name_or_fail(flashcard_type_name)
 
         if flashcard_info.metadata:
             metadata = FlashcardMetadataModel(
@@ -114,7 +117,7 @@ class FlashcardServiceSQLAlchemy(FlashcardService):
 
     def _to_flashcard_info(self, flashcard_model: FlashcardModel) -> FlashcardInfo:
         language_iso_639_1 = self.language_service.get_iso_639_1_by_id(flashcard_model.language_id)
-        flashcard_type_name = self.flashcard_types_service.get_name_by_id(flashcard_model.flashcard_type_id)
+        flashcard_type_name = self.flashcard_type_service.get_name_by_id(flashcard_model.flashcard_type_id)
 
         content = FlashcardContent(
             front_field= flashcard_model.content.front_field_content,

@@ -1,4 +1,4 @@
-from ..core.services.flashcard_image import FlashcardImageService
+from ..core.services.flashcards.flashcard_image import FlashcardImageService
 from ..infrastructure.repository.flashcard_image_sqlalchemy import FlashcardImagesRepositorySQLAlchemy
 from ..core.schemas.flashcards import FlashcardImage
 from ..services.flashcards_sqlalchemy import FlashcardServiceSQLAlchemy

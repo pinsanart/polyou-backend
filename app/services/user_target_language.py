@@ -1,4 +1,4 @@
-from ..core.services.users_target_languages import UserTargetLanguageService
+from ..core.services.users.users_target_languages import UserTargetLanguageService
 from ..infrastructure.repository.users_target_language import UsersTargetLanguagesRepositoriesSQLAlchemy
 from ..services.languages_sqlalchemy import LanguageServiceSQLAlchemy
 from ..core.schemas.user import UserTargetLanguagesCreateInfo, UserTargetLanguagesRemoveInfo
@@ -6,25 +6,26 @@ from ..core.exceptions.user_flashcard_target import TargetLanguageAlreadyExistsE
 
 class UserTargetLanguageServiceSQLAlchemy(UserTargetLanguageService):
     def __init__(self, users_target_language_repository: UsersTargetLanguagesRepositoriesSQLAlchemy, language_service: LanguageServiceSQLAlchemy):
-        super().__init__(users_target_language_repository, language_service)
+        self.users_target_language_repository = users_target_language_repository
+        self.language_service = language_service
     
     def add(self, user_id: int, target_language_add_info:UserTargetLanguagesCreateInfo) -> None:
         language_iso_639_1 = target_language_add_info.language_iso_639_1
         language_id = self.language_service.get_id_by_iso_639_1_or_fail(language_iso_639_1)
 
-        target_language = self.user_target_language_repository.get(user_id, language_id)
+        target_language = self.users_target_language_repository.get(user_id, language_id)
         if target_language:
            raise TargetLanguageAlreadyExistsError(f"The user already has registered the language ISO 639-1 '{language_iso_639_1}'.")
 
-        self.user_target_language_repository.insert(user_id, language_id)
+        self.users_target_language_repository.insert(user_id, language_id)
 
     def remove(self, user_id, target_language_remove_info:UserTargetLanguagesRemoveInfo) -> None:
         language_iso_639_1 = target_language_remove_info.language_iso_639_1
         language_id = self.language_service.get_id_by_iso_639_1_or_fail(language_iso_639_1)
-        self.user_target_language_repository.delete(user_id, language_id)
+        self.users_target_language_repository.delete(user_id, language_id)
 
     def list_languages_iso_639_1(self, user_id):
-        languages_ids = self.user_target_language_repository.list_user_target_languages_ids(user_id)
+        languages_ids = self.users_target_language_repository.list_user_target_languages_ids(user_id)
         languages_iso_639_1 = [
             self.language_service.get_iso_639_1_by_id(language_id)
             for language_id in languages_ids

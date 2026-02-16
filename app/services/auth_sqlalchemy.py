@@ -5,11 +5,11 @@ from ..core.exceptions.auth import (
     UserDisabled
 )
 from ..core.security.password import verify_password_hash
-from ..core.services.auth import AuthService
+from ..core.services.auth.auth import AuthService
 
 class AuthServiceSQLAlchemy(AuthService):
     def __init__(self, users_repository:UsersRepositorySQLAlchemy):
-        super().__init__(users_repository)
+        self.users_repository = users_repository
     
     def authenticate_user(self, login_credentials:UserLoginCredentials):
         login_email = login_credentials.email

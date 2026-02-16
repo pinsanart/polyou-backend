@@ -3,6 +3,9 @@ from fastapi.responses import JSONResponse
 from .core.config.config import settings
 from .routes import auth, users, languages, flashcards
 
+import app.dependencies.sqlalchemy.registrations.repositories
+import app.dependencies.sqlalchemy.registrations.services
+
 from .core.exceptions.jwt import (
     JWTTokenMissingSubjectError,
     JWTInvalidTokenError,

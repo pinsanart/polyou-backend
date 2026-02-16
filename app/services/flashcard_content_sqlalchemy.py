@@ -1,6 +1,6 @@
 from uuid import UUID
 
-from ..core.services.flashcard_content import FlashcardContentService
+from ..core.services.flashcards.flashcard_content import FlashcardContentService
 from ..infrastructure.repository.flashcard_content_sqlalchemy import FlashcardContentRepositorySQLAlchemy
 from ..services.flashcards_sqlalchemy import FlashcardServiceSQLAlchemy
 
