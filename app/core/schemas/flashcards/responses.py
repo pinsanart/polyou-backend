@@ -10,7 +10,8 @@ from .bases import (
 from .requests import (
     FlashcardContentRequest,
     FlashcardFSRSRequest,
-    FlashcardImageRequest
+    FlashcardImageRequest,
+    FlashcardReviewRequest
 )
 
 from ..languages.bases import ISOCode
@@ -48,4 +49,7 @@ class FlaschardAllMetadataResponse(BaseModel):
     metadatas: List[FlashcardMetadataResponse]
 
 class FlashcardImageResponse(FlashcardImageRequest):
+    pass
+
+class FlashcardReviewResponse(FlashcardReviewRequest):
     pass

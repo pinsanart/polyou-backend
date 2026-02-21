@@ -6,6 +6,7 @@ from ....infrastructure.repository.sqlalchemy.flashcards.flashcard_image       i
 from ....infrastructure.repository.sqlalchemy.flashcards.flashcard             import FlashcardRepositorySQLAlchemy
 from ....infrastructure.repository.sqlalchemy.flashcards.flashcard_type        import FlashcardTypeRepositorySQLAlchemy
 from ....infrastructure.repository.sqlalchemy.flashcards.flashcard_metadata    import FlashcardMetadataRepositorySQLAlchemy
+from ....infrastructure.repository.sqlalchemy.flashcards.flashcard_review      import FlashcardReviewRepositorySQLAlchemy
 from ....infrastructure.repository.sqlalchemy.languages.language               import LanguageRepositorySQLAlchemy
 from ....infrastructure.repository.sqlalchemy.users.user_target_language       import UsersTargetLanguagesRepositorySQLAlchemy
 from ....infrastructure.repository.sqlalchemy.users.user                       import UserRepositorySQLAlchemy
@@ -24,6 +25,10 @@ def build_flashcard_fsrs_repository(factory: AppFactory):
 @AppFactory.register(FlashcardImageRepositorySQLAlchemy)
 def build_flashcard_image_repository(factory: AppFactory):
     return FlashcardImageRepositorySQLAlchemy(factory.container.db)
+
+@AppFactory.register(FlashcardReviewRepositorySQLAlchemy)
+def build_flashcard_review_repository(factory: AppFactory):
+    return FlashcardReviewRepositorySQLAlchemy(factory.container.db)
 
 @AppFactory.register(FlashcardRepositorySQLAlchemy)
 def build_flashcard_repository(factory: AppFactory):

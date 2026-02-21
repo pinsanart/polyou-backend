@@ -3,7 +3,8 @@ from .bases import (
     FlashcardContentBase,
     FlashcardFSRSBase,
     FlashcardImageBase,
-    FlashcardTypeBase
+    FlashcardTypeBase,
+    FlashcardReviewBase
 )
 
 from ..languages.bases import ISOCode
@@ -22,4 +23,7 @@ class FlashcardImageRequest(FlashcardImageBase):
     pass
 
 class FlashcardTypeRequest(FlashcardTypeBase):
+    pass
+
+class FlashcardReviewRequest(FlashcardReviewBase):
     pass
