@@ -13,6 +13,7 @@ from ....infrastructure.repository.sqlalchemy.users.user_credentials            
 from ....infrastructure.repository.sqlalchemy.users.user_metadata               import UserMetadataRepositorySQLAlchemy
 from ....infrastructure.repository.sqlalchemy.users.user_profile                import UserProfileRepositorySQLAlchemy
 from ....infrastructure.repository.sqlalchemy.flashcards.flashcard_review       import FlashcardReviewRepositorySQLAlchemy
+from ....infrastructure.repository.sqlalchemy.flashcards.flashcard_audio        import FlashcardAudioRepositorySQLAlchemy
 
 from ....services.sqlalchemy.auth.auth                                          import AuthServiceSQLAlchemy
 from ....services.sqlalchemy.users.user_target_language                         import UserTargetLanguageServiceSQLAlchemy
@@ -28,6 +29,7 @@ from ....services.sqlalchemy.flashcards.flashcard_type                          
 from ....services.sqlalchemy.flashcards.flashcard_metadata                      import FlashcardMetadataServiceSQLAlchemy
 from ....services.sqlalchemy.languages.language                                 import LanguageServiceSQLAlchemy
 from ....services.sqlalchemy.flashcards.flashcard_review                        import FlashcardReviewServiceSQLAlchemy
+from ....services.sqlalchemy.flashcards.flashcard_audio                         import FlashcardAudioServiceSQLAlchemy
 
 from ....mappers.flashcard_request                                              import FlashcardRequestMapper
 
@@ -35,6 +37,12 @@ from ....mappers.flashcard_request                                              
 def build_user_credentials_service(factory: AppFactory):
     return UserCredentialsServiceSQLAlchemy(
         user_credentials_repository= factory.create(UserCredentialsRepositorySQLAlchemy)
+    )
+
+@AppFactory.register(FlashcardAudioServiceSQLAlchemy)
+def build_flashcard_audio_service(factory: AppFactory):
+    return FlashcardAudioServiceSQLAlchemy(
+        flashcard_audio_repository= factory.create(FlashcardAudioRepositorySQLAlchemy)
     )
 
 @AppFactory.register(UserProfileServiceSQLAlchemy)

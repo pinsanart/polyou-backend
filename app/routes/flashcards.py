@@ -9,6 +9,7 @@ from ..services.sqlalchemy.flashcards.flashcard_metadata import FlashcardMetadat
 from ..services.sqlalchemy.flashcards.flashcard_fsrs import FlashcardFSRSServiceSQLAlchemy
 from ..services.sqlalchemy.flashcards.flashcard_image import FlashcadImageServiceSQLAlchemy
 from ..services.sqlalchemy.flashcards.flashcard_review import FlashcardReviewServiceSQLAlchemy
+from ..services.sqlalchemy.flashcards.flashcard_audio import FlashcardAudioServiceSQLAlchemy
 
 from ..dependencies.session import get_db
 from ..dependencies.sqlalchemy.auth.auth import get_active_user
@@ -35,7 +36,8 @@ from ..core.schemas.flashcards.requests import (
     FlashcardContentRequest,
     FlashcardFSRSRequest,
     FlashcardImageRequest,
-    FlashcardReviewRequest
+    FlashcardReviewRequest,
+    FlashcardAudioRequest
 )
 
 from ..dependencies.sqlalchemy.factory import AppFactory
@@ -188,13 +190,23 @@ def update_flashcard_reviews(user: Annotated[UserIdentityResponse, Depends(get_a
 
     return [FlashcardReviewResponse(**review.model_dump()) for review in new_reviews]
 
-'''
 @router.patch("/audios")
-def update_flashcard_audio(user: Annotated[UserIdentityResponse, Depends(get_active_user)], db: Annotated[Session, Depends(get_db)]):
-    pass
+def update_flashcard_audio(user: Annotated[UserIdentityResponse, Depends(get_active_user)], db: Annotated[Session, Depends(get_db)], public_id: UUID, new_audios: Annotated[List[FlashcardAudioRequest], Body()]):
+    user_id = user.user_id
+    container = Container(db)
+    factory = AppFactory(container)
 
+    flashcard_service = factory.create(FlashcardServiceSQLAlchemy)
+    flashcard_id = flashcard_service.get_id_by_public_id_or_fail(user_id, public_id)
+
+    flashcard_audio_service:FlashcardAudioServiceSQLAlchemy = factory.create(FlashcardAudioServiceSQLAlchemy)
+    flashcard_audio_service.change(flashcard_id, new_audios)
+
+    return new_audios
+
+'''
 @router.patch("/metadata")
-def updated_flashcard_metadata():
+def update_flashcard_metadata():
     pass
 '''
 

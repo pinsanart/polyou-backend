@@ -7,6 +7,7 @@ from ....infrastructure.repository.sqlalchemy.flashcards.flashcard             i
 from ....infrastructure.repository.sqlalchemy.flashcards.flashcard_type        import FlashcardTypeRepositorySQLAlchemy
 from ....infrastructure.repository.sqlalchemy.flashcards.flashcard_metadata    import FlashcardMetadataRepositorySQLAlchemy
 from ....infrastructure.repository.sqlalchemy.flashcards.flashcard_review      import FlashcardReviewRepositorySQLAlchemy
+from ....infrastructure.repository.sqlalchemy.flashcards.flashcard_audio       import FlashcardAudioRepositorySQLAlchemy
 from ....infrastructure.repository.sqlalchemy.languages.language               import LanguageRepositorySQLAlchemy
 from ....infrastructure.repository.sqlalchemy.users.user_target_language       import UsersTargetLanguagesRepositorySQLAlchemy
 from ....infrastructure.repository.sqlalchemy.users.user                       import UserRepositorySQLAlchemy
@@ -17,6 +18,10 @@ from ....infrastructure.repository.sqlalchemy.users.user_profile               i
 @AppFactory.register(FlashcardContentRepositorySQLAlchemy)
 def build_flashcard_content_repository(factory: AppFactory):
     return FlashcardContentRepositorySQLAlchemy(factory.container.db)
+
+@AppFactory.register(FlashcardAudioRepositorySQLAlchemy)
+def build_flashcard_audio_repository(factory: AppFactory):
+    return FlashcardAudioRepositorySQLAlchemy(factory.container.db)
 
 @AppFactory.register(FlashcardFSRSRepositorySQLAlchemy)
 def build_flashcard_fsrs_repository(factory: AppFactory):
