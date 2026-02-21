@@ -20,7 +20,7 @@ class FlashcardMetadataServiceSQLAlchemy(FlashcardMetadataService):
         return [FlashcardMetadata.model_validate(model) for model in flashcard_metadata_models]
 
     def change(self, id, new_metadata: FlashcardMetadataBase) -> None:
-        flashcard_metadata_model = self.flashcard_metadata_repository.get(id)
+        flashcard_metadata_model = self.flashcard_metadata_repository.get_one(id)
 
         if not flashcard_metadata_model:
             raise ValueError(f"Flashcard with id={id} not found.")

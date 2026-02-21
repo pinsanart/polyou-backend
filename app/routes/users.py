@@ -29,7 +29,7 @@ router = APIRouter(
 )
 
 @router.post("/", status_code=status.HTTP_201_CREATED, response_model=Token)
-async def create_user_endpoint(db: Annotated[Session, Depends(get_db)], user_register_information: UserCreateInfo):
+async def create_user(db: Annotated[Session, Depends(get_db)], user_register_information: UserCreateInfo):
     container = Container(db)
     factory = AppFactory(container)
 
@@ -46,7 +46,7 @@ async def create_user_endpoint(db: Annotated[Session, Depends(get_db)], user_reg
     return Token(access_token=access_token, token_type='bearer')
 
 @router.post("/me/target_languages", status_code=status.HTTP_201_CREATED, response_model=UserTargetLanguageCreateResponse)
-async def add_target_language_endpoint(
+async def add_target_language(
     user: Annotated[UserIdentityResponse, Depends(get_active_user)], 
     db: Annotated[Session, Depends(get_db)], 
     new_target_language_info: UserTargetLanguageCreateRequest

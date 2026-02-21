@@ -16,7 +16,7 @@ router = APIRouter(
 )
 
 @router.get("/", response_model=AvailableLanguageResponse)
-def get_available_languages_endpoint(db:Annotated[Session, Depends(get_db)]):
+def get_available_languages(db:Annotated[Session, Depends(get_db)]):
     container = Container(db)
     factory = AppFactory(container)
 

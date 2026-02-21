@@ -5,7 +5,8 @@ from .bases import (
     FlashcardImageBase,
     FlashcardTypeBase,
     FlashcardReviewBase,
-    FlashcardAudioBase
+    FlashcardAudioBase,
+    FlashcardMetadataBase
 )
 
 from ..languages.bases import ISOCode
@@ -30,4 +31,7 @@ class FlashcardReviewRequest(FlashcardReviewBase):
     pass
 
 class FlashcardAudioRequest(FlashcardAudioBase):
+    pass
+
+class FlashcardMetadataRequest(FlashcardMetadataBase):
     pass
