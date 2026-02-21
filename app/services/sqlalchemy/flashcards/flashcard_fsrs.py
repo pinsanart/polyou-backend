@@ -2,7 +2,6 @@ from ....core.services.flashcards.flashcard_fsrs import FlashcardFSRSService
 from ....infrastructure.repository.sqlalchemy.flashcards.flashcard_fsrs import FlashcardFSRSRepositorySQLAlchemy
 from ....core.schemas.flashcards.bases import FlashcardFSRSBase
 from ....core.schemas.flashcards.models import FlashcardFSRS
-from ....core.exceptions.flashcard_fsrs import FlashcardFSRSDoesNotExistError
 
 class FlashcardFSRSServiceSQLAlchemy(FlashcardFSRSService):
     def __init__(self, flashcard_fsrs_repository: FlashcardFSRSRepositorySQLAlchemy):
@@ -12,14 +11,14 @@ class FlashcardFSRSServiceSQLAlchemy(FlashcardFSRSService):
         flashcard_fsrs_model = self.flashcard_fsrs_repository.get(id)
 
         if not flashcard_fsrs_model:
-            raise FlashcardFSRSDoesNotExistError(f"Flashcard FSRS with id={id} not found.")
+            raise ValueError(f"Flashcard FSRS with id={id} not found.")
 
         return FlashcardFSRS.model_validate(flashcard_fsrs_model)
 
-    def change(self, id: int, new_fsrs: FlashcardFSRSBase):
+    def change(self, id: int, new_fsrs: FlashcardFSRSBase) -> None:
         flashcard_fsrs_model = self.flashcard_fsrs_repository.get(id)
 
         if not flashcard_fsrs_model:
-            raise FlashcardFSRSDoesNotExistError(f"Flashcard FSRS with id={id} not found.")
+            raise ValueError(f"Flashcard FSRS with id={id} not found.")
         
         self.flashcard_fsrs_repository.update(id, new_fsrs.model_dump(exclude_unset=True))

@@ -24,6 +24,7 @@ from ....services.sqlalchemy.flashcards.flashcard_content                       
 from ....services.sqlalchemy.flashcards.flashcard_fsrs                          import FlashcardFSRSServiceSQLAlchemy
 from ....services.sqlalchemy.flashcards.flashcard_image                         import FlashcadImageServiceSQLAlchemy
 from ....services.sqlalchemy.flashcards.flashcard_type                          import FlashcardTypeServiceSQLAlchemy
+from ....services.sqlalchemy.flashcards.flashcard_metadata                      import FlashcardMetadataServiceSQLAlchemy
 from ....services.sqlalchemy.languages.language                                 import LanguageServiceSQLAlchemy
 
 @AppFactory.register(UserCredentialsServiceSQLAlchemy)
@@ -98,4 +99,10 @@ def build_flashcard_type_service(factory: AppFactory):
 def build_language_service(factory: AppFactory):
     return LanguageServiceSQLAlchemy(
         language_repository= factory.create(LanguageRepositorySQLAlchemy)
+    )
+
+@AppFactory.register(FlashcardMetadataServiceSQLAlchemy)
+def build_flashcard_metadata_service(factory: AppFactory):
+    return FlashcardMetadataServiceSQLAlchemy(
+        flashcard_metadata_repository= factory.create(FlashcardMetadataRepositorySQLAlchemy)
     )

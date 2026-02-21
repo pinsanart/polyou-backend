@@ -5,3 +5,7 @@ class PublicIDDoesNotBelongToUserError(Exception):
 class PublicIDAlreadyRegistedError(Exception):
     def __init__(self, message: str):
         self.message = message
+
+class PublicIDDoesNotExistError(Exception):
+    def __init__(self, message: str):
+        self.message = message

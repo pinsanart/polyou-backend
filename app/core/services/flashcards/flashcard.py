@@ -10,6 +10,14 @@ class FlashcardService(ABC):
         pass
 
     @abstractmethod
+    def get_public_id_by_id_or_fail(self, user_id, id):
+        pass
+
+    @abstractmethod
+    def get_public_ids_by_ids_or_fail(self, user_id, ids):
+        pass
+
+    @abstractmethod
     def list_public_ids(self, user_id):
         pass
     

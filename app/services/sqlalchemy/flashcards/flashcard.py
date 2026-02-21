@@ -3,7 +3,7 @@ from uuid import UUID
 
 from ....core.services.flashcards.flashcard import FlashcardService
 from ....core.schemas.flashcards.creates import FlashcardCreateInfo
-from ....core.exceptions.flashcards import PublicIDAlreadyRegistedError, PublicIDDoesNotBelongToUserError
+from ....core.exceptions.flashcards import PublicIDAlreadyRegistedError, PublicIDDoesNotBelongToUserError, PublicIDDoesNotExistError
 from ....infrastructure.repository.sqlalchemy.flashcards.flashcard import FlashcardRepositorySQLAlchemy
 from ....mappers.flashcard_sqlalchemy import FlashcardSQLAlchemyMapper
 
@@ -14,25 +14,58 @@ class FlashcardServiceSQLAlchemy(FlashcardService):
         self.flashcard_repository = flashcard_repository
     
     def get_id_by_public_id_or_fail(self, user_id: int, public_id: UUID) -> int:
-        user_public_ids = self.flashcard_repository.list_public_ids(user_id)
-        
-        if public_id not in user_public_ids:
-            raise PublicIDDoesNotBelongToUserError(f"Public ID '{public_id}' does not belong to the authenticated user.")    
-
         flashcard_model = self.flashcard_repository.get_by_public_id(public_id)
+
+        if not flashcard_model:
+            raise PublicIDDoesNotExistError(f"Public ID '{public_id}' does not exist.")
+        
+        if flashcard_model.user_id != user_id:
+            raise PublicIDDoesNotBelongToUserError(f"Public ID '{public_id}' does not belong to the authenticated user.")    
 
         return flashcard_model.flashcard_id
     
     def get_ids_by_public_ids_or_fail(self, user_id: int, public_ids: UUID) -> List[int]:
-        user_public_ids = self.flashcard_repository.list_public_ids(user_id)
+        ids = []
 
         for public_id in public_ids:
-            if public_id not in user_public_ids:
+            flashcard_model = self.flashcard_repository.get_by_public_id(public_id)
+
+            if not flashcard_model:
+                raise PublicIDDoesNotExistError(f"Public ID '{public_id}' does not exist.")
+        
+            if flashcard_model.user_id != user_id:
                 raise PublicIDDoesNotBelongToUserError(f"Public ID '{public_id}' does not belong to the authenticated user.")
-        
-        ids = [self.flashcard_repository.get_by_public_id(public_id).flashcard_id for public_id in public_ids]
-        
+            
+            ids.append(flashcard_model.flashcard_id)
+
         return ids
+    
+    def get_public_id_by_id_or_fail(self, user_id: int, id: int):
+        flashcard_model = self.flashcard_repository.get_by_id(id)
+
+        if not flashcard_model:
+            raise ValueError(f"ID '{id}' does not exist.")
+        
+        if flashcard_model.user_id != user_id:
+            raise ValueError(f"ID '{id}' does not belong to the authenticated user.")
+        
+        return flashcard_model.public_id
+
+    def get_public_ids_by_ids_or_fail(self, user_id, ids):
+        public_ids = []
+
+        for id in ids:
+            flashcard_model = self.flashcard_repository.get_by_id(id)
+
+            if not flashcard_model:
+                raise ValueError(f"ID '{id}' does not exist.")
+    
+            if flashcard_model.user_id != user_id:
+                raise ValueError(f"ID '{id}' does not belong to the authenticated user.")
+            
+            public_ids.append(flashcard_model.public_id)
+        
+        return public_ids
             
     def list_ids(self, user_id: int) -> List[int]:
         return self.flashcard_repository.list_ids(user_id)

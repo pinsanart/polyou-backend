@@ -14,7 +14,7 @@ class FlashcadImageServiceSQLAlchemy(FlashcardImageService):
         models = self.flashcard_image_repository.get_all(flashcard_id)
         return [FlashcardImage.model_validate(model) for model in models]
     
-    def change(self, flashcard_id, new_images: List[FlascahrdImageCreateInfo]):
+    def change(self, flashcard_id, new_images: List[FlascahrdImageCreateInfo]) -> None:
         models = [FlashcardImageModel(**image.model_dump(exclude_unset=True)) for image in new_images]
         self.flashcard_image_repository.delete_all_for_id(flashcard_id)
         self.flashcard_image_repository.create_many(models)

@@ -33,10 +33,6 @@ from .core.exceptions.user import (
     UserDoesNotExist
 )
 
-from .core.exceptions.flashcard_types import (
-    FlashcardTypeDoNotExistError
-)
-
 from .core.exceptions.user_flashcard_target import (
     TargetLanguageAlreadyExistsError,
     NotAddedTargetLanguage
@@ -44,11 +40,8 @@ from .core.exceptions.user_flashcard_target import (
 
 from .core.exceptions.flashcards import (
     PublicIDDoesNotBelongToUserError,
-    PublicIDAlreadyRegistedError
-)
-
-from .core.exceptions.flashcard_fsrs import (
-    FlashcardFSRSDoesNotExistError
+    PublicIDAlreadyRegistedError,
+    PublicIDDoesNotExistError
 )
 
 app = FastAPI(
@@ -93,10 +86,6 @@ async def language_not_available_handler(request: Request, exc: LanguageNotAvail
 async def email_already_exists_handler(request: Request, exc: EmailAlreadyExistsError):
     return JSONResponse(status_code=status.HTTP_403_FORBIDDEN, content={"detail": str(exc.message)})
 
-@app.exception_handler(FlashcardTypeDoNotExistError)
-async def flashcard_type_do_not_exist_handler(request: Request, exc: FlashcardTypeDoNotExistError):
-    return JSONResponse(status_code=status.HTTP_404_NOT_FOUND, content={"detail": str(exc.message)})
-
 @app.exception_handler(TargetLanguageAlreadyExistsError)
 async def target_language_already_exists_handler(request: Request, exc: TargetLanguageAlreadyExistsError):
     return JSONResponse(status_code=status.HTTP_406_NOT_ACCEPTABLE, content={"detail": str(exc.message)})
@@ -109,14 +98,14 @@ async def not_added_target_language_handler(request: Request, exc: NotAddedTarge
 async def public_id_does_not_belong_to_user_handler(request: Request, exc: PublicIDDoesNotBelongToUserError):
     return JSONResponse(status_code=status.HTTP_404_NOT_FOUND, content={"detail": str(exc.message)})
 
-@app.exception_handler(FlashcardFSRSDoesNotExistError)
-async def flashcard_fsrs_does_not_exist_handler(request: Request, exc: FlashcardFSRSDoesNotExistError):
-    return JSONResponse(status_code=status.HTTP_404_NOT_FOUND, content={"detail": str(exc.message)})
-
 @app.exception_handler(UserDoesNotExist)
 async def user_does_not_exist_handler(request: Request, exc: UserDoesNotExist):
     return JSONResponse(status_code=status.HTTP_404_NOT_FOUND, content={"detail": str(exc.message)})
 
 @app.exception_handler(PublicIDAlreadyRegistedError)
 async def public_id_already_registed_handler(request: Request, exc: PublicIDAlreadyRegistedError):
+    return JSONResponse(status_code=status.HTTP_403_FORBIDDEN, content={"detail": str(exc.message)})
+
+@app.exception_handler(PublicIDDoesNotExistError)
+async def public_id_does_not_exist_handler(request: Request, exc: PublicIDDoesNotExistError):
     return JSONResponse(status_code=status.HTTP_403_FORBIDDEN, content={"detail": str(exc.message)})

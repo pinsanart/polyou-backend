@@ -3,7 +3,6 @@ from ....infrastructure.repository.sqlalchemy.flashcards.flashcard_content impor
 from ....infrastructure.db.models import FlashcardContentModel
 from ....core.schemas.flashcards.models import FlashcardContent
 from ....core.schemas.flashcards.bases import FlashcardContentBase
-from ....core.exceptions.flashcard_content import FlashcardContentDoesNotExistError
 
 class FlashcardContentServiceSQLAlchemy(FlashcardContentService):
     def __init__(self, flashcard_content_repository: FlashcardContentRepositorySQLAlchemy):
@@ -13,14 +12,14 @@ class FlashcardContentServiceSQLAlchemy(FlashcardContentService):
         flashcard_content_model = self.flashcard_content_repository.get(id)
 
         if not flashcard_content_model:
-            raise FlashcardContentDoesNotExistError(f"Flashcard Content with id={id} not found.")
+            raise ValueError(f"Flashcard Content with id={id} not found.")
         
         return FlashcardContent.model_validate(flashcard_content_model)
     
-    def change(self, id: int, new_content: FlashcardContentBase):
+    def change(self, id: int, new_content: FlashcardContentBase) -> None:
         flashcard_content_model = self.flashcard_content_repository.get(id)
 
         if not flashcard_content_model:
-            raise FlashcardContentDoesNotExistError(f"Flashcard Content with id={id} not found.")
+            raise ValueError(f"Flashcard Content with id={id} not found.")
 
         self.flashcard_content_repository.update(id, new_content.model_dump(exclude_unset=True))

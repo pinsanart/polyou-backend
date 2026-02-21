@@ -1,5 +1,4 @@
 from ....core.services.flashcards.flashcard_type import FlashcardTypeService
-from ....core.exceptions.flashcard_types import FlashcardTypeDoNotExistError
 from ....infrastructure.repository.sqlalchemy.flashcards.flashcard_type import FlashcardTypeRepositorySQLAlchemy
 from ....core.schemas.flashcards.creates import FlashcardTypeCreateInfo
 from ....infrastructure.db.models import FlashcardTypeModel
@@ -12,7 +11,7 @@ class FlashcardTypeServiceSQLAlchemy(FlashcardTypeService):
         model = self.flashcard_type_repository.get_by_name(name)
         
         if not model:
-            raise FlashcardTypeDoNotExistError(f"Flashcard Type with name='{name}' not found.")
+            raise ValueError(f"Flashcard Type with name='{name}' not found.")
         
         return model.flashcard_type_id
     
@@ -20,18 +19,18 @@ class FlashcardTypeServiceSQLAlchemy(FlashcardTypeService):
         model = self.flashcard_type_repository.get_by_id(id)
         
         if not model:
-            raise FlashcardTypeDoNotExistError(f"Flashcard Type with id='{id}' not found.")
+            raise ValueError(f"Flashcard Type with id='{id}' not found.")
         
         return model.name
     
-    def create(self, flashcard_type_info: FlashcardTypeCreateInfo):
+    def create(self, flashcard_type_info: FlashcardTypeCreateInfo) -> None:
         flashcard_type_model = FlashcardTypeModel(**flashcard_type_info.model_dump())
         self.flashcard_type_repository.create(flashcard_type_model)
         
-    def delete(self, id: int):
+    def delete(self, id: int) -> None:
         model = self.flashcard_type_repository.get_by_id(id)
         
         if not model:
-            raise FlashcardTypeDoNotExistError(f"Flashcard Type with id='{id}' not found.")
+            raise ValueError(f"Flashcard Type with id='{id}' not found.")
         
         self.flashcard_type_repository.delete(id)

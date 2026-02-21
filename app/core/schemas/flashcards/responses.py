@@ -3,7 +3,8 @@ from uuid import UUID
 from typing import List
 
 from .bases import (
-    FlashcardBase
+    FlashcardBase,
+    FlashcardMetadataBase
 )
 
 from .requests import (
@@ -33,3 +34,10 @@ class FlashcardInfoResponse(FlashcardBase):
 
 class FlashcardChangeContentResponse(FlashcardContentRequest):
     pass
+
+class FlashcardMetadataResponse(FlashcardMetadataBase):
+    public_id: UUID
+
+class FlaschardAllMetadataResponse(BaseModel):
+    public_ids: List[UUID]
+    metadatas: List[FlashcardMetadataResponse]
