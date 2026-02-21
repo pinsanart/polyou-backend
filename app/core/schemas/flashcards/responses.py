@@ -6,6 +6,10 @@ from .bases import (
     FlashcardBase
 )
 
+from .requests import (
+    FlashcardContentRequest
+)
+
 from ..languages.bases import ISOCode
 
 class FlashcardCreateResponse(BaseModel):
@@ -26,3 +30,6 @@ class FlashcardDeleteBatchResponse(BaseModel):
 class FlashcardInfoResponse(FlashcardBase):
     language_iso_639_1: ISOCode
     flashcard_type_name: str
+
+class FlashcardChangeContentResponse(FlashcardContentRequest):
+    pass

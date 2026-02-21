@@ -24,7 +24,7 @@ class FlashcardTypeServiceSQLAlchemy(FlashcardTypeService):
         
         return model.name
     
-    def add(self, flashcard_type_info: FlashcardTypeCreateInfo):
+    def create(self, flashcard_type_info: FlashcardTypeCreateInfo):
         flashcard_type_model = FlashcardTypeModel(**flashcard_type_info.model_dump())
         self.flashcard_type_repository.create(flashcard_type_model)
         

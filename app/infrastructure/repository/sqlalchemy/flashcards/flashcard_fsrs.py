@@ -10,14 +10,12 @@ class FlashcardFSRSRepositorySQLAlchemy(FlashcardFSRSRepository):
     def get(self, id: int):
         return self.db_session.get(FlashcardFSRSModel, id)
     
-    def update(self, id: int, new_fsrs: FlashcardFSRSModel):
-        model = self.db_session.get(FlashcardFSRSModel, id)
+    def update(self, id: int, data: dict):
+        flashcard_fsrs_model = self.db_session.get(FlashcardFSRSModel, id)
 
-        if not model:
+        if not flashcard_fsrs_model:
             raise ValueError(f"Flashcard FSRS with id={id} not found.")
 
-        model.difficulty    = new_fsrs.difficulty
-        model.due           = new_fsrs.due
-        model.last_review   = new_fsrs.last_review
-        model.stability     = new_fsrs.stability
-        model.state         = new_fsrs.state
+        for key, value in data.items():
+            if hasattr(flashcard_fsrs_model, key):
+                setattr(flashcard_fsrs_model, key, value)     

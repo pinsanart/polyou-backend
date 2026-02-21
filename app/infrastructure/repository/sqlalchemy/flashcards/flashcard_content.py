@@ -10,11 +10,12 @@ class FlashcardContentRepositorySQLAlchemy(FlashcardContentRepository):
     def get(self, id) -> FlashcardContentModel:
         return self.db_session.get(FlashcardContentModel, id)
     
-    def update(self, id: int, new_content: FlashcardContentModel):
-        model = self.db_session.get(FlashcardContentModel, id)
+    def update(self, id: int, data: dict):
+        flashcard_content_model = self.db_session.get(FlashcardContentModel, id)
 
-        if not model:
+        if not flashcard_content_model:
             raise ValueError(f"Flashcard Content with id={id} not found.")
         
-        model.front_field_content = new_content.front_field_content
-        model.back_field_content = new_content.back_field_content
+        for key, value in data.items():
+            if hasattr(flashcard_content_model, key):
+                setattr(flashcard_content_model, key, value)     

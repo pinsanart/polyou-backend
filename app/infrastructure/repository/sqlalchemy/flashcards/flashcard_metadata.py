@@ -1,7 +1,6 @@
 from sqlalchemy.orm import Session
 
 from .....core.repositories.flashcards.flashcard_metadata import FlashcardMetadataRepository
-
 from .....infrastructure.db.models import FlashcardMetadataModel
 
 class FlashcardMetadataRepositorySQLAlchemy(FlashcardMetadataRepository):
@@ -11,14 +10,12 @@ class FlashcardMetadataRepositorySQLAlchemy(FlashcardMetadataRepository):
     def get(self, id: int) -> FlashcardMetadataModel:
         return self.db_session.get(FlashcardMetadataModel, id)
         
-    def update(self, id, new_metadata: FlashcardMetadataModel) -> None:
-        model = self.db_session.get(FlashcardMetadataModel, id)
+    def update(self, id, data: dict) -> None:
+        flashcard_metadata_model = self.db_session.get(FlashcardMetadataModel, id)
 
-        if not model:
+        if not flashcard_metadata_model:
             raise ValueError(f"Flashcard Metadata with id={id} not found.")
 
-        model.created_at                = new_metadata.created_at
-        model.last_audio_updated_at     = new_metadata.last_audio_updated_at
-        model.last_content_updated_at   = new_metadata.last_content_updated_at
-        model.last_image_updated_at     = new_metadata.last_image_updated_at
-        model.last_review_at            = new_metadata.last_review_at
+        for key, value in data.items():
+            if hasattr(flashcard_metadata_model, key):
+                setattr(flashcard_metadata_model, key, value)

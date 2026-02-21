@@ -6,5 +6,5 @@ class FlashcardImageService(ABC):
         pass
 
     @abstractmethod
-    def update(self, flashcard_id, new_images):
+    def change(self, flashcard_id, new_images):
         pass

@@ -4,23 +4,30 @@ from sqlalchemy.orm import Session
 from uuid import UUID
 
 from ..services.sqlalchemy.flashcards.flashcard import FlashcardServiceSQLAlchemy
+from ..services.sqlalchemy.flashcards.flashcard_content import FlashcardContentServiceSQLAlchemy
 
 from ..dependencies.session import get_db
 from ..dependencies.sqlalchemy.auth.auth import get_active_user
 
 from ..core.schemas.users.responses import UserIdentityResponse
+
 from ..core.schemas.flashcards.responses import (
     FlashcardCreateResponse,
     FlashcardCreateBatchResponse,
     UserFlashcardsPublicIdsResponse,
     FlashcardDeleteResponse,
     FlashcardDeleteBatchResponse,
-    FlashcardInfoResponse
+    FlashcardInfoResponse,
+    FlashcardChangeContentResponse
+)
+
+from ..core.schemas.flashcards.requests import (
+    FlashcardCreateRequest,
+    FlashcardContentRequest
 )
 
 from ..dependencies.sqlalchemy.factory import AppFactory
 from ..dependencies.sqlalchemy.container import Container
-from ..core.schemas.flashcards.requests import FlashcardCreateRequest
 
 from ..mappers.flashcard_request import FlashcardRequestMapper
 from ..mappers.flashcard_response import FlashcardResponseMapper
@@ -110,10 +117,21 @@ def get_flashcards_info_endpoint(user: Annotated[UserIdentityResponse, Depends(g
     flashcard_response_mapper = factory.create(FlashcardResponseMapper)
     return [flashcard_response_mapper.model_to_response(info) for info in infos]
     
-'''    
 @router.patch("/content")
-def update_flashcard_content_endpoint(user: Annotated[UserIdentityResponse, Depends(get_active_user)], db: Annotated[Session, Depends(get_db)], public_id: UUID, new_content: FlashcardContent):
-    pass
+def update_flashcard_content_endpoint(user: Annotated[UserIdentityResponse, Depends(get_active_user)], db: Annotated[Session, Depends(get_db)], public_id: UUID, new_content: FlashcardContentRequest):
+    user_id = user.user_id
+    container = Container(db)
+    factory = AppFactory(container)
+
+    flashcard_service:FlashcardServiceSQLAlchemy = factory.create(FlashcardServiceSQLAlchemy)
+    flashcard_id = flashcard_service.get_id_by_public_id_or_fail(user_id, public_id)
+
+    flashcard_content_service = factory.create(FlashcardContentServiceSQLAlchemy)
+    flashcard_content_service.change(flashcard_id, new_content) 
+
+    return FlashcardChangeContentResponse(front_field= new_content.front_field, back_field= new_content.back_field)
+    
+'''    
 
 @router.get("/metadata")
 def get_flashcard_metadata_endpoint(user: Annotated[UserIdentityResponse, Depends(get_active_user)], db: Annotated[Session, Depends(get_db)], public_id: UUID):

@@ -6,5 +6,5 @@ class FlashcardContentRepository(ABC):
         pass
 
     @abstractmethod
-    def update(self, id, new_content):
+    def update(self, id, data):
         pass

@@ -6,5 +6,5 @@ class FlashcardFSRSRepository(ABC):
         pass
 
     @abstractmethod
-    def update(self, id, new_fsrs):
+    def update(self, id, data):
         pass

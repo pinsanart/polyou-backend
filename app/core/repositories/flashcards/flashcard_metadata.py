@@ -6,5 +6,5 @@ class FlashcardMetadataRepository(ABC):
         pass
 
     @abstractmethod
-    def update(self, id, new_metadata):
+    def update(self, id, data):
         pass

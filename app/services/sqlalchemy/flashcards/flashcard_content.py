@@ -10,19 +10,17 @@ class FlashcardContentServiceSQLAlchemy(FlashcardContentService):
         self.flashcard_content_repository = flashcard_content_repository
     
     def info(self, id: int) -> FlashcardContent:
-        model = self.flashcard_content_repository.get(id)
+        flashcard_content_model = self.flashcard_content_repository.get(id)
 
-        if not model:
+        if not flashcard_content_model:
             raise FlashcardContentDoesNotExistError(f"Flashcard Content with id={id} not found.")
         
-        return FlashcardContent.model_validate(model)
+        return FlashcardContent.model_validate(flashcard_content_model)
     
     def change(self, id: int, new_content: FlashcardContentBase):
-        model = self.flashcard_content_repository.get(id)
+        flashcard_content_model = self.flashcard_content_repository.get(id)
 
-        if not model:
+        if not flashcard_content_model:
             raise FlashcardContentDoesNotExistError(f"Flashcard Content with id={id} not found.")
-        
-        model = FlashcardContentModel(**new_content.model_dump())
 
-        self.flashcard_content_repository.update(id, model)
+        self.flashcard_content_repository.update(id, new_content.model_dump(exclude_unset=True))
