@@ -2,16 +2,18 @@ from typing import List
 from uuid import UUID
 
 from ....core.services.flashcards.flashcard import FlashcardService
-from ....core.schemas.flashcards.creates import FlashcardCreateInfo
 from ....core.exceptions.flashcards import PublicIDAlreadyRegistedError, PublicIDDoesNotBelongToUserError, PublicIDDoesNotExistError
 from ....infrastructure.repository.sqlalchemy.flashcards.flashcard import FlashcardRepositorySQLAlchemy
-from ....mappers.flashcard_sqlalchemy import FlashcardSQLAlchemyMapper
 
 from ....core.schemas.flashcards.models import Flashcard
+from ....core.schemas.flashcards.requests import FlashcardCreateRequest
+
+from ....mappers.flashcard_request import FlashcardRequestMapper
 
 class FlashcardServiceSQLAlchemy(FlashcardService):
-    def __init__(self, flashcard_repository: FlashcardRepositorySQLAlchemy):
+    def __init__(self, flashcard_repository: FlashcardRepositorySQLAlchemy, flashcard_request_mapper: FlashcardRequestMapper):
         self.flashcard_repository = flashcard_repository
+        self.flashcard_request_mapper = flashcard_request_mapper
     
     def get_id_by_public_id_or_fail(self, user_id: int, public_id: UUID) -> int:
         flashcard_model = self.flashcard_repository.get_by_public_id(public_id)
@@ -80,17 +82,17 @@ class FlashcardServiceSQLAlchemy(FlashcardService):
         
         return public_ids
     
-    def create_one(self, user_id: int, flashcard_info:FlashcardCreateInfo) -> UUID:
+    def create_one_from_request(self, user_id: int, flashcard_info:FlashcardCreateRequest) -> UUID:
         flashcard_model = self.flashcard_repository.get_by_public_id(flashcard_info.public_id)
 
         if flashcard_model:
             raise PublicIDAlreadyRegistedError(f"Flashcard with public_id={flashcard_info.public_id} already exists.")
 
-        flashcard_model = FlashcardSQLAlchemyMapper.to_model(user_id, flashcard_info)
+        flashcard_model = self.flashcard_request_mapper.request_to_db_model(user_id, flashcard_info)
         self.flashcard_repository.create_one(flashcard_model)
         return flashcard_model.public_id
     
-    def create_many(self, user_id: int, flashcards_info: List[FlashcardCreateInfo]) -> List[UUID]:
+    def create_many_from_request(self, user_id: int, flashcards_info: List[FlashcardCreateRequest]) -> List[UUID]:
         for info in flashcards_info:
             flashcard_model = self.flashcard_repository.get_by_public_id(info.public_id)
 
@@ -98,7 +100,7 @@ class FlashcardServiceSQLAlchemy(FlashcardService):
                 raise PublicIDAlreadyRegistedError(f"Flashcard with public_id={info.public_id} already exists.")
 
         models = [
-            FlashcardSQLAlchemyMapper.to_model(user_id, flashcard_info)
+            self.flashcard_request_mapper.request_to_db_model(user_id, flashcard_info)
             for flashcard_info in flashcards_info
         ]
 

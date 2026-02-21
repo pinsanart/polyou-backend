@@ -26,11 +26,11 @@ class FlashcardService(ABC):
         pass
 
     @abstractmethod
-    def create_one(self, user_id, flashcard_info):
+    def create_one_from_request(self, user_id, flashcard_info):
         pass
 
     @abstractmethod
-    def create_many(self, user_id, flashcards_info: list):
+    def create_many_from_request(self, user_id, flashcards_info: list):
         pass
     
     @abstractmethod

@@ -27,6 +27,8 @@ from ....services.sqlalchemy.flashcards.flashcard_type                          
 from ....services.sqlalchemy.flashcards.flashcard_metadata                      import FlashcardMetadataServiceSQLAlchemy
 from ....services.sqlalchemy.languages.language                                 import LanguageServiceSQLAlchemy
 
+from ....mappers.flashcard_request                                              import FlashcardRequestMapper
+
 @AppFactory.register(UserCredentialsServiceSQLAlchemy)
 def build_user_credentials_service(factory: AppFactory):
     return UserCredentialsServiceSQLAlchemy(
@@ -68,7 +70,8 @@ def build_user_service(factory: AppFactory):
 @AppFactory.register(FlashcardServiceSQLAlchemy)
 def build_flashcard_service(factory: AppFactory):
     return FlashcardServiceSQLAlchemy(
-        flashcard_repository= factory.create(FlashcardRepositorySQLAlchemy)
+        flashcard_repository= factory.create(FlashcardRepositorySQLAlchemy),
+        flashcard_request_mapper= factory.create(FlashcardRequestMapper)
     )
 
 @AppFactory.register(FlashcardContentServiceSQLAlchemy)

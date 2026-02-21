@@ -10,7 +10,7 @@ class FlashcardTypeService(ABC):
         pass
 
     @abstractmethod
-    def create(self, flashcard_type_info):
+    def create_from_request(self, flashcard_type_info):
         pass
 
     @abstractmethod

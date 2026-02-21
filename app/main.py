@@ -9,8 +9,8 @@ from .routes import (
 )
 
 import app.dependencies.sqlalchemy.registrations.repositories
-import app.dependencies.sqlalchemy.registrations.services
 import app.dependencies.sqlalchemy.registrations.mappers
+import app.dependencies.sqlalchemy.registrations.services
 
 from .core.exceptions.jwt import (
     JWTTokenMissingSubjectError,
