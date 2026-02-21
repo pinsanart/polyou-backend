@@ -1,13 +1,17 @@
-from ..factory                                                      import AppFactory
+from ..factory                                                                 import AppFactory
 
-from ....infrastructure.repository.flashcard_content_sqlalchemy     import FlashcardContentRepositorySQLAlchemy
-from ....infrastructure.repository.flashcard_fsrs_sqlalchemy        import FlashcardFSRSRepositorySQLAlchemy
-from ....infrastructure.repository.flashcard_image_sqlalchemy       import FlashcardImagesRepositorySQLAlchemy
-from ....infrastructure.repository.flashcards_sqlalchemy            import FlashcardRepositorySQLAlchemy
-from ....infrastructure.repository.flashcards_type_sqlalchemy       import FlashcardTypesRepositorySQLAlchemy
-from ....infrastructure.repository.languages_sqlalchemy             import LanguageRepositorySQLAlchemy
-from ....infrastructure.repository.users_sqlalchemy                 import UsersRepositorySQLAlchemy
-from ....infrastructure.repository.users_target_language            import UsersTargetLanguagesRepositoriesSQLAlchemy
+from ....infrastructure.repository.sqlalchemy.flashcards.flashcard_content     import FlashcardContentRepositorySQLAlchemy
+from ....infrastructure.repository.sqlalchemy.flashcards.flashcard_fsrs        import FlashcardFSRSRepositorySQLAlchemy
+from ....infrastructure.repository.sqlalchemy.flashcards.flashcard_image       import FlashcardImageRepositorySQLAlchemy
+from ....infrastructure.repository.sqlalchemy.flashcards.flashcard             import FlashcardRepositorySQLAlchemy
+from ....infrastructure.repository.sqlalchemy.flashcards.flashcard_type        import FlashcardTypeRepositorySQLAlchemy
+from ....infrastructure.repository.sqlalchemy.flashcards.flashcard_metadata    import FlashcardMetadataRepositorySQLAlchemy
+from ....infrastructure.repository.sqlalchemy.languages.language               import LanguageRepositorySQLAlchemy
+from ....infrastructure.repository.sqlalchemy.users.user_target_language       import UsersTargetLanguagesRepositorySQLAlchemy
+from ....infrastructure.repository.sqlalchemy.users.user                       import UserRepositorySQLAlchemy
+from ....infrastructure.repository.sqlalchemy.users.user_credentials           import UserCredentialsRepositorySQLAlchemy
+from ....infrastructure.repository.sqlalchemy.users.user_metadata              import UserMetadataRepositorySQLAlchemy
+from ....infrastructure.repository.sqlalchemy.users.user_profile               import UserProfileRepositorySQLAlchemy
 
 @AppFactory.register(FlashcardContentRepositorySQLAlchemy)
 def build_flashcard_content_repository(factory: AppFactory):
@@ -17,26 +21,42 @@ def build_flashcard_content_repository(factory: AppFactory):
 def build_flashcard_fsrs_repository(factory: AppFactory):
     return FlashcardFSRSRepositorySQLAlchemy(factory.container.db)
 
-@AppFactory.register(FlashcardImagesRepositorySQLAlchemy)
+@AppFactory.register(FlashcardImageRepositorySQLAlchemy)
 def build_flashcard_image_repository(factory: AppFactory):
-    return FlashcardImagesRepositorySQLAlchemy(factory.container.db)
+    return FlashcardImageRepositorySQLAlchemy(factory.container.db)
 
 @AppFactory.register(FlashcardRepositorySQLAlchemy)
 def build_flashcard_repository(factory: AppFactory):
     return FlashcardRepositorySQLAlchemy(factory.container.db)
 
-@AppFactory.register(FlashcardTypesRepositorySQLAlchemy)
+@AppFactory.register(FlashcardTypeRepositorySQLAlchemy)
 def build_flashcard_type_repository(factory: AppFactory):
-    return FlashcardTypesRepositorySQLAlchemy(factory.container.db)
+    return FlashcardTypeRepositorySQLAlchemy(factory.container.db)
+
+@AppFactory.register(FlashcardMetadataRepositorySQLAlchemy)
+def build_flashcard_metadata_repository(factory: AppFactory):
+    return FlashcardMetadataRepositorySQLAlchemy(factory.container.db)
 
 @AppFactory.register(LanguageRepositorySQLAlchemy)
 def build_language_repository(factory: AppFactory):
     return LanguageRepositorySQLAlchemy(factory.container.db)
 
-@AppFactory.register(UsersRepositorySQLAlchemy)
+@AppFactory.register(UserRepositorySQLAlchemy)
 def build_user_repository(factory: AppFactory):
-    return UsersRepositorySQLAlchemy(factory.container.db)
+    return UserRepositorySQLAlchemy(factory.container.db)
 
-@AppFactory.register(UsersTargetLanguagesRepositoriesSQLAlchemy)
+@AppFactory.register(UsersTargetLanguagesRepositorySQLAlchemy)
 def build_user_target_language_repository(factory: AppFactory):
-    return UsersTargetLanguagesRepositoriesSQLAlchemy(factory.container.db)
+    return UsersTargetLanguagesRepositorySQLAlchemy(factory.container.db)
+
+@AppFactory.register(UserCredentialsRepositorySQLAlchemy)
+def build_user_credentials_repository(factory: AppFactory):
+    return UserCredentialsRepositorySQLAlchemy(factory.container.db)
+
+@AppFactory.register(UserMetadataRepositorySQLAlchemy)
+def build_user_metadata_repository(factory: AppFactory):
+    return UserMetadataRepositorySQLAlchemy(factory.container.db)
+
+@AppFactory.register(UserProfileRepositorySQLAlchemy)
+def build_user_profile_repository(factory: AppFactory):
+    return UserProfileRepositorySQLAlchemy(factory.container.db)

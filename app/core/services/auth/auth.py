@@ -1,7 +1,6 @@
-from abc import abstractmethod
-from ..service import Service
+from abc import ABC, abstractmethod
 
-class AuthService(Service):
+class AuthService(ABC):
     @abstractmethod
     def authenticate_user(self, user_login_credentials):
         pass

@@ -45,18 +45,52 @@ class FSRSStates(int, Enum):
 # =========================================================
 # Users
 # =========================================================
-class UserModel(PolyouDB):
-    __tablename__ = "users"
+class UserCredentialsModel(PolyouDB):
+    __tablename__ = "users_credentials"
 
-    user_id: Mapped[int] = mapped_column(primary_key=True)
+    user_id: Mapped[int] = mapped_column(
+        ForeignKey("users.user_id", ondelete="CASCADE"),
+        primary_key=True
+    )
+
     email: Mapped[str] = mapped_column(String(255), unique=True, nullable=False, index=True)
     hashed_password: Mapped[str] = mapped_column(String(255), nullable=False)
+
+    user: Mapped["UserModel"] = relationship(back_populates="credentials")
+
+class UserMetadataModel(PolyouDB):
+    __tablename__ = "users_metadata"
+
+    user_id: Mapped[int] = mapped_column(
+        ForeignKey("users.user_id", ondelete="CASCADE"),
+        primary_key=True
+    )
+
     disabled: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow, nullable=False)
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow, nullable=False)
 
+    user: Mapped["UserModel"] = relationship(back_populates="user_metadata")
+
+class UserModel(PolyouDB):
+    __tablename__ = "users"
+
+    user_id: Mapped[int] = mapped_column(primary_key=True)
+    
+    user_metadata: Mapped["UserMetadataModel"] = relationship(
+        back_populates='user',
+        uselist=False,
+        cascade="all, delete-orphan"
+    )
+
     profile: Mapped["UserProfileModel"] = relationship(
         back_populates="user",
+        uselist=False,
+        cascade="all, delete-orphan"
+    )
+
+    credentials: Mapped["UserCredentialsModel"] = relationship(
+        back_populates='user',
         uselist=False,
         cascade="all, delete-orphan"
     )
@@ -221,13 +255,13 @@ class FlashcardModel(PolyouDB):
         passive_deletes=True
     )
 
-    images: Mapped[List["FlashcardImagesModel"]] = relationship(
+    images: Mapped[List["FlashcardImageModel"]] = relationship(
         back_populates="flashcard",
         cascade="all, delete-orphan",
         passive_deletes=True
     )
 
-    audios: Mapped[List["FlashcardAudiosModel"]] = relationship(
+    audios: Mapped[List["FlashcardAudioModel"]] = relationship(
         back_populates="flashcard",
         cascade="all, delete-orphan",
         passive_deletes=True
@@ -241,8 +275,8 @@ class FlashcardContentModel(PolyouDB):
         primary_key=True
     )
 
-    front_field_content: Mapped[str] = mapped_column(String, nullable=False)
-    back_field_content: Mapped[Optional[str]] = mapped_column(String)
+    front_field: Mapped[str] = mapped_column(String, nullable=False)
+    back_field: Mapped[Optional[str]] = mapped_column(String)
 
     flashcard: Mapped["FlashcardModel"] = relationship(
         back_populates="content",
@@ -302,7 +336,7 @@ class FlashcardReviewModel(PolyouDB):
     flashcard: Mapped["FlashcardModel"] = relationship(back_populates="reviews")
 
 
-class FlashcardImagesModel(PolyouDB):
+class FlashcardImageModel(PolyouDB):
     __tablename__ = "flashcards_images"
 
     image_id: Mapped[int] = mapped_column(primary_key=True)
@@ -313,14 +347,14 @@ class FlashcardImagesModel(PolyouDB):
     )
 
     field: Mapped[Fields] = mapped_column(SQLEnum(Fields), nullable=False)
-    image_url: Mapped[str] = mapped_column(String, nullable=False)
+    url: Mapped[str] = mapped_column(String, nullable=False)
 
     flashcard: Mapped["FlashcardModel"] = relationship(
         back_populates="images",
         passive_deletes=True
     )
 
-class FlashcardAudiosModel(PolyouDB):
+class FlashcardAudioModel(PolyouDB):
     __tablename__ = "flashcards_audios"
 
     audio_id: Mapped[int] = mapped_column(primary_key=True)
@@ -331,7 +365,7 @@ class FlashcardAudiosModel(PolyouDB):
     )
     
     field: Mapped[Fields] = mapped_column(SQLEnum(Fields), nullable=False)
-    audio_url: Mapped[str] = mapped_column(String, nullable=False)
+    url: Mapped[str] = mapped_column(String, nullable=False)
 
     flashcard: Mapped["FlashcardModel"] = relationship(
         back_populates="audios",
@@ -341,5 +375,6 @@ class FlashcardAudiosModel(PolyouDB):
 # =========================================================
 # Create / Drop (opcional)
 # =========================================================
-# from connection import engine
-# PolyouDB.metadata.create_all(engine)
+#from connection import engine
+#PolyouDB.metadata.drop_all(engine)
+#PolyouDB.metadata.create_all(engine)

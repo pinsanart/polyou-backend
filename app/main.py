@@ -1,10 +1,16 @@
 from fastapi import FastAPI, Request, status
 from fastapi.responses import JSONResponse
 from .core.config.config import settings
-from .routes import auth, users, languages, flashcards
+from .routes import (
+    auth, 
+    users, 
+    languages, 
+    flashcards
+)
 
 import app.dependencies.sqlalchemy.registrations.repositories
 import app.dependencies.sqlalchemy.registrations.services
+import app.dependencies.sqlalchemy.registrations.mappers
 
 from .core.exceptions.jwt import (
     JWTTokenMissingSubjectError,
@@ -23,7 +29,8 @@ from .core.exceptions.languages import (
 )
 
 from .core.exceptions.user import (
-    EmailAlreadyExistsError
+    EmailAlreadyExistsError,
+    UserDoesNotExist
 )
 
 from .core.exceptions.flashcard_types import (
@@ -36,7 +43,12 @@ from .core.exceptions.user_flashcard_target import (
 )
 
 from .core.exceptions.flashcards import (
-    PublicIDDoesNotBelongToUserError
+    PublicIDDoesNotBelongToUserError,
+    PublicIDAlreadyRegistedError
+)
+
+from .core.exceptions.flashcard_fsrs import (
+    FlashcardFSRSDoesNotExistError
 )
 
 app = FastAPI(
@@ -96,3 +108,15 @@ async def not_added_target_language_handler(request: Request, exc: NotAddedTarge
 @app.exception_handler(PublicIDDoesNotBelongToUserError)
 async def public_id_does_not_belong_to_user_handler(request: Request, exc: PublicIDDoesNotBelongToUserError):
     return JSONResponse(status_code=status.HTTP_404_NOT_FOUND, content={"detail": str(exc.message)})
+
+@app.exception_handler(FlashcardFSRSDoesNotExistError)
+async def flashcard_fsrs_does_not_exist_handler(request: Request, exc: FlashcardFSRSDoesNotExistError):
+    return JSONResponse(status_code=status.HTTP_404_NOT_FOUND, content={"detail": str(exc.message)})
+
+@app.exception_handler(UserDoesNotExist)
+async def user_does_not_exist_handler(request: Request, exc: UserDoesNotExist):
+    return JSONResponse(status_code=status.HTTP_404_NOT_FOUND, content={"detail": str(exc.message)})
+
+@app.exception_handler(PublicIDAlreadyRegistedError)
+async def public_id_already_registed_handler(request: Request, exc: PublicIDAlreadyRegistedError):
+    return JSONResponse(status_code=status.HTTP_403_FORBIDDEN, content={"detail": str(exc.message)})

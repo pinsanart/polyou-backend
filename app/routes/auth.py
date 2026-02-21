@@ -5,9 +5,9 @@ from sqlalchemy.orm import Session
 from datetime import timedelta
 
 from ..core.security.jwt import create_access_token 
-from ..core.schemas.user import UserLoginCredentials
-from ..core.schemas.tokens import Token
-from ..services.auth_sqlalchemy import AuthServiceSQLAlchemy
+from ..core.schemas.tokens.tokens import Token
+from ..core.schemas.users.requests import UserLoginRequest
+from ..services.sqlalchemy.auth.auth import AuthServiceSQLAlchemy
 from ..core.config.config import settings
 
 from ..dependencies.session import get_db
@@ -29,7 +29,7 @@ def login_access_token(form_data: Annotated[OAuth2PasswordRequestForm, Depends()
 
     auth_service = factory.create(AuthServiceSQLAlchemy)
     
-    user_login_credentials = UserLoginCredentials(
+    user_login_credentials = UserLoginRequest(
         email=form_data.username,
         password=form_data.password
     )

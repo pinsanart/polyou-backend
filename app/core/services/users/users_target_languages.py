@@ -1,7 +1,6 @@
-from abc import abstractmethod
-from ..service import Service
+from abc import ABC, abstractmethod
 
-class UserTargetLanguageService(Service):
+class UserTargetLanguageService(ABC):
     @abstractmethod
     def add(self, user_id, target_language_add_info):
         pass
@@ -11,9 +10,5 @@ class UserTargetLanguageService(Service):
         pass
 
     @abstractmethod
-    def list_languages_iso_639_1(self, user_id):
-        pass
-
-    @abstractmethod
-    def get_user_language_id_by_iso_639_1(self, user_id, iso_639_1):
+    def list_user_languages_ids(self, user_id):
         pass

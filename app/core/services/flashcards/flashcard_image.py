@@ -1,7 +1,10 @@
-from abc import abstractmethod
-from ..service import Service
+from abc import ABC, abstractmethod
 
-class FlashcardImageService(Service):
+class FlashcardImageService(ABC):
     @abstractmethod
-    def update(self, user_id, public_id, new_images):
+    def info_all(self, flashcard_id):
+        pass
+
+    @abstractmethod
+    def update(self, flashcard_id, new_images):
         pass

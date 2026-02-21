@@ -1,7 +1,7 @@
 from datetime import timedelta, datetime, timezone
 import jwt
 
-from ..schemas.tokens import Token
+from ..schemas.tokens.tokens import Token
 from ..config.config import settings
 
 SECRET_KEY = settings.SECRET_KEY

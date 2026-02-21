@@ -2,9 +2,12 @@ from fastapi import APIRouter, Depends
 from typing import Annotated
 from sqlalchemy.orm import Session
 
-from ..services.languages_sqlalchemy import LanguageServiceSQLAlchemy
-from ..infrastructure.repository.languages_sqlalchemy import LanguageRepositorySQLAlchemy
 from ..dependencies.session import get_db
+from ..dependencies.sqlalchemy.container import Container
+from ..dependencies.sqlalchemy.factory import AppFactory
+
+from ..core.schemas.languages.responses import AvailableLanguageResponse
+from ..services.sqlalchemy.languages.language import LanguageServiceSQLAlchemy
 
 router = APIRouter(
     prefix="/languages",
@@ -12,8 +15,12 @@ router = APIRouter(
     responses={404: {"description": "Not found"}}
 )
 
-@router.get("/", response_model=list[str])
-def get_available_language_endpoint(db:Annotated[Session, Depends(get_db)]):
-    languages_repository = LanguageRepositorySQLAlchemy(db)
-    language_service = LanguageServiceSQLAlchemy(languages_repository)
-    return language_service.get_available()
+@router.get("/", response_model=AvailableLanguageResponse)
+def get_available_languages_endpoint(db:Annotated[Session, Depends(get_db)]):
+    container = Container(db)
+    factory = AppFactory(container)
+
+    language_service:LanguageServiceSQLAlchemy = factory.create(LanguageServiceSQLAlchemy)
+
+    languages_iso_639_1 = language_service.get_available_languages_iso_639_1()
+    return AvailableLanguageResponse(available_languages=languages_iso_639_1)

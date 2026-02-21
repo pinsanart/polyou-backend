@@ -1,7 +1,10 @@
-from abc import abstractmethod
-from ..service import Service
+from abc import ABC, abstractmethod
 
-class FlashcardContentService(Service):
+class FlashcardContentService(ABC):
     @abstractmethod
-    def change(self, user_id, public_id, new_content):
+    def info(self, id):
+        pass
+
+    @abstractmethod
+    def change(self, id, new_content):
         pass

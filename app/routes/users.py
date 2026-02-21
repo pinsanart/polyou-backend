@@ -4,19 +4,23 @@ from typing import Annotated
 from datetime import timedelta
 
 from ..dependencies.session import get_db
-from ..dependencies.auth import get_active_user
-from ..core.schemas.user import UserIdentity, UserRegisterInformation
+from ..dependencies.sqlalchemy.auth.auth import get_active_user
 
-from ..infrastructure.repository.users_target_language import UsersTargetLanguagesRepositoriesSQLAlchemy
-from ..services.users_sqlalchemy import UserServiceSQLAlchemy
-from ..services.user_target_language import UserTargetLanguageServiceSQLAlchemy
-from ..infrastructure.repository.users_sqlalchemy import UsersRepositorySQLAlchemy
-from ..infrastructure.repository.languages_sqlalchemy import LanguageRepositorySQLAlchemy
-from ..services.languages_sqlalchemy import LanguageServiceSQLAlchemy
-from ..core.schemas.user import UserTargetLanguagesCreateInfo
 from ..core.config.config import settings
 from ..core.security.jwt import create_access_token
-from ..core.schemas.tokens import Token
+from ..core.schemas.tokens.tokens import Token
+
+from ..dependencies.sqlalchemy.container import Container
+from ..dependencies.sqlalchemy.factory import AppFactory
+
+from ..services.sqlalchemy.users.user import UserServiceSQLAlchemy
+from ..services.sqlalchemy.users.user_target_language import UserTargetLanguageServiceSQLAlchemy
+from ..services.sqlalchemy.languages.language import LanguageServiceSQLAlchemy
+
+from ..core.schemas.users.creates import UserCreateInfo
+from ..core.schemas.users.responses import UserIdentityResponse, UserTargetLanguageResponse, UserTargetLanguageCreateResponse
+from ..core.schemas.users.creates import UserTargetLanguageCreateInfo
+from ..core.schemas.users.requests import UserTargetLanguageCreateRequest
 
 router = APIRouter(
     prefix='/users',
@@ -24,12 +28,12 @@ router = APIRouter(
     responses={404: {"description": "Not found"}}
 )
 
-@router.post("/", status_code=status.HTTP_201_CREATED)
-async def create_user_endpoint(db: Annotated[Session, Depends(get_db)], user_register_information: UserRegisterInformation):
-    users_repository = UsersRepositorySQLAlchemy(db)
-    languages_repository = LanguageRepositorySQLAlchemy(db)
-    language_service = LanguageServiceSQLAlchemy(languages_repository)
-    user_service = UserServiceSQLAlchemy(users_repository, language_service)
+@router.post("/", status_code=status.HTTP_201_CREATED, response_model=Token)
+async def create_user_endpoint(db: Annotated[Session, Depends(get_db)], user_register_information: UserCreateInfo):
+    container = Container(db)
+    factory = AppFactory(container)
+
+    user_service = factory.create(UserServiceSQLAlchemy)
 
     user_id = user_service.register(user_register_information)
 
@@ -41,30 +45,47 @@ async def create_user_endpoint(db: Annotated[Session, Depends(get_db)], user_reg
     
     return Token(access_token=access_token, token_type='bearer')
 
-@router.post("/me/target_languages", status_code=status.HTTP_201_CREATED)
-async def add_target_language_endpoint(user: Annotated[UserIdentity, Depends(get_active_user)], db: Annotated[Session, Depends(get_db)], new_target_language_info: UserTargetLanguagesCreateInfo):
+@router.post("/me/target_languages", status_code=status.HTTP_201_CREATED, response_model=UserTargetLanguageCreateResponse)
+async def add_target_language_endpoint(
+    user: Annotated[UserIdentityResponse, Depends(get_active_user)], 
+    db: Annotated[Session, Depends(get_db)], 
+    new_target_language_info: UserTargetLanguageCreateRequest
+):
     user_id = user.user_id
-    
-    user_target_language_repository = UsersTargetLanguagesRepositoriesSQLAlchemy(db)
-    languages_repository = LanguageRepositorySQLAlchemy(db)
-    language_service = LanguageServiceSQLAlchemy(languages_repository)
-    user_target_language_service = UserTargetLanguageServiceSQLAlchemy(user_target_language_repository, language_service)
+    container = Container(db)
+    factory = AppFactory(container)
 
-    user_target_language_service.add(user_id, new_target_language_info)
-    return new_target_language_info
+    language_service = factory.create(LanguageServiceSQLAlchemy)
+    user_target_language_service = factory.create(UserTargetLanguageServiceSQLAlchemy)
 
-@router.get("/me/target_languages", status_code=status.HTTP_200_OK)
-async def get_user_target_languages(user: Annotated[UserIdentity, Depends(get_active_user)], db: Annotated[Session, Depends(get_db)]):
+    language_id = language_service.get_id_by_iso_639_1_or_fail(new_target_language_info.iso_639_1)
+
+    create_info = UserTargetLanguageCreateInfo(
+        user_id=user_id,
+        language_id= language_id
+    )
+
+    user_target_language_service.add(user_id, create_info)
+    return UserTargetLanguageCreateResponse(created_target_language = new_target_language_info.iso_639_1)
+
+@router.get("/me/target_languages", response_model=UserTargetLanguageResponse)
+async def get_user_target_languages(
+    user: Annotated[UserIdentityResponse, Depends(get_active_user)], 
+    db: Annotated[Session, Depends(get_db)]
+):
     user_id = user.user_id
+
+    container = Container(db)
+    factory = AppFactory(container)
+
+    language_service = factory.create(LanguageServiceSQLAlchemy)
+    user_target_language_service = factory.create(UserTargetLanguageServiceSQLAlchemy)
     
-    user_target_language_repository = UsersTargetLanguagesRepositoriesSQLAlchemy(db)
-    languages_repository = LanguageRepositorySQLAlchemy(db)
-    language_service = LanguageServiceSQLAlchemy(languages_repository)
-    user_target_language_service = UserTargetLanguageServiceSQLAlchemy(user_target_language_repository, language_service)
-
-    languages_iso_639_1 = user_target_language_service.list_languages_iso_639_1(user_id)
-    return languages_iso_639_1
-
-@router.get("/me", response_model=UserIdentity)
-async def read_users_me(current_user: Annotated[UserIdentity, Depends(get_active_user)]):
+    language_ids = user_target_language_service.list_user_languages_ids(user_id)
+    languages_iso_639_1 = [language_service.get_iso_639_1_by_id_or_fail(id) for id in language_ids]
+    
+    return UserTargetLanguageResponse(user_target_languages=languages_iso_639_1)
+    
+@router.get("/me", response_model=UserIdentityResponse)
+async def read_users_me(current_user: Annotated[UserIdentityResponse, Depends(get_active_user)]):
     return current_user
