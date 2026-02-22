@@ -28,9 +28,9 @@ from ..core.schemas.flashcards.responses import (
     FlashcardMetadataResponse,
     FlaschardAllMetadataResponse,
     FlashcardChangeFSRSResponse,
-    FlashcardChangeImageResponse,
-    FlashcardChangeReviewResponse,
-    FlashcardChangeAudioResponse,
+    FlashcardChangeImagesResponse,
+    FlashcardChangeReviewsResponse,
+    FlashcardChangeAudiosResponse,
     FlashcardChangeMetadataResponse
 )
 
@@ -148,7 +148,7 @@ def update_flashcard_content(user: Annotated[UserIdentityResponse, Depends(get_a
     flashcard_content_service = factory.create(FlashcardContentServiceSQLAlchemy)
     flashcard_content_service.change(flashcard_id, new_content) 
 
-    return FlashcardChangeContentResponse(front_field= new_content.front_field, back_field= new_content.back_field)
+    return FlashcardChangeContentResponse(public_id=public_id, new_content=new_content)
     
 @router.patch("/fsrs", response_model=FlashcardChangeFSRSResponse)
 def update_flashcard_fsrs(user: Annotated[UserIdentityResponse, Depends(get_active_user)], db: Annotated[Session, Depends(get_db)], public_id: UUID, new_fsrs: FlashcardFSRSRequest):
@@ -162,10 +162,9 @@ def update_flashcard_fsrs(user: Annotated[UserIdentityResponse, Depends(get_acti
     flashcard_fsrs_service:FlashcardFSRSServiceSQLAlchemy = factory.create(FlashcardFSRSServiceSQLAlchemy)
     flashcard_fsrs_service.change(flashcard_id, new_fsrs)
 
-    return FlashcardChangeFSRSResponse(**new_fsrs.model_dump())
+    return FlashcardChangeFSRSResponse(public_id=public_id, new_fsrs=new_fsrs)
 
-
-@router.patch("/images", response_model=List[FlashcardChangeImageResponse])
+@router.patch("/images", response_model=FlashcardChangeImagesResponse)
 def update_flashcard_images(user: Annotated[UserIdentityResponse, Depends(get_active_user)], db: Annotated[Session, Depends(get_db)], public_id: UUID, new_images: Annotated[List[FlashcardImageRequest], Body()]):
     user_id = user.user_id
     container = Container(db)
@@ -177,10 +176,9 @@ def update_flashcard_images(user: Annotated[UserIdentityResponse, Depends(get_ac
     flashcard_image_service = factory.create(FlashcadImageServiceSQLAlchemy)
     flashcard_image_service.change(flashcard_id, new_images)
 
-    return [FlashcardChangeImageResponse(**image.model_dump()) for image in new_images]
+    return FlashcardChangeImagesResponse(public_id=public_id, new_images=new_images)
 
-
-@router.patch("/reviews", response_model=List[FlashcardChangeReviewResponse])
+@router.patch("/reviews", response_model=FlashcardChangeReviewsResponse)
 def update_flashcard_reviews(user: Annotated[UserIdentityResponse, Depends(get_active_user)], db: Annotated[Session, Depends(get_db)], public_id: UUID, new_reviews: Annotated[List[FlashcardReviewRequest], Body()]):
     user_id = user.user_id
     container = Container(db)
@@ -192,9 +190,9 @@ def update_flashcard_reviews(user: Annotated[UserIdentityResponse, Depends(get_a
     flashcard_review_service= factory.create(FlashcardReviewServiceSQLAlchemy)
     flashcard_review_service.change(flashcard_id, new_reviews)
 
-    return [FlashcardChangeReviewResponse(**review.model_dump()) for review in new_reviews]
+    return FlashcardChangeReviewsResponse(public_id=public_id, new_reviews=new_reviews)
 
-@router.patch("/audios", response_model=FlashcardChangeAudioResponse)
+@router.patch("/audios", response_model=FlashcardChangeAudiosResponse)
 def update_flashcard_audio(user: Annotated[UserIdentityResponse, Depends(get_active_user)], db: Annotated[Session, Depends(get_db)], public_id: UUID, new_audios: Annotated[List[FlashcardAudioRequest], Body()]):
     user_id = user.user_id
     container = Container(db)
@@ -206,9 +204,9 @@ def update_flashcard_audio(user: Annotated[UserIdentityResponse, Depends(get_act
     flashcard_audio_service = factory.create(FlashcardAudioServiceSQLAlchemy)
     flashcard_audio_service.change(flashcard_id, new_audios)
 
-    return [FlashcardChangeAudioResponse(**audio.model_dump()) for audio in new_audios]
+    return FlashcardChangeAudiosResponse(public_id=public_id, new_audios=new_audios)
 
-@router.patch("/metadata", response_model=List[FlashcardChangeMetadataResponse])
+@router.patch("/metadata", response_model=FlashcardChangeMetadataResponse)
 def update_flashcard_metadata(user: Annotated[UserIdentityResponse, Depends(get_active_user)], db: Annotated[Session, Depends(get_db)], public_id: UUID, new_metadata: FlashcardMetadataRequest):
     user_id = user.user_id
     container = Container(db)
@@ -220,7 +218,7 @@ def update_flashcard_metadata(user: Annotated[UserIdentityResponse, Depends(get_
     flashcard_metadata_service = factory.create(FlashcardMetadataServiceSQLAlchemy)
     flashcard_metadata_service.change(flashcard_id, new_metadata)
 
-    return [FlashcardChangeMetadataResponse(**metadata.model_dump()) for metadata in new_metadata]
+    return FlashcardChangeMetadataResponse(public_id=public_id, new_metadata=new_metadata)
 
 
 @router.delete("/", response_model=FlashcardDeleteResponse)

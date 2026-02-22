@@ -37,27 +37,32 @@ class FlashcardInfoResponse(FlashcardBase):
     language_iso_639_1: ISOCode
     flashcard_type_name: str
 
-class FlashcardChangeContentResponse(FlashcardContentRequest):
-    pass
+class FlashcardChangeContentResponse(BaseModel):
+    public_id: UUID
+    new_content: FlashcardContentRequest
 
-class FlashcardChangeFSRSResponse(FlashcardFSRSRequest):
-    pass
+class FlashcardChangeFSRSResponse(BaseModel):
+    public_id: UUID
+    new_fsrs: FlashcardFSRSRequest
 
 class FlashcardMetadataResponse(FlashcardMetadataBase):
     public_id: UUID
 
-class FlashcardChangeImageResponse(FlashcardImageRequest):
-    pass
+class FlashcardChangeImagesResponse(BaseModel):
+    public_id: UUID
+    new_images: List[FlashcardImageRequest]
 
+class FlashcardChangeReviewsResponse(BaseModel):
+    public_id: UUID
+    new_reviews: List[FlashcardReviewRequest]
 
-class FlashcardChangeReviewResponse(FlashcardReviewRequest):
-    pass
+class FlashcardChangeAudiosResponse(BaseModel):
+    public_id: UUID
+    new_audios: List[FlashcardAudioRequest]
 
-class FlashcardChangeAudioResponse(FlashcardAudioRequest):
-    pass
-
-class FlashcardChangeMetadataResponse(FlashcardMetadataRequest):
-    pass
+class FlashcardChangeMetadataResponse(BaseModel):
+    public_id: UUID
+    new_metadata: FlashcardMetadataRequest
 
 class FlaschardAllMetadataResponse(BaseModel):
     public_ids: List[UUID]
