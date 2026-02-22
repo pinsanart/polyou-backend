@@ -3,7 +3,8 @@ from .bases import (
     UserCredentialsBase,
     UserMetadataBase,
     UserProfileBase,
-    UserTargetLanguageBase
+    UserTargetLanguageBase,
+    UserRefreshTokenBase
 )
 
 class UserCredentials(UserCredentialsBase):
@@ -21,3 +22,8 @@ class UserProfile(UserProfileBase):
 class UserTargetLanguage(UserTargetLanguageBase):
     user_id: int
     language_id: int
+
+class UserRefreshToken(UserRefreshTokenBase):
+    refresh_token_id: int
+    user_id: int
+    replaced_by: int | None = None

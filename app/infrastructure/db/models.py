@@ -110,6 +110,11 @@ class UserModel(PolyouDB):
         cascade="all, delete-orphan"
     )
 
+    refresh_tokens: Mapped[List["UserRefreshTokenModel"]] = relationship(
+        back_populates="user",
+        cascade="all, delete-orphan"
+    )
+
 class UserProfileModel(PolyouDB):
     __tablename__ = "users_profile"
 
@@ -123,6 +128,41 @@ class UserProfileModel(PolyouDB):
 
     user: Mapped["UserModel"] = relationship(back_populates="profile")
 
+class UserRefreshTokenModel(PolyouDB):
+    __tablename__ = "user_refresh_tokens"
+
+    refresh_token_id: Mapped[int] = mapped_column(primary_key=True)
+
+    user_id: Mapped[int] = mapped_column(
+        ForeignKey('users.user_id', ondelete="CASCADE"),
+        index=True
+    )
+
+    token_hash: Mapped[str] = mapped_column(
+        String(64), 
+        nullable=False, 
+        unique=True,
+        index=True    
+    )
+
+    device_id: Mapped[UUID] = mapped_column(
+        PGUUID(as_uuid=True), 
+        nullable=False,
+        index=True
+    )
+
+    device_name: Mapped[str] = mapped_column(String, nullable=False)
+    ip_address: Mapped[str] = mapped_column(String, nullable=True)
+    user_agent: Mapped[str] = mapped_column(String, nullable=True)
+    expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    revoked: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
+    replaced_by: Mapped[Optional[int]] = mapped_column(
+       ForeignKey("user_refresh_tokens.refresh_token_id"),
+        nullable=True
+    )
+    created_at: Mapped[DateTime] = mapped_column(default=utcnow, nullable=False)
+    
+    user: Mapped["UserModel"] = relationship(back_populates="refresh_tokens")
 
 # =========================================================
 # Languages
