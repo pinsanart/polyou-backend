@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, Body, status
 from sqlalchemy.orm import Session
 from typing import Annotated
 from datetime import timedelta
@@ -29,7 +29,7 @@ router = APIRouter(
 )
 
 @router.post("/", status_code=status.HTTP_201_CREATED, response_model=Token)
-async def create_user(db: Annotated[Session, Depends(get_db)], user_register_information: UserCreateInfo):
+async def create_user(db: Annotated[Session, Depends(get_db)], user_register_information: Annotated[UserCreateInfo, Body()]):
     container = Container(db)
     factory = AppFactory(container)
 
@@ -46,11 +46,7 @@ async def create_user(db: Annotated[Session, Depends(get_db)], user_register_inf
     return Token(access_token=access_token, token_type='bearer')
 
 @router.post("/me/target_languages", status_code=status.HTTP_201_CREATED, response_model=UserTargetLanguageCreateResponse)
-async def add_target_language(
-    user: Annotated[UserIdentityResponse, Depends(get_active_user)], 
-    db: Annotated[Session, Depends(get_db)], 
-    new_target_language_info: UserTargetLanguageCreateRequest
-):
+async def add_target_language(user: Annotated[UserIdentityResponse, Depends(get_active_user)], db: Annotated[Session, Depends(get_db)], new_target_language_info: Annotated[UserTargetLanguageCreateRequest, Body()]):
     user_id = user.user_id
     container = Container(db)
     factory = AppFactory(container)
@@ -69,10 +65,7 @@ async def add_target_language(
     return UserTargetLanguageCreateResponse(created_target_language = new_target_language_info.iso_639_1)
 
 @router.get("/me/target_languages", response_model=UserTargetLanguageResponse)
-async def get_user_target_languages(
-    user: Annotated[UserIdentityResponse, Depends(get_active_user)], 
-    db: Annotated[Session, Depends(get_db)]
-):
+async def get_user_target_languages(user: Annotated[UserIdentityResponse, Depends(get_active_user)], db: Annotated[Session, Depends(get_db)]):
     user_id = user.user_id
 
     container = Container(db)

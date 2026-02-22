@@ -82,7 +82,7 @@ def get_flashcards_info(user: Annotated[UserIdentityResponse, Depends(get_active
     return [flashcard_response_mapper.model_to_response(info) for info in infos]
 
 @router.get("/metadata", response_model=FlashcardMetadataResponse)
-def get_flashcard_metadata(user: Annotated[UserIdentityResponse, Depends(get_active_user)], db: Annotated[Session, Depends(get_db)], public_id: UUID):
+def get_flashcard_metadata(user: Annotated[UserIdentityResponse, Depends(get_active_user)], db: Annotated[Session, Depends(get_db)], public_id: Annotated[UUID, Query()]):
     user_id = user.user_id
     container = Container(db)
     factory = AppFactory(container)
@@ -109,7 +109,7 @@ def get_all_flashcards_metadata(user: Annotated[UserIdentityResponse, Depends(ge
     return flashcard_response_mapper.all_metadata_to_response(user_id, metadatas)
 
 @router.post("/", response_model=FlashcardCreateResponse)
-def create_flashcard(user: Annotated[UserIdentityResponse, Depends(get_active_user)], db: Annotated[Session, Depends(get_db)], flashcard_create_info: FlashcardCreateRequest):
+def create_flashcard(user: Annotated[UserIdentityResponse, Depends(get_active_user)], db: Annotated[Session, Depends(get_db)], flashcard_create_info: Annotated[FlashcardCreateRequest, Body()]):
     user_id = user.user_id
     container = Container(db)
     factory = AppFactory(container)
@@ -137,7 +137,7 @@ async def create_flashcards(user: Annotated[UserIdentityResponse, Depends(get_ac
     return FlashcardCreateBatchResponse(public_ids=public_ids)
          
 @router.patch("/content", response_model=FlashcardChangeContentResponse)
-def update_flashcard_content(user: Annotated[UserIdentityResponse, Depends(get_active_user)], db: Annotated[Session, Depends(get_db)], public_id: UUID, new_content: FlashcardContentRequest):
+def update_flashcard_content(user: Annotated[UserIdentityResponse, Depends(get_active_user)], db: Annotated[Session, Depends(get_db)], public_id: Annotated[UUID, Query()], new_content: Annotated[FlashcardContentRequest, Body()]):
     user_id = user.user_id
     container = Container(db)
     factory = AppFactory(container)
@@ -151,7 +151,7 @@ def update_flashcard_content(user: Annotated[UserIdentityResponse, Depends(get_a
     return FlashcardChangeContentResponse(public_id=public_id, new_content=new_content)
     
 @router.patch("/fsrs", response_model=FlashcardChangeFSRSResponse)
-def update_flashcard_fsrs(user: Annotated[UserIdentityResponse, Depends(get_active_user)], db: Annotated[Session, Depends(get_db)], public_id: UUID, new_fsrs: FlashcardFSRSRequest):
+def update_flashcard_fsrs(user: Annotated[UserIdentityResponse, Depends(get_active_user)], db: Annotated[Session, Depends(get_db)], public_id: Annotated[UUID, Query()], new_fsrs: Annotated[FlashcardFSRSRequest, Body()]):
     user_id = user.user_id
     container = Container(db)
     factory = AppFactory(container)
@@ -165,7 +165,7 @@ def update_flashcard_fsrs(user: Annotated[UserIdentityResponse, Depends(get_acti
     return FlashcardChangeFSRSResponse(public_id=public_id, new_fsrs=new_fsrs)
 
 @router.patch("/images", response_model=FlashcardChangeImagesResponse)
-def update_flashcard_images(user: Annotated[UserIdentityResponse, Depends(get_active_user)], db: Annotated[Session, Depends(get_db)], public_id: UUID, new_images: Annotated[List[FlashcardImageRequest], Body()]):
+def update_flashcard_images(user: Annotated[UserIdentityResponse, Depends(get_active_user)], db: Annotated[Session, Depends(get_db)], public_id: Annotated[UUID, Query()], new_images: Annotated[List[FlashcardImageRequest], Body()]):
     user_id = user.user_id
     container = Container(db)
     factory = AppFactory(container)
@@ -179,7 +179,7 @@ def update_flashcard_images(user: Annotated[UserIdentityResponse, Depends(get_ac
     return FlashcardChangeImagesResponse(public_id=public_id, new_images=new_images)
 
 @router.patch("/reviews", response_model=FlashcardChangeReviewsResponse)
-def update_flashcard_reviews(user: Annotated[UserIdentityResponse, Depends(get_active_user)], db: Annotated[Session, Depends(get_db)], public_id: UUID, new_reviews: Annotated[List[FlashcardReviewRequest], Body()]):
+def update_flashcard_reviews(user: Annotated[UserIdentityResponse, Depends(get_active_user)], db: Annotated[Session, Depends(get_db)], public_id: Annotated[UUID, Query()], new_reviews: Annotated[List[FlashcardReviewRequest], Body()]):
     user_id = user.user_id
     container = Container(db)
     factory = AppFactory(container)
@@ -193,7 +193,7 @@ def update_flashcard_reviews(user: Annotated[UserIdentityResponse, Depends(get_a
     return FlashcardChangeReviewsResponse(public_id=public_id, new_reviews=new_reviews)
 
 @router.patch("/audios", response_model=FlashcardChangeAudiosResponse)
-def update_flashcard_audio(user: Annotated[UserIdentityResponse, Depends(get_active_user)], db: Annotated[Session, Depends(get_db)], public_id: UUID, new_audios: Annotated[List[FlashcardAudioRequest], Body()]):
+def update_flashcard_audio(user: Annotated[UserIdentityResponse, Depends(get_active_user)], db: Annotated[Session, Depends(get_db)], public_id: Annotated[UUID, Query()], new_audios: Annotated[List[FlashcardAudioRequest], Body()]):
     user_id = user.user_id
     container = Container(db)
     factory = AppFactory(container)
@@ -207,7 +207,7 @@ def update_flashcard_audio(user: Annotated[UserIdentityResponse, Depends(get_act
     return FlashcardChangeAudiosResponse(public_id=public_id, new_audios=new_audios)
 
 @router.patch("/metadata", response_model=FlashcardChangeMetadataResponse)
-def update_flashcard_metadata(user: Annotated[UserIdentityResponse, Depends(get_active_user)], db: Annotated[Session, Depends(get_db)], public_id: UUID, new_metadata: FlashcardMetadataRequest):
+def update_flashcard_metadata(user: Annotated[UserIdentityResponse, Depends(get_active_user)], db: Annotated[Session, Depends(get_db)], public_id: Annotated[UUID, Query()], new_metadata: Annotated[FlashcardMetadataRequest, Body()]):
     user_id = user.user_id
     container = Container(db)
     factory = AppFactory(container)
@@ -220,9 +220,8 @@ def update_flashcard_metadata(user: Annotated[UserIdentityResponse, Depends(get_
 
     return FlashcardChangeMetadataResponse(public_id=public_id, new_metadata=new_metadata)
 
-
 @router.delete("/", response_model=FlashcardDeleteResponse)
-def delete_flashcard(user: Annotated[UserIdentityResponse, Depends(get_active_user)], db: Annotated[Session, Depends(get_db)], public_id: UUID):
+def delete_flashcard(user: Annotated[UserIdentityResponse, Depends(get_active_user)], db: Annotated[Session, Depends(get_db)], public_id: Annotated[UUID, Query()]):
     user_id = user.user_id
     container = Container(db)
     factory = AppFactory(container)
