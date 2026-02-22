@@ -8,6 +8,7 @@ class Settings(BaseSettings):
     SECRET_KEY: str
     JWT_ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
+    REFRESH_TOKEN_EXPIRE_DAYS: int = 30
 
     DATABASE_URL: str
 
@@ -17,13 +18,3 @@ class Settings(BaseSettings):
         case_sensitive = True
 
 settings = Settings()
-
-class FSRSConfig:
-    #LEARNING
-    LEARNING_MIN_STABILITY: float = 0.1
-    LEARNING_STABILITY_INCREMENT: float = 2.0
-    
-    MINIMUM_REVIEW_INTERVAL: timedelta = timedelta(days=1)
-    DESIRED_RETENTION: float = 0.95
-
-DEFAULT_FSRS_CONFIG = FSRSConfig()

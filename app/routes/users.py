@@ -8,7 +8,6 @@ from ..dependencies.sqlalchemy.auth.auth import get_active_user
 
 from ..core.config.config import settings
 from ..core.security.jwt import create_access_token
-from ..core.schemas.tokens.tokens import Token
 
 from ..dependencies.sqlalchemy.container import Container
 from ..dependencies.sqlalchemy.factory import AppFactory
@@ -28,7 +27,7 @@ router = APIRouter(
     responses={404: {"description": "Not found"}}
 )
 
-@router.post("/", status_code=status.HTTP_201_CREATED, response_model=Token)
+@router.post("/", status_code=status.HTTP_201_CREATED)
 async def create_user(db: Annotated[Session, Depends(get_db)], user_register_information: Annotated[UserCreateInfo, Body()]):
     container = Container(db)
     factory = AppFactory(container)
@@ -36,14 +35,6 @@ async def create_user(db: Annotated[Session, Depends(get_db)], user_register_inf
     user_service = factory.create(UserServiceSQLAlchemy)
 
     user_id = user_service.register(user_register_information)
-
-    access_token_expire = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
-    access_token = create_access_token(
-        data = {"sub": user_id}, 
-        expire_delta = access_token_expire
-    )
-    
-    return Token(access_token=access_token, token_type='bearer')
 
 @router.post("/me/target_languages", status_code=status.HTTP_201_CREATED, response_model=UserTargetLanguageCreateResponse)
 async def add_target_language(user: Annotated[UserIdentityResponse, Depends(get_active_user)], db: Annotated[Session, Depends(get_db)], new_target_language_info: Annotated[UserTargetLanguageCreateRequest, Body()]):

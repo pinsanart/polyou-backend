@@ -1,7 +1,8 @@
 from ....infrastructure.repository.sqlalchemy.users.user import UserRepositorySQLAlchemy
 from ....infrastructure.repository.sqlalchemy.users.user_credentials import UserCredentialsRepositorySQLAlchemy
 from ....infrastructure.repository.sqlalchemy.users.user_metadata import UserMetadataRepositorySQLAlchemy
-from ....core.schemas.users.requests import UserLoginRequest
+from ....core.schemas.auth.request import LoginRequest
+
 from ....core.exceptions.auth import (
     InvalidCredentials,
     UserDisabled
@@ -15,7 +16,7 @@ class AuthServiceSQLAlchemy(AuthService):
         self.user_credentials_repository = user_credentials_repository
         self.user_metadata_repository = user_metadata_repository
     
-    def authenticate_user(self, login_credentials:UserLoginRequest):
+    def authenticate_user(self, login_credentials:LoginRequest):
         email = login_credentials.email
         password = login_credentials.password
 

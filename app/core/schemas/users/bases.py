@@ -31,8 +31,8 @@ class UserCredentialsBase(BaseModel):
 
 class UserRefreshTokenBase(BaseModel):
     model_config = ConfigDict(from_attributes=True)
-
-    token_hash: str
+    
+    token_hash:str
     device_id: UUID
     device_name: str
     ip_address: str | None = None

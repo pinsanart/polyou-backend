@@ -14,7 +14,7 @@ from ....infrastructure.repository.sqlalchemy.users.user                       i
 from ....infrastructure.repository.sqlalchemy.users.user_credentials           import UserCredentialsRepositorySQLAlchemy
 from ....infrastructure.repository.sqlalchemy.users.user_metadata              import UserMetadataRepositorySQLAlchemy
 from ....infrastructure.repository.sqlalchemy.users.user_profile               import UserProfileRepositorySQLAlchemy
-from ....infrastructure.repository.sqlalchemy.users.user_refresh_token         import UserRefreshTokenRepositorySQLAlchemy
+from ....infrastructure.repository.sqlalchemy.auth.refresh_token               import RefreshTokenRepositorySQLAlchemy
 
 @AppFactory.register(FlashcardContentRepositorySQLAlchemy)
 def build_flashcard_content_repository(factory: AppFactory):
@@ -72,6 +72,6 @@ def build_user_metadata_repository(factory: AppFactory):
 def build_user_profile_repository(factory: AppFactory):
     return UserProfileRepositorySQLAlchemy(factory.container.db)
 
-@AppFactory.register(UserRefreshTokenRepositorySQLAlchemy)
+@AppFactory.register(RefreshTokenRepositorySQLAlchemy)
 def build_user_refresh_token_repository(factory: AppFactory):
-    return UserRefreshTokenRepositorySQLAlchemy(factory.container.db)
+    return RefreshTokenRepositorySQLAlchemy(factory.container.db)

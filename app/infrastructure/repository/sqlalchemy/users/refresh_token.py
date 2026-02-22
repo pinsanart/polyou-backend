@@ -2,10 +2,10 @@ from sqlalchemy.orm import Session
 from sqlalchemy import select
 from typing import List
 
-from .....core.repositories.users.user_refresh_token import UserRefreshTokenRepository
-from .....infrastructure.db.models import UserRefreshTokenModel
+from .....core.repositories.auth.refresh_token import RefreshTokenRepository
+from ....db.models import UserRefreshTokenModel
 
-class UserRefreshTokenRepositorySQLAlchemy(UserRefreshTokenRepository):
+class RefreshTokenRepositorySQLAlchemy(RefreshTokenRepository):
     def __init__(self, db_session: Session):
         self.db_session = db_session
     
@@ -19,6 +19,15 @@ class UserRefreshTokenRepositorySQLAlchemy(UserRefreshTokenRepository):
     def get_by_user_id(self, user_id: int) -> List[UserRefreshTokenModel]:
         stmt = select(UserRefreshTokenModel).where(UserRefreshTokenModel.user_id == user_id)
         return self.db_session.scalars(stmt)
+    
+    def get_last_created_id(self, user_id: int) -> int | None:
+        stmt = (
+            select(UserRefreshTokenModel.refresh_token_id)
+            .where(UserRefreshTokenModel.user_id == user_id)
+            .order_by(UserRefreshTokenModel.created_at.desc())
+            .limit(1)
+        )
+        return self.db_session.scalar(stmt)
     
     def create(self, user_refresh_token_model: UserRefreshTokenModel) -> None:
         self.db_session.add(user_refresh_token_model)

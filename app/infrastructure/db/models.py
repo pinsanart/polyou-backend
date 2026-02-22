@@ -110,7 +110,7 @@ class UserModel(PolyouDB):
         cascade="all, delete-orphan"
     )
 
-    refresh_tokens: Mapped[List["UserRefreshTokenModel"]] = relationship(
+    refresh_tokens: Mapped[List["RefreshTokenModel"]] = relationship(
         back_populates="user",
         cascade="all, delete-orphan"
     )
@@ -128,8 +128,8 @@ class UserProfileModel(PolyouDB):
 
     user: Mapped["UserModel"] = relationship(back_populates="profile")
 
-class UserRefreshTokenModel(PolyouDB):
-    __tablename__ = "user_refresh_tokens"
+class RefreshTokenModel(PolyouDB):
+    __tablename__ = "users_refresh_tokens"
 
     refresh_token_id: Mapped[int] = mapped_column(primary_key=True)
 
@@ -157,10 +157,10 @@ class UserRefreshTokenModel(PolyouDB):
     expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
     revoked: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
     replaced_by: Mapped[Optional[int]] = mapped_column(
-       ForeignKey("user_refresh_tokens.refresh_token_id"),
+       ForeignKey("users_refresh_tokens.refresh_token_id"),
         nullable=True
     )
-    created_at: Mapped[DateTime] = mapped_column(default=utcnow, nullable=False)
+    created_at: Mapped[datetime] = mapped_column(default=utcnow, nullable=False)
     
     user: Mapped["UserModel"] = relationship(back_populates="refresh_tokens")
 
@@ -415,6 +415,6 @@ class FlashcardAudioModel(PolyouDB):
 # =========================================================
 # Create / Drop (opcional)
 # =========================================================
-#from connection import engine
-#PolyouDB.metadata.drop_all(engine)
-#PolyouDB.metadata.create_all(engine)
+# from connection import engine
+# PolyouDB.metadata.drop_all(engine)
+# PolyouDB.metadata.create_all(engine)

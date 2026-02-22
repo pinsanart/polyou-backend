@@ -14,6 +14,7 @@ from ....infrastructure.repository.sqlalchemy.users.user_metadata               
 from ....infrastructure.repository.sqlalchemy.users.user_profile                import UserProfileRepositorySQLAlchemy
 from ....infrastructure.repository.sqlalchemy.flashcards.flashcard_review       import FlashcardReviewRepositorySQLAlchemy
 from ....infrastructure.repository.sqlalchemy.flashcards.flashcard_audio        import FlashcardAudioRepositorySQLAlchemy
+from ....infrastructure.repository.sqlalchemy.auth.refresh_token                import RefreshTokenRepositorySQLAlchemy
 
 from ....services.sqlalchemy.auth.auth                                          import AuthServiceSQLAlchemy
 from ....services.sqlalchemy.users.user_target_language                         import UserTargetLanguageServiceSQLAlchemy
@@ -30,6 +31,7 @@ from ....services.sqlalchemy.flashcards.flashcard_metadata                      
 from ....services.sqlalchemy.languages.language                                 import LanguageServiceSQLAlchemy
 from ....services.sqlalchemy.flashcards.flashcard_review                        import FlashcardReviewServiceSQLAlchemy
 from ....services.sqlalchemy.flashcards.flashcard_audio                         import FlashcardAudioServiceSQLAlchemy
+from ....services.sqlalchemy.auth.refresh_token                                 import RefreshTokenServiceSQLAlchemy
 
 from ....mappers.flashcard_request                                              import FlashcardRequestMapper
 
@@ -124,4 +126,10 @@ def build_flashcard_metadata_service(factory: AppFactory):
 def build_flashcard_review_service(factory: AppFactory):
     return FlashcardReviewServiceSQLAlchemy(
         flashcard_review_repository= factory.create(FlashcardReviewRepositorySQLAlchemy)
+    )
+
+@AppFactory.register(RefreshTokenServiceSQLAlchemy)
+def build_user_refresh_token_service(factory: AppFactory):
+    return RefreshTokenServiceSQLAlchemy(
+        refresh_token_repository= factory.create(RefreshTokenRepositorySQLAlchemy)
     )

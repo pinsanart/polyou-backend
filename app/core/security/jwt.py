@@ -1,13 +1,12 @@
 from datetime import timedelta, datetime, timezone
 import jwt
 
-from ..schemas.tokens.tokens import Token
 from ..config.config import settings
 
 SECRET_KEY = settings.SECRET_KEY
 ALGORITHM = "HS256"
 
-def create_access_token(data: dict, expire_delta: timedelta | None = None) -> Token:
+def create_access_token(data: dict, expire_delta: timedelta | None = None):
     to_encode = data.copy()
 
     if expire_delta:
