@@ -21,7 +21,11 @@ from .core.exceptions.jwt import (
 from .core.exceptions.auth import (
     InvalidCredentials,
     UserDisabled,
-    UserNotFound
+    UserNotFound,
+
+    RefreshTokenExpiredError,
+    RefreshTokenNotFoundError,
+    RefreshTokenRevokedError
 ) 
 
 from .core.exceptions.languages import (
@@ -109,3 +113,15 @@ async def public_id_already_registed_handler(request: Request, exc: PublicIDAlre
 @app.exception_handler(PublicIDDoesNotExistError)
 async def public_id_does_not_exist_handler(request: Request, exc: PublicIDDoesNotExistError):
     return JSONResponse(status_code=status.HTTP_403_FORBIDDEN, content={"detail": str(exc.message)})
+
+@app.exception_handler(RefreshTokenExpiredError)
+async def refresh_token_expired_handler(request: Request, exc: RefreshTokenExpiredError):
+    return JSONResponse(status_code=status.HTTP_401_UNAUTHORIZED, content={"detail": str(exc.message)})
+
+@app.exception_handler(RefreshTokenNotFoundError)
+async def refresh_token_not_found_handler(request: Request, exc: RefreshTokenNotFoundError):
+    return JSONResponse(status_code=status.HTTP_401_UNAUTHORIZED, content={"detail": str(exc.message)})
+
+@app.exception_handler(RefreshTokenRevokedError)
+async def refresh_token_revoked_handler(request: Request, exc: RefreshTokenRevokedError):
+    return JSONResponse(status_code=status.HTTP_401_UNAUTHORIZED, content={"detail": str(exc.message)})

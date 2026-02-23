@@ -1,5 +1,4 @@
 from pydantic_settings import BaseSettings
-from datetime import timedelta
 
 class Settings(BaseSettings):
     APP_NAME: str = "Polyou API"

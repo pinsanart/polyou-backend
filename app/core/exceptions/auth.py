@@ -1,18 +1,23 @@
-class AuthError(Exception):
-    def __init__(self):
-        self.message = "AUTH ERROR: "
-
-class InvalidCredentials(AuthError):
+class InvalidCredentials(Exception):
     def __init__(self, message: str):
-        super().__init__()
-        self.message += message
+        self.message = message
 
-class UserDisabled(AuthError):
+class UserDisabled(Exception):
     def __init__(self, message: str):
-        super().__init__()
-        self.message += message
+        self.message = message
 
-class UserNotFound(AuthError):
+class UserNotFound(Exception):
     def __init__(self, message: str):
-        super().__init__()
-        self.message += message
+        self.message = message
+
+class RefreshTokenNotFoundError(Exception):
+    def __init__(self, message: str):
+        self.message = message
+
+class RefreshTokenRevokedError(Exception):
+    def __init__(self, message: str):
+        self.message = message
+
+class RefreshTokenExpiredError(Exception):
+    def __init__(self, message: str):
+        self.message = message

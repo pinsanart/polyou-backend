@@ -2,15 +2,11 @@ from abc import ABC, abstractmethod
 
 class RefreshTokenService(ABC):
     @abstractmethod
-    def create(self, user_id, user_refresh_token_info):
+    def rotate(self, user_id, expires_delta, user_refresh_token_info):
         pass
     
     @abstractmethod
-    def info(self, id):
-        pass
-
-    @abstractmethod
-    def revoke(self, id):
+    def validade(self, refresh_token):
         pass
 
     @abstractmethod

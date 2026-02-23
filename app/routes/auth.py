@@ -1,9 +1,9 @@
-from fastapi import Depends, Form, APIRouter, Request
+from fastapi import Depends, Form, Body, APIRouter, Request
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from typing import Annotated
 from datetime import timedelta
 from sqlalchemy.orm import Session
-from uuid import UUID, uuid4
+from uuid import UUID
 
 from ..services.sqlalchemy.auth.auth import AuthServiceSQLAlchemy
 from ..services.sqlalchemy.auth.refresh_token import RefreshTokenServiceSQLAlchemy
@@ -12,8 +12,8 @@ from ..core.security.jwt import create_access_token
 from ..core.config.config import settings
 
 from ..core.schemas.auth.create import RefreshTokenCreateInfo
-from ..core.schemas.auth.request import DeviceInfoRequest, LoginRequest
-from ..core.schemas.auth.response import TokenResponse
+from ..core.schemas.auth.request import LoginRequest
+from ..core.schemas.auth.response import TokenResponse, RefreshResponse
 
 from ..dependencies.session import get_db
 from ..dependencies.sqlalchemy.factory import AppFactory
@@ -59,7 +59,7 @@ def login_access_token(
         expire_delta=timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
     )
 
-    refresh_token = user_refresh_token_service.create(
+    refresh_token = user_refresh_token_service.rotate(
         user_id=user_id,
         expires_delta=timedelta(days=settings.REFRESH_TOKEN_EXPIRE_DAYS),
         user_refresh_token_info=RefreshTokenCreateInfo(
@@ -74,4 +74,23 @@ def login_access_token(
         access_token=access_token,
         refresh_token=refresh_token,
         token_type="bearer"
+    )
+
+@router.post("/refresh")
+def new_access_token_by_refresh_token(db: Annotated[Session, Depends(get_db)], refresh_token: Annotated[str, Body()]):
+    container = Container(db)
+    factory = AppFactory(container)
+
+    user_refresh_token_service:RefreshTokenServiceSQLAlchemy = factory.create(RefreshTokenServiceSQLAlchemy)
+
+    user_id = user_refresh_token_service.validade(refresh_token)
+
+    access_token = create_access_token(
+        data={"sub": str(user_id)},
+        expire_delta=timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
+    )
+
+    return RefreshResponse(
+        access_token= access_token,
+        token_type='bearer'
     )
