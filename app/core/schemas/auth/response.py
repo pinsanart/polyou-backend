@@ -8,3 +8,6 @@ class TokenResponse(BaseModel):
 class RefreshResponse(BaseModel):
     access_token: str
     token_type: str
+
+class LogoutResponse(BaseModel):
+    message:str = "Successfully logged out."

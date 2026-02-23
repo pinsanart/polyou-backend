@@ -34,17 +34,26 @@ class RefreshTokenServiceSQLAlchemy(RefreshTokenService):
         token_model = self.refresh_token_repository.get_by_hash(token_hash)
 
         if not token_model:
-            raise RefreshTokenNotFoundError(f"Refresh token '{refresh_token}' not found.")
+            raise RefreshTokenNotFoundError(f"Refresh token not found.")
 
         if token_model.revoked:
-            raise RefreshTokenRevokedError(f"Refresh token '{refresh_token}' is revoked.")
+            raise RefreshTokenRevokedError(f"Refresh token is revoked.")
 
         if token_model.expires_at <= utcnow():
-            raise RefreshTokenExpiredError(f"Refresh token '{refresh_token}' is expired.")
+            raise RefreshTokenExpiredError(f"Refresh token is expired.")
 
         return token_model.user_id
     
-    def revoke_all_by_user(self, user_id: int):
+    def revoke_all_by_user(self, user_id: int) -> None:
         models = self.refresh_token_repository.get_by_user_id(user_id)
         for model in models:
             self.refresh_token_repository.update(model.refresh_token_id, {'revoked': True})
+    
+    def revoke(self, refresh_token: str) -> None:
+        token_hash = hash_token(refresh_token)
+        token_model = self.refresh_token_repository.get_by_hash(token_hash)
+
+        if not token_model:
+            raise RefreshTokenNotFoundError(f"Refresh token not found.")
+
+        self.refresh_token_repository.update(token_model.refresh_token_id, {'revoked': True})

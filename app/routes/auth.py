@@ -13,7 +13,7 @@ from ..core.config.config import settings
 
 from ..core.schemas.auth.create import RefreshTokenCreateInfo
 from ..core.schemas.auth.request import LoginRequest
-from ..core.schemas.auth.response import TokenResponse, RefreshResponse
+from ..core.schemas.auth.response import TokenResponse, RefreshResponse, LogoutResponse
 
 from ..dependencies.session import get_db
 from ..dependencies.sqlalchemy.factory import AppFactory
@@ -76,7 +76,7 @@ def login_access_token(
         token_type="bearer"
     )
 
-@router.post("/refresh")
+@router.post("/refresh", response_model=RefreshResponse)
 def new_access_token_by_refresh_token(db: Annotated[Session, Depends(get_db)], refresh_token: Annotated[str, Body()]):
     container = Container(db)
     factory = AppFactory(container)
@@ -94,3 +94,14 @@ def new_access_token_by_refresh_token(db: Annotated[Session, Depends(get_db)], r
         access_token= access_token,
         token_type='bearer'
     )
+
+@router.post("/logout", response_model=LogoutResponse)
+def revoke_refresh_token(db: Annotated[Session, Depends(get_db)], refresh_token: Annotated[str, Body()]):
+    container = Container(db)
+    factory = AppFactory(container)
+
+    user_refresh_token_service:RefreshTokenServiceSQLAlchemy = factory.create(RefreshTokenServiceSQLAlchemy)
+
+    user_refresh_token_service.revoke(refresh_token)
+
+    return LogoutResponse()

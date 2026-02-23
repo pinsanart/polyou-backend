@@ -12,3 +12,7 @@ class RefreshTokenService(ABC):
     @abstractmethod
     def revoke_all_by_user(self, user_id):
         pass
+
+    @abstractmethod
+    def revoke(self, refresh_token):
+        pass
