@@ -4,7 +4,7 @@ from typing import List
 
 from .bases import (
     FlashcardBase,
-    FlashcardMetadataBase
+    FlashcardSyncMetadataBase
 )
 
 from .requests import (
@@ -45,7 +45,7 @@ class FlashcardChangeFSRSResponse(BaseModel):
     public_id: UUID
     new_fsrs: FlashcardFSRSRequest
 
-class FlashcardMetadataResponse(FlashcardMetadataBase):
+class FlashcardMetadataResponse(FlashcardSyncMetadataBase):
     public_id: UUID
 
 class FlashcardChangeImagesResponse(BaseModel):

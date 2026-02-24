@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 
-class FlashcardMetadataRepository(ABC):
+class FlashcardSyncMetadataRepository(ABC):
     @abstractmethod
     def get_one(self, id):
         pass

@@ -45,7 +45,8 @@ from .core.exceptions.user_flashcard_target import (
 from .core.exceptions.flashcards import (
     PublicIDDoesNotBelongToUserError,
     PublicIDAlreadyRegistedError,
-    PublicIDDoesNotExistError
+    PublicIDDoesNotExistError, 
+    FlashcardTypeNameNotExistError
 )
 
 app = FastAPI(
@@ -125,3 +126,7 @@ async def refresh_token_not_found_handler(request: Request, exc: RefreshTokenNot
 @app.exception_handler(RefreshTokenRevokedError)
 async def refresh_token_revoked_handler(request: Request, exc: RefreshTokenRevokedError):
     return JSONResponse(status_code=status.HTTP_401_UNAUTHORIZED, content={"detail": str(exc.message)})
+
+@app.exception_handler(FlashcardTypeNameNotExistError)
+async def flashcard_type_name_not_exist_handler(request: Request, exc: FlashcardTypeNameNotExistError):
+    return JSONResponse(status_code=status.HTTP_404_NOT_FOUND, content={"detail": str(exc.message)})

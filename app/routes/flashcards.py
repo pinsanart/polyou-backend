@@ -5,12 +5,12 @@ from uuid import UUID
 
 from ..services.sqlalchemy.flashcards.flashcard import FlashcardServiceSQLAlchemy
 from ..services.sqlalchemy.flashcards.flashcard_content import FlashcardContentServiceSQLAlchemy
-from ..services.sqlalchemy.flashcards.flashcard_metadata import FlashcardMetadataServiceSQLAlchemy
+from ..services.sqlalchemy.flashcards.flashcard_sync_metadata import FlashcardSyncMetadataServiceSQLAlchemy
 from ..services.sqlalchemy.flashcards.flashcard_fsrs import FlashcardFSRSServiceSQLAlchemy
 from ..services.sqlalchemy.flashcards.flashcard_image import FlashcadImageServiceSQLAlchemy
 from ..services.sqlalchemy.flashcards.flashcard_review import FlashcardReviewServiceSQLAlchemy
 from ..services.sqlalchemy.flashcards.flashcard_audio import FlashcardAudioServiceSQLAlchemy
-from ..services.sqlalchemy.flashcards.flashcard_metadata import FlashcardMetadataServiceSQLAlchemy
+from ..services.sqlalchemy.flashcards.flashcard_sync_metadata import FlashcardSyncMetadataServiceSQLAlchemy
 
 from ..dependencies.session import get_db
 from ..dependencies.sqlalchemy.auth.auth import get_active_user
@@ -81,7 +81,7 @@ def get_flashcards_info(user: Annotated[UserIdentityResponse, Depends(get_active
     flashcard_response_mapper = factory.create(FlashcardResponseMapper)
     return [flashcard_response_mapper.model_to_response(info) for info in infos]
 
-@router.get("/metadata", response_model=FlashcardMetadataResponse)
+@router.get("/sync_metadata", response_model=FlashcardMetadataResponse)
 def get_flashcard_metadata(user: Annotated[UserIdentityResponse, Depends(get_active_user)], db: Annotated[Session, Depends(get_db)], public_id: Annotated[UUID, Query()]):
     user_id = user.user_id
     container = Container(db)
@@ -90,19 +90,19 @@ def get_flashcard_metadata(user: Annotated[UserIdentityResponse, Depends(get_act
     flashcard_service:FlashcardServiceSQLAlchemy = factory.create(FlashcardServiceSQLAlchemy)
     flashcard_id = flashcard_service.get_id_by_public_id_or_fail(user_id, public_id)
 
-    flashcard_metadata_service:FlashcardMetadataServiceSQLAlchemy = factory.create(FlashcardMetadataServiceSQLAlchemy)
+    flashcard_metadata_service = factory.create(FlashcardSyncMetadataServiceSQLAlchemy)
     metadata = flashcard_metadata_service.info_one(flashcard_id)
 
     flashcard_response_mapper:FlashcardResponseMapper = factory.create(FlashcardResponseMapper)
     return flashcard_response_mapper.metadata_to_response(user_id, metadata)
 
-@router.get("/all_metadata", response_model=FlaschardAllMetadataResponse)
+@router.get("/all_sync_metadata", response_model=FlaschardAllMetadataResponse)
 def get_all_flashcards_metadata(user: Annotated[UserIdentityResponse, Depends(get_active_user)], db: Annotated[Session, Depends(get_db)]):
     user_id = user.user_id
     container = Container(db)
     factory = AppFactory(container)
     
-    flashcard_metadata_service:FlashcardMetadataServiceSQLAlchemy = factory.create(FlashcardMetadataServiceSQLAlchemy)
+    flashcard_metadata_service = factory.create(FlashcardSyncMetadataServiceSQLAlchemy)
     metadatas = flashcard_metadata_service.info_all(user_id)
 
     flashcard_response_mapper:FlashcardResponseMapper = factory.create(FlashcardResponseMapper)
@@ -114,11 +114,9 @@ def create_flashcard(user: Annotated[UserIdentityResponse, Depends(get_active_us
     container = Container(db)
     factory = AppFactory(container)
 
-    flashcard_service = factory.create(FlashcardServiceSQLAlchemy)
-    flashcard_request_mapper = factory.create(FlashcardRequestMapper)
-
-    create_info = flashcard_request_mapper.request_to_create(flashcard_create_info)
-    public_id = flashcard_service.create_one(user_id, create_info)
+    flashcard_service:FlashcardServiceSQLAlchemy = factory.create(FlashcardServiceSQLAlchemy)
+    
+    public_id = flashcard_service.create_one_from_request(user_id, flashcard_create_info)
     
     return FlashcardCreateResponse(public_id=public_id)
 
@@ -206,7 +204,7 @@ def update_flashcard_audio(user: Annotated[UserIdentityResponse, Depends(get_act
 
     return FlashcardChangeAudiosResponse(public_id=public_id, new_audios=new_audios)
 
-@router.patch("/metadata", response_model=FlashcardChangeMetadataResponse)
+@router.patch("/sync_metadata", response_model=FlashcardChangeMetadataResponse)
 def update_flashcard_metadata(user: Annotated[UserIdentityResponse, Depends(get_active_user)], db: Annotated[Session, Depends(get_db)], public_id: Annotated[UUID, Query()], new_metadata: Annotated[FlashcardMetadataRequest, Body()]):
     user_id = user.user_id
     container = Container(db)
@@ -215,7 +213,7 @@ def update_flashcard_metadata(user: Annotated[UserIdentityResponse, Depends(get_
     flashcard_service = factory.create(FlashcardServiceSQLAlchemy)
     flashcard_id = flashcard_service.get_id_by_public_id_or_fail(user_id, public_id)
 
-    flashcard_metadata_service = factory.create(FlashcardMetadataServiceSQLAlchemy)
+    flashcard_metadata_service = factory.create(FlashcardSyncMetadataServiceSQLAlchemy)
     flashcard_metadata_service.change(flashcard_id, new_metadata)
 
     return FlashcardChangeMetadataResponse(public_id=public_id, new_metadata=new_metadata)

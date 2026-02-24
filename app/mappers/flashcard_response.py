@@ -2,7 +2,7 @@ from typing import List
 
 from ..core.schemas.flashcards.models import (
     Flashcard,
-    FlashcardMetadata
+    FlashcardSyncMetadata
 )
 from ..core.schemas.flashcards.responses import (
     FlashcardInfoResponse,
@@ -33,7 +33,7 @@ class FlashcardResponseMapper:
 
         return FlashcardInfoResponse(**data)
     
-    def metadata_to_response(self, user_id: int, metadata: FlashcardMetadata) -> FlashcardMetadataResponse:
+    def metadata_to_response(self, user_id: int, metadata: FlashcardSyncMetadata) -> FlashcardMetadataResponse:
         data = metadata.model_dump()
 
         flashcard_id = data.pop('flashcard_id')
@@ -42,7 +42,7 @@ class FlashcardResponseMapper:
 
         return FlashcardMetadataResponse(**data)
     
-    def all_metadata_to_response(self, user_id: int, metadatas: List[FlashcardMetadata]) -> FlaschardAllMetadataResponse:
+    def all_metadata_to_response(self, user_id: int, metadatas: List[FlashcardSyncMetadata]) -> FlaschardAllMetadataResponse:
         public_ids = []
         all_metadata = []
         for metadata in metadatas:

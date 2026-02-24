@@ -2,6 +2,7 @@ from ....core.services.flashcards.flashcard_type import FlashcardTypeService
 from ....infrastructure.repository.sqlalchemy.flashcards.flashcard_type import FlashcardTypeRepositorySQLAlchemy
 from ....infrastructure.db.models import FlashcardTypeModel
 from ....core.schemas.flashcards.requests import FlashcardTypeRequest
+from ....core.exceptions.flashcards import FlashcardTypeNameNotExistError
 
 class FlashcardTypeServiceSQLAlchemy(FlashcardTypeService):
     def __init__(self, flashcard_type_repository: FlashcardTypeRepositorySQLAlchemy):
@@ -11,7 +12,7 @@ class FlashcardTypeServiceSQLAlchemy(FlashcardTypeService):
         model = self.flashcard_type_repository.get_by_name(name)
         
         if not model:
-            raise ValueError(f"Flashcard Type with name='{name}' not found.")
+            raise FlashcardTypeNameNotExistError(f"Flashcard Type with name='{name}' not found.")
         
         return model.flashcard_type_id
     

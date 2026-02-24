@@ -78,10 +78,9 @@ class FlashcardReviewBase(BaseModel):
     state_before: StateEnum
     state_after: StateEnum
 
-class FlashcardMetadataBase(BaseModel):
+class FlashcardSyncMetadataBase(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
-    created_at: datetime
     last_review_at: datetime | None = None
     last_content_updated_at: datetime | None = None
     last_image_updated_at: datetime | None = None
@@ -91,8 +90,9 @@ class FlashcardBase(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
     public_id: UUID
+    created_at: datetime
 
-    server_metadata: FlashcardMetadataBase
+    sync_metadata: FlashcardSyncMetadataBase
     content: FlashcardContentBase
     fsrs: FlashcardFSRSBase
     reviews: List[FlashcardReviewBase] | None = None

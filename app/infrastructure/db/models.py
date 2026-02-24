@@ -228,7 +228,7 @@ class FlashcardTypeModel(PolyouDB):
     flashcards: Mapped[List["FlashcardModel"]] = relationship(back_populates="flashcard_type")
 
 
-class FlashcardMetadataModel(PolyouDB):
+class FlashcardSyncMetadataModel(PolyouDB):
     __tablename__ = "flashcards_metadata"
 
     flashcard_id: Mapped[int] = mapped_column(
@@ -236,14 +236,13 @@ class FlashcardMetadataModel(PolyouDB):
         primary_key=True
     )
 
-    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow, nullable=False)
     last_review_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=True)
     last_content_updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=True)
     last_image_updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=True)
     last_audio_updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=True)
 
     flashcard: Mapped["FlashcardModel"] = relationship(
-        back_populates="server_metadata",
+        back_populates="sync_metadata",
         passive_deletes=True
     )
 
@@ -263,12 +262,14 @@ class FlashcardModel(PolyouDB):
     user_id: Mapped[int] = mapped_column(ForeignKey("users.user_id", ondelete="CASCADE"), nullable=False)
     language_id: Mapped[int] = mapped_column(ForeignKey("languages.language_id"), nullable=False)
     flashcard_type_id: Mapped[int] = mapped_column(ForeignKey("flashcard_types.flashcard_type_id"), nullable=False)
+    
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow, nullable=False)
 
     user: Mapped["UserModel"] = relationship(back_populates="flashcards")
     language: Mapped["LanguageModel"] = relationship(back_populates="flashcards")
     flashcard_type: Mapped["FlashcardTypeModel"] = relationship(back_populates="flashcards")
 
-    server_metadata: Mapped["FlashcardMetadataModel"] = relationship(
+    sync_metadata: Mapped["FlashcardSyncMetadataModel"] = relationship(
         back_populates="flashcard",
         uselist=False,
         cascade="all, delete-orphan",

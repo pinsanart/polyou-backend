@@ -1,10 +1,11 @@
 from abc import ABC, abstractmethod
 
-class FlashcardMetadataService(ABC):
+class FlashcardSyncMetadataService(ABC):
     @abstractmethod
     def info_one(self, id):
         pass
-
+    
+    @abstractmethod
     def info_all(self, user_id):
         pass
 

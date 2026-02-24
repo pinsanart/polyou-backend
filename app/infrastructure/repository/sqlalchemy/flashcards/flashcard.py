@@ -15,7 +15,7 @@ class FlashcardRepositorySQLAlchemy(FlashcardRepository):
         return (
             select(FlashcardModel)
             .options(
-                selectinload(FlashcardModel.server_metadata),
+                selectinload(FlashcardModel.sync_metadata),
                 selectinload(FlashcardModel.content),
                 selectinload(FlashcardModel.fsrs),
                 selectinload(FlashcardModel.reviews),

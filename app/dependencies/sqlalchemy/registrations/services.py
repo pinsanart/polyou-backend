@@ -1,39 +1,39 @@
-from ..factory                                                                  import AppFactory
+from ..factory                                                                      import AppFactory
 
-from ....infrastructure.repository.sqlalchemy.flashcards.flashcard_content      import FlashcardContentRepositorySQLAlchemy
-from ....infrastructure.repository.sqlalchemy.flashcards.flashcard_fsrs         import FlashcardFSRSRepositorySQLAlchemy
-from ....infrastructure.repository.sqlalchemy.flashcards.flashcard_image        import FlashcardImageRepositorySQLAlchemy
-from ....infrastructure.repository.sqlalchemy.flashcards.flashcard              import FlashcardRepositorySQLAlchemy
-from ....infrastructure.repository.sqlalchemy.flashcards.flashcard_type         import FlashcardTypeRepositorySQLAlchemy
-from ....infrastructure.repository.sqlalchemy.flashcards.flashcard_metadata     import FlashcardMetadataRepositorySQLAlchemy
-from ....infrastructure.repository.sqlalchemy.languages.language                import LanguageRepositorySQLAlchemy
-from ....infrastructure.repository.sqlalchemy.users.user_target_language        import UsersTargetLanguagesRepositorySQLAlchemy
-from ....infrastructure.repository.sqlalchemy.users.user                        import UserRepositorySQLAlchemy
-from ....infrastructure.repository.sqlalchemy.users.user_credentials            import UserCredentialsRepositorySQLAlchemy
-from ....infrastructure.repository.sqlalchemy.users.user_metadata               import UserMetadataRepositorySQLAlchemy
-from ....infrastructure.repository.sqlalchemy.users.user_profile                import UserProfileRepositorySQLAlchemy
-from ....infrastructure.repository.sqlalchemy.flashcards.flashcard_review       import FlashcardReviewRepositorySQLAlchemy
-from ....infrastructure.repository.sqlalchemy.flashcards.flashcard_audio        import FlashcardAudioRepositorySQLAlchemy
-from ....infrastructure.repository.sqlalchemy.auth.refresh_token                import RefreshTokenRepositorySQLAlchemy
+from ....infrastructure.repository.sqlalchemy.flashcards.flashcard_content          import FlashcardContentRepositorySQLAlchemy
+from ....infrastructure.repository.sqlalchemy.flashcards.flashcard_fsrs             import FlashcardFSRSRepositorySQLAlchemy
+from ....infrastructure.repository.sqlalchemy.flashcards.flashcard_image            import FlashcardImageRepositorySQLAlchemy
+from ....infrastructure.repository.sqlalchemy.flashcards.flashcard                  import FlashcardRepositorySQLAlchemy
+from ....infrastructure.repository.sqlalchemy.flashcards.flashcard_type             import FlashcardTypeRepositorySQLAlchemy
+from ....infrastructure.repository.sqlalchemy.flashcards.flashcard_sync_metadata    import FlashcardSyncMetadataRepositorySQLAlchemy
+from ....infrastructure.repository.sqlalchemy.languages.language                    import LanguageRepositorySQLAlchemy
+from ....infrastructure.repository.sqlalchemy.users.user_target_language            import UsersTargetLanguagesRepositorySQLAlchemy
+from ....infrastructure.repository.sqlalchemy.users.user                            import UserRepositorySQLAlchemy
+from ....infrastructure.repository.sqlalchemy.users.user_credentials                import UserCredentialsRepositorySQLAlchemy
+from ....infrastructure.repository.sqlalchemy.users.user_metadata                   import UserMetadataRepositorySQLAlchemy
+from ....infrastructure.repository.sqlalchemy.users.user_profile                    import UserProfileRepositorySQLAlchemy
+from ....infrastructure.repository.sqlalchemy.flashcards.flashcard_review           import FlashcardReviewRepositorySQLAlchemy
+from ....infrastructure.repository.sqlalchemy.flashcards.flashcard_audio            import FlashcardAudioRepositorySQLAlchemy
+from ....infrastructure.repository.sqlalchemy.auth.refresh_token                    import RefreshTokenRepositorySQLAlchemy
 
-from ....services.sqlalchemy.auth.auth                                          import AuthServiceSQLAlchemy
-from ....services.sqlalchemy.users.user_target_language                         import UserTargetLanguageServiceSQLAlchemy
-from ....services.sqlalchemy.users.user                                         import UserServiceSQLAlchemy
-from ....services.sqlalchemy.users.user_credentials                             import UserCredentialsServiceSQLAlchemy
-from ....services.sqlalchemy.users.user_metadata                                import UserMetadataServiceSQLAlchemy
-from ....services.sqlalchemy.users.user_profile                                 import UserProfileServiceSQLAlchemy
-from ....services.sqlalchemy.flashcards.flashcard                               import FlashcardServiceSQLAlchemy
-from ....services.sqlalchemy.flashcards.flashcard_content                       import FlashcardContentServiceSQLAlchemy                  
-from ....services.sqlalchemy.flashcards.flashcard_fsrs                          import FlashcardFSRSServiceSQLAlchemy
-from ....services.sqlalchemy.flashcards.flashcard_image                         import FlashcadImageServiceSQLAlchemy
-from ....services.sqlalchemy.flashcards.flashcard_type                          import FlashcardTypeServiceSQLAlchemy
-from ....services.sqlalchemy.flashcards.flashcard_metadata                      import FlashcardMetadataServiceSQLAlchemy
-from ....services.sqlalchemy.languages.language                                 import LanguageServiceSQLAlchemy
-from ....services.sqlalchemy.flashcards.flashcard_review                        import FlashcardReviewServiceSQLAlchemy
-from ....services.sqlalchemy.flashcards.flashcard_audio                         import FlashcardAudioServiceSQLAlchemy
-from ....services.sqlalchemy.auth.refresh_token                                 import RefreshTokenServiceSQLAlchemy
+from ....services.sqlalchemy.auth.auth                                              import AuthServiceSQLAlchemy
+from ....services.sqlalchemy.users.user_target_language                             import UserTargetLanguageServiceSQLAlchemy
+from ....services.sqlalchemy.users.user                                             import UserServiceSQLAlchemy
+from ....services.sqlalchemy.users.user_credentials                                 import UserCredentialsServiceSQLAlchemy
+from ....services.sqlalchemy.users.user_metadata                                    import UserMetadataServiceSQLAlchemy
+from ....services.sqlalchemy.users.user_profile                                     import UserProfileServiceSQLAlchemy
+from ....services.sqlalchemy.flashcards.flashcard                                   import FlashcardServiceSQLAlchemy
+from ....services.sqlalchemy.flashcards.flashcard_content                           import FlashcardContentServiceSQLAlchemy                  
+from ....services.sqlalchemy.flashcards.flashcard_fsrs                              import FlashcardFSRSServiceSQLAlchemy
+from ....services.sqlalchemy.flashcards.flashcard_image                             import FlashcadImageServiceSQLAlchemy
+from ....services.sqlalchemy.flashcards.flashcard_type                              import FlashcardTypeServiceSQLAlchemy
+from ....services.sqlalchemy.flashcards.flashcard_sync_metadata                     import FlashcardSyncMetadataServiceSQLAlchemy
+from ....services.sqlalchemy.languages.language                                     import LanguageServiceSQLAlchemy
+from ....services.sqlalchemy.flashcards.flashcard_review                            import FlashcardReviewServiceSQLAlchemy
+from ....services.sqlalchemy.flashcards.flashcard_audio                             import FlashcardAudioServiceSQLAlchemy
+from ....services.sqlalchemy.auth.refresh_token                                     import RefreshTokenServiceSQLAlchemy
 
-from ....mappers.flashcard_request                                              import FlashcardRequestMapper
+from ....mappers.flashcard_request                                                  import FlashcardRequestMapper
 
 @AppFactory.register(UserCredentialsServiceSQLAlchemy)
 def build_user_credentials_service(factory: AppFactory):
@@ -116,10 +116,10 @@ def build_language_service(factory: AppFactory):
         language_repository= factory.create(LanguageRepositorySQLAlchemy)
     )
 
-@AppFactory.register(FlashcardMetadataServiceSQLAlchemy)
+@AppFactory.register(FlashcardSyncMetadataServiceSQLAlchemy)
 def build_flashcard_metadata_service(factory: AppFactory):
-    return FlashcardMetadataServiceSQLAlchemy(
-        flashcard_metadata_repository= factory.create(FlashcardMetadataRepositorySQLAlchemy)
+    return FlashcardSyncMetadataServiceSQLAlchemy(
+        flashcard_metadata_repository= factory.create(FlashcardSyncMetadataRepositorySQLAlchemy)
     )
 
 @AppFactory.register(FlashcardReviewServiceSQLAlchemy)

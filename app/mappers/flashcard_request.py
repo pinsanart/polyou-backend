@@ -2,9 +2,11 @@ from ..core.schemas.flashcards.requests import FlashcardCreateRequest
 from ..core.services.flashcards.flashcard_type import FlashcardTypeService
 from ..core.services.languages.language import LanguageService
 
+from ..dependencies.time.utc_safe import utcnow
+
 from ..infrastructure.db.models import (
     FlashcardModel,
-    FlashcardMetadataModel,
+    FlashcardSyncMetadataModel,
     FlashcardContentModel,
     FlashcardFSRSModel,
     FlashcardReviewModel,
@@ -22,11 +24,12 @@ class FlashcardRequestMapper:
             user_id=user_id,
             public_id=create_info.public_id,
             language_id= self.language_service.get_id_by_iso_639_1_or_fail(create_info.language_iso_639_1),
-            flashcard_type_id= self.flashcard_type_service.get_id_by_name_or_fail(create_info.flashcard_type_name)
+            flashcard_type_id= self.flashcard_type_service.get_id_by_name_or_fail(create_info.flashcard_type_name),
+            created_at = utcnow()
         )
 
-        flashcard_model.server_metadata = FlashcardMetadataModel(
-            **create_info.server_metadata.model_dump()
+        flashcard_model.sync_metadata = FlashcardSyncMetadataModel(
+            **create_info.sync_metadata.model_dump()
         )
 
         flashcard_model.content = FlashcardContentModel(

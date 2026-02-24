@@ -6,7 +6,7 @@ from .bases import (
     FlashcardAudioBase,
     FlashcardFSRSBase,
     FlashcardImageBase,
-    FlashcardMetadataBase,
+    FlashcardSyncMetadataBase,
     FlashcardReviewBase,
     FlashcardTypeBase
 )
@@ -31,7 +31,7 @@ class FlashcardImage(FlashcardImageBase):
     image_id: int
     flashcard_id: int
 
-class FlashcardMetadata(FlashcardMetadataBase):
+class FlashcardSyncMetadata(FlashcardSyncMetadataBase):
     flashcard_id: int
 
 class FlashcardReview(FlashcardReviewBase):
