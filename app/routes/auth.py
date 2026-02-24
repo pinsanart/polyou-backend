@@ -12,7 +12,7 @@ from ..core.security.jwt import create_access_token
 from ..core.config.config import settings
 
 from ..core.schemas.auth.create import RefreshTokenCreateInfo
-from ..core.schemas.auth.request import LoginRequest
+from ..core.schemas.auth.request import LoginRequest, RefreshRequest, LogoutRequest
 from ..core.schemas.auth.response import TokenResponse, RefreshResponse, LogoutResponse
 
 from ..dependencies.session import get_db
@@ -77,13 +77,13 @@ def login_access_token(
     )
 
 @router.post("/refresh", response_model=RefreshResponse)
-def new_access_token_by_refresh_token(db: Annotated[Session, Depends(get_db)], refresh_token: Annotated[str, Body()]):
+def new_access_token_by_refresh_token(db: Annotated[Session, Depends(get_db)], request: Annotated[RefreshRequest, Body()]):
     container = Container(db)
     factory = AppFactory(container)
 
     user_refresh_token_service:RefreshTokenServiceSQLAlchemy = factory.create(RefreshTokenServiceSQLAlchemy)
 
-    user_id = user_refresh_token_service.validade(refresh_token)
+    user_id = user_refresh_token_service.validade(request.refresh_token)
 
     access_token = create_access_token(
         data={"sub": str(user_id)},
@@ -96,12 +96,12 @@ def new_access_token_by_refresh_token(db: Annotated[Session, Depends(get_db)], r
     )
 
 @router.post("/logout", response_model=LogoutResponse)
-def revoke_refresh_token(db: Annotated[Session, Depends(get_db)], refresh_token: Annotated[str, Body()]):
+def revoke_refresh_token(db: Annotated[Session, Depends(get_db)], request: Annotated[LogoutRequest, Body()]):
     container = Container(db)
     factory = AppFactory(container)
 
     user_refresh_token_service:RefreshTokenServiceSQLAlchemy = factory.create(RefreshTokenServiceSQLAlchemy)
 
-    user_refresh_token_service.revoke(refresh_token)
+    user_refresh_token_service.revoke(request.refresh_token)
 
     return LogoutResponse()
