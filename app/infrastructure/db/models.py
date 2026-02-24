@@ -229,7 +229,7 @@ class FlashcardTypeModel(PolyouDB):
 
 
 class FlashcardSyncMetadataModel(PolyouDB):
-    __tablename__ = "flashcards_metadata"
+    __tablename__ = "flashcards_sync_metadata"
 
     flashcard_id: Mapped[int] = mapped_column(
         ForeignKey("flashcards.flashcard_id", ondelete="CASCADE"),
@@ -416,6 +416,6 @@ class FlashcardAudioModel(PolyouDB):
 # =========================================================
 # Create / Drop (opcional)
 # =========================================================
-# from connection import engine
-# PolyouDB.metadata.drop_all(engine)
-# PolyouDB.metadata.create_all(engine)
+#from connection import engine
+#PolyouDB.metadata.drop_all(engine)
+#PolyouDB.metadata.create_all(engine)
