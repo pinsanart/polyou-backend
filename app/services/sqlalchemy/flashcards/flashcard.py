@@ -73,14 +73,7 @@ class FlashcardServiceSQLAlchemy(FlashcardService):
         return self.flashcard_repository.list_ids(user_id)
     
     def list_public_ids(self, user_id: int) -> List[UUID]:
-        ids = self.flashcard_repository.list_ids(user_id)
-
-        public_ids = []
-        for id in ids:
-            model = self.flashcard_repository.get_by_id(id)
-            public_ids.append(model.public_id)
-        
-        return public_ids
+        return self.flashcard_repository.list_public_ids(user_id)
     
     def create_one_from_request(self, user_id: int, flashcard_info:FlashcardCreateRequest) -> UUID:
         flashcard_model = self.flashcard_repository.get_by_public_id(flashcard_info.public_id)
@@ -124,10 +117,7 @@ class FlashcardServiceSQLAlchemy(FlashcardService):
         return Flashcard.model_validate(model)
         
     def info_many(self, ids: List[int]) -> List[Flashcard]:
-        models = [
-            self.flashcard_repository.get_by_id(id)
-            for id in ids
-        ]
+        models = self.flashcard_repository.get_by_ids(ids)
 
         infos = [
             Flashcard.model_validate(model)
