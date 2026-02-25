@@ -1,5 +1,5 @@
 from ....core.services.flashcards.flashcard_content import FlashcardContentService
-from ....infrastructure.repository.sqlalchemy.flashcards.flashcard_content import FlashcardContentRepositorySQLAlchemy
+from ....infrastructure.repositories.sqlalchemy.flashcards.flashcard_content import FlashcardContentRepositorySQLAlchemy
 from ....infrastructure.db.models import FlashcardContentModel
 from ....core.schemas.flashcards.models import FlashcardContent
 from ....core.schemas.flashcards.bases import FlashcardContentBase

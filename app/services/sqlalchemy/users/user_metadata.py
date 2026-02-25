@@ -1,5 +1,5 @@
 from ....core.services.users.user_metadata import UserMetadataService
-from ....infrastructure.repository.sqlalchemy.users.user_metadata import UserMetadataRepositorySQLAlchemy
+from ....infrastructure.repositories.sqlalchemy.users.user_metadata import UserMetadataRepositorySQLAlchemy
 from ....core.schemas.users.models import UserMetadata
 from ....core.schemas.users.bases import UserMetadataBase
 from ....core.exceptions.user import UserDoesNotExist

@@ -1,6 +1,6 @@
-from ....infrastructure.repository.sqlalchemy.users.user import UserRepositorySQLAlchemy
-from ....infrastructure.repository.sqlalchemy.users.user_credentials import UserCredentialsRepositorySQLAlchemy
-from ....infrastructure.repository.sqlalchemy.users.user_metadata import UserMetadataRepositorySQLAlchemy
+from ....infrastructure.repositories.sqlalchemy.users.user import UserRepositorySQLAlchemy
+from ....infrastructure.repositories.sqlalchemy.users.user_credentials import UserCredentialsRepositorySQLAlchemy
+from ....infrastructure.repositories.sqlalchemy.users.user_metadata import UserMetadataRepositorySQLAlchemy
 from ....core.schemas.auth.request import LoginRequest
 
 from ....core.exceptions.auth import (

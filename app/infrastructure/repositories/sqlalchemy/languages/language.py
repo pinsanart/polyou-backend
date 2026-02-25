@@ -16,6 +16,10 @@ class LanguageRepositorySQLAlchemy(LanguageRepository):
     def get_by_id(self, id: int) -> LanguageModel | None:
         return self.db_session.get(LanguageModel, id)
 
+    def get_by_ids(self, ids: List[int]) -> List[LanguageModel]:
+        stmt = select(LanguageModel).where(LanguageModel.language_id.in_(ids))
+        return self.db_session.scalars(stmt).all()
+
     def get_by_iso_639_1(self, iso_639_1: str) -> LanguageModel | None:
         stmt = select(LanguageModel).where(LanguageModel.iso_639_1 == iso_639_1)
         return self.db_session.scalar(stmt)

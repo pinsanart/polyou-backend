@@ -9,8 +9,8 @@ from ....core.security.jwt import verify_token
 from ....routes.auth import oauth2_scheme
 from ...session import get_db
 from ....core.schemas.users.responses import UserIdentityResponse
-from ....infrastructure.repository.sqlalchemy.users.user_metadata import UserMetadataRepositorySQLAlchemy
-from ....infrastructure.repository.sqlalchemy.users.user import UserRepositorySQLAlchemy 
+from ....infrastructure.repositories.sqlalchemy.users.user_metadata import UserMetadataRepositorySQLAlchemy
+from ....infrastructure.repositories.sqlalchemy.users.user import UserRepositorySQLAlchemy 
 from ....core.exceptions.jwt import JWTTokenExpiredSignatureError, JWTInvalidTokenError, JWTTokenMissingSubjectError
 
 from ....dependencies.sqlalchemy.container import Container

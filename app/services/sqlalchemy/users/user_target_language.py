@@ -1,7 +1,7 @@
 from typing import List
 
 from ....core.services.users.users_target_languages import UserTargetLanguageService
-from ....infrastructure.repository.sqlalchemy.users.user_target_language import UsersTargetLanguagesRepositorySQLAlchemy
+from ....infrastructure.repositories.sqlalchemy.users.user_target_language import UsersTargetLanguagesRepositorySQLAlchemy
 from ....core.schemas.users.creates import UserTargetLanguageCreateInfo
 from ....infrastructure.db.models import UserTargetLanguageModel
 from ....core.exceptions.user_flashcard_target import TargetLanguageAlreadyExistsError

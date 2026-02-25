@@ -1,7 +1,7 @@
 from ....core.services.auth.refresh_token import RefreshTokenService
 from ....core.security.refresh_token import generate_refresh_token, hash_token
 from ....core.schemas.auth.create import RefreshTokenCreateInfo
-from ....infrastructure.repository.sqlalchemy.auth.refresh_token import RefreshTokenRepositorySQLAlchemy
+from ....infrastructure.repositories.sqlalchemy.auth.refresh_token import RefreshTokenRepositorySQLAlchemy
 from ....mappers.user_sqlalchemy import UserSQLAlchemyMapper
 from ....dependencies.time.utc_safe import utcnow
 from ....core.exceptions.auth import RefreshTokenExpiredError, RefreshTokenNotFoundError, RefreshTokenRevokedError

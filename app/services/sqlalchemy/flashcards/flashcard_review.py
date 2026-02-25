@@ -3,7 +3,7 @@ from typing import List
 from ....core.schemas.flashcards.models import FlashcardReview
 from ....core.schemas.flashcards.bases import FlashcardReviewBase
 from ....core.services.flashcards.flashcard_review import FlashcardReviewService
-from ....infrastructure.repository.sqlalchemy.flashcards.flashcard_review import FlashcardReviewRepositorySQLAlchemy
+from ....infrastructure.repositories.sqlalchemy.flashcards.flashcard_review import FlashcardReviewRepositorySQLAlchemy
 from ....infrastructure.db.models import FlashcardReviewModel
 
 class FlashcardReviewServiceSQLAlchemy(FlashcardReviewService):

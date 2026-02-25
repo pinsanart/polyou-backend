@@ -2,7 +2,7 @@ from typing import List
 
 from ....core.exceptions.languages import LanguageNotAvailableError
 from ....core.services.languages.language import LanguageService
-from ....infrastructure.repository.sqlalchemy.languages.language import LanguageRepositorySQLAlchemy
+from ....infrastructure.repositories.sqlalchemy.languages.language import LanguageRepositorySQLAlchemy
 from ....infrastructure.db.models import LanguageModel
 from ....core.schemas.languages.creates import LanguageCreateInfo
 
@@ -12,11 +12,8 @@ class LanguageServiceSQLAlchemy(LanguageService):
     
     def get_available_languages_iso_639_1(self) -> List[str]:
         ids = self.language_repository.list_ids()
-        languages_iso_639_1 = []
-        for id in ids:
-            model = self.language_repository.get_by_id(id)
-            languages_iso_639_1.append(model.iso_639_1)
-        return languages_iso_639_1
+        models = self.language_repository.get_by_ids(ids)
+        return [model.iso_639_1 for model in models]
 
     def get_id_by_iso_639_1_or_fail(self, iso_639_1: str) -> int:
         language_model = self.language_repository.get_by_iso_639_1(iso_639_1)

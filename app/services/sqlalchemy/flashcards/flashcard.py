@@ -3,7 +3,7 @@ from uuid import UUID
 
 from ....core.services.flashcards.flashcard import FlashcardService
 from ....core.exceptions.flashcards import PublicIDAlreadyRegistedError, PublicIDDoesNotBelongToUserError, PublicIDDoesNotExistError
-from ....infrastructure.repository.sqlalchemy.flashcards.flashcard import FlashcardRepositorySQLAlchemy
+from ....infrastructure.repositories.sqlalchemy.flashcards.flashcard import FlashcardRepositorySQLAlchemy
 
 from ....core.schemas.flashcards.models import Flashcard
 from ....core.schemas.flashcards.requests import FlashcardCreateRequest
@@ -42,7 +42,7 @@ class FlashcardServiceSQLAlchemy(FlashcardService):
 
         return ids
     
-    def get_public_id_by_id_or_fail(self, user_id: int, id: int):
+    def get_public_id_by_id_or_fail(self, user_id: int, id: int) -> UUID:
         flashcard_model = self.flashcard_repository.get_by_id(id)
 
         if not flashcard_model:
@@ -53,7 +53,7 @@ class FlashcardServiceSQLAlchemy(FlashcardService):
         
         return flashcard_model.public_id
 
-    def get_public_ids_by_ids_or_fail(self, user_id, ids):
+    def get_public_ids_by_ids_or_fail(self, user_id, ids) -> List[UUID]:
         public_ids = []
 
         for id in ids:

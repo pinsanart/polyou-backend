@@ -1,7 +1,7 @@
 from ....core.schemas.flashcards.bases import FlashcardSyncMetadataBase
 from ....core.schemas.flashcards.models import FlashcardSyncMetadata
 from ....core.services.flashcards.flashcard_sync_metadata import FlashcardSyncMetadataService
-from ....infrastructure.repository.sqlalchemy.flashcards.flashcard_sync_metadata import FlashcardSyncMetadataRepositorySQLAlchemy
+from ....infrastructure.repositories.sqlalchemy.flashcards.flashcard_sync_metadata import FlashcardSyncMetadataRepositorySQLAlchemy
 
 class FlashcardSyncMetadataServiceSQLAlchemy(FlashcardSyncMetadataService):
     def __init__(self, flashcard_metadata_repository: FlashcardSyncMetadataRepositorySQLAlchemy):

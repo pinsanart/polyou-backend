@@ -1,5 +1,5 @@
 from ....core.services.users.user_credentials import UserCredentialsService
-from ....infrastructure.repository.sqlalchemy.users.user_credentials import UserCredentialsRepositorySQLAlchemy
+from ....infrastructure.repositories.sqlalchemy.users.user_credentials import UserCredentialsRepositorySQLAlchemy
 from ....core.schemas.users.models import UserCredentials
 from ....core.schemas.users.bases import UserCredentialsBase
 from ....core.exceptions.user import UserDoesNotExist

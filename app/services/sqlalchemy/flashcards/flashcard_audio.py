@@ -4,7 +4,7 @@ from ....core.services.flashcards.flashcard_audio import FlashcardAudioService
 from ....core.schemas.flashcards.bases import FlashcardAudioBase
 from ....core.schemas.flashcards.models import FlashcardAudio
 
-from ....infrastructure.repository.sqlalchemy.flashcards.flashcard_audio import FlashcardAudioRepositorySQLAlchemy
+from ....infrastructure.repositories.sqlalchemy.flashcards.flashcard_audio import FlashcardAudioRepositorySQLAlchemy
 from ....infrastructure.db.models import FlashcardAudioModel
 
 class FlashcardAudioServiceSQLAlchemy(FlashcardAudioService):

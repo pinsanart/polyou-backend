@@ -10,6 +10,10 @@ class LanguageRepository(ABC):
         pass
 
     @abstractmethod
+    def get_by_ids(self, ids):
+        pass
+
+    @abstractmethod
     def get_by_iso_639_1(self, iso_639_1):
         pass
 

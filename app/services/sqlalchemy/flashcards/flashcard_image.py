@@ -1,7 +1,7 @@
 from typing import List
 
 from ....core.services.flashcards.flashcard_image import FlashcardImageService
-from ....infrastructure.repository.sqlalchemy.flashcards.flashcard_image import FlashcardImageRepositorySQLAlchemy
+from ....infrastructure.repositories.sqlalchemy.flashcards.flashcard_image import FlashcardImageRepositorySQLAlchemy
 from ....infrastructure.db.models import FlashcardImageModel
 from ....core.schemas.flashcards.models import FlashcardImage
 from ....core.schemas.flashcards.bases import FlashcardImageBase

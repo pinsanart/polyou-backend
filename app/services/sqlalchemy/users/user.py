@@ -1,5 +1,5 @@
 from ....core.services.users.user import UserService
-from ....infrastructure.repository.sqlalchemy.users.user import UserRepositorySQLAlchemy
+from ....infrastructure.repositories.sqlalchemy.users.user import UserRepositorySQLAlchemy
 from ....infrastructure.db.models import (
     UserModel,
     UserProfileModel,

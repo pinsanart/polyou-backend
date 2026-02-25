@@ -1,5 +1,5 @@
 from ....core.services.flashcards.flashcard_type import FlashcardTypeService
-from ....infrastructure.repository.sqlalchemy.flashcards.flashcard_type import FlashcardTypeRepositorySQLAlchemy
+from ....infrastructure.repositories.sqlalchemy.flashcards.flashcard_type import FlashcardTypeRepositorySQLAlchemy
 from ....infrastructure.db.models import FlashcardTypeModel
 from ....core.schemas.flashcards.requests import FlashcardTypeRequest
 from ....core.exceptions.flashcards import FlashcardTypeNameNotExistError

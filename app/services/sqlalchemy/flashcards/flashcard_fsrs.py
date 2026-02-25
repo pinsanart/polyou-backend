@@ -1,5 +1,5 @@
 from ....core.services.flashcards.flashcard_fsrs import FlashcardFSRSService
-from ....infrastructure.repository.sqlalchemy.flashcards.flashcard_fsrs import FlashcardFSRSRepositorySQLAlchemy
+from ....infrastructure.repositories.sqlalchemy.flashcards.flashcard_fsrs import FlashcardFSRSRepositorySQLAlchemy
 from ....core.schemas.flashcards.bases import FlashcardFSRSBase
 from ....core.schemas.flashcards.models import FlashcardFSRS
 

@@ -1,5 +1,5 @@
 from ....core.services.users.user_profile import UserProfileService
-from ....infrastructure.repository.sqlalchemy.users.user_profile import UserProfileRepositorySQLAlchemy
+from ....infrastructure.repositories.sqlalchemy.users.user_profile import UserProfileRepositorySQLAlchemy
 from ....core.schemas.users.models import User
 from ....core.schemas.users.bases import UserBase
 from ....core.exceptions.user import UserDoesNotExist
