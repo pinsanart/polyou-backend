@@ -12,35 +12,25 @@ from sqlalchemy import (
 from uuid import UUID, uuid4
 
 from typing import List, Optional
-from enum import Enum
 from datetime import datetime
 
 from ...dependencies.time.utc_safe import utcnow
+
+# =========================================================
+# Enums
+# =========================================================
+
+from ...core.enums import (
+    Fields,
+    FSRSRating,
+    FSRSState
+)
 
 # =========================================================
 # Base
 # =========================================================
 class PolyouDB(DeclarativeBase):
     pass
-
-# =========================================================
-# Enums
-# =========================================================
-class Fields(Enum):
-    front = "front"
-    back = "back"
-
-
-class FSRSRating(int, Enum):
-    AGAIN = 1
-    HARD = 2
-    GOOD = 3
-
-class FSRSStates(int, Enum):
-    LEARNING = 1
-    REVIEW = 2
-    RELEARNING = 3
-
 
 # =========================================================
 # Users
@@ -335,7 +325,7 @@ class FlashcardFSRSModel(PolyouDB):
     difficulty: Mapped[float] = mapped_column(nullable=False, default=5.0)
     due: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow, nullable=False)
     last_review: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True), nullable=True)
-    state: Mapped[FSRSStates] = mapped_column(SQLEnum(FSRSStates), nullable=False, default=FSRSStates.LEARNING)
+    state: Mapped[FSRSState] = mapped_column(SQLEnum(FSRSState), nullable=False, default=FSRSState.LEARNING)
 
     flashcard: Mapped["FlashcardModel"] = relationship(
         back_populates="fsrs",
@@ -371,10 +361,13 @@ class FlashcardReviewModel(PolyouDB):
     new_stability: Mapped[float] = mapped_column(nullable=False)
     new_difficulty: Mapped[float] = mapped_column(nullable=False)
     
-    state_before: Mapped[FSRSStates] = mapped_column(SQLEnum(FSRSStates), nullable=False)
-    state_after: Mapped[FSRSStates] = mapped_column(SQLEnum(FSRSStates), nullable=False)
+    state_before: Mapped[FSRSState] = mapped_column(SQLEnum(FSRSState), nullable=False)
+    state_after: Mapped[FSRSState] = mapped_column(SQLEnum(FSRSState), nullable=False)
 
-    flashcard: Mapped["FlashcardModel"] = relationship(back_populates="reviews")
+    flashcard: Mapped["FlashcardModel"] = relationship(
+        back_populates="reviews",
+        passive_deletes = True
+    )
 
 
 class FlashcardImageModel(PolyouDB):
