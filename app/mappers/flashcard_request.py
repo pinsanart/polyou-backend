@@ -1,4 +1,4 @@
-from ..core.schemas.flashcards.requests import FlashcardCreateRequest
+from ..core.schemas.flashcards.requests import FlashcardPostRequest
 from ..core.services.flashcards.flashcard_type import FlashcardTypeService
 from ..core.services.languages.language import LanguageService
 
@@ -19,7 +19,7 @@ class FlashcardRequestMapper:
         self.flashcard_type_service = flashcard_type_service
         self.language_service = language_service
     
-    def request_to_db_model(self, user_id: int, create_info: FlashcardCreateRequest) -> FlashcardModel:
+    def request_to_db_model(self, user_id: int, create_info: FlashcardPostRequest) -> FlashcardModel:
         flashcard_model = FlashcardModel(
             user_id=user_id,
             public_id=create_info.public_id,

@@ -6,7 +6,7 @@ from ....core.exceptions.flashcards import PublicIDAlreadyRegistedError, PublicI
 from ....infrastructure.repositories.sqlalchemy.flashcards.flashcard import FlashcardRepositorySQLAlchemy
 
 from ....core.schemas.flashcards.models import Flashcard
-from ....core.schemas.flashcards.requests import FlashcardCreateRequest
+from ....core.schemas.flashcards.requests import FlashcardPostRequest
 
 from ....mappers.flashcard_request import FlashcardRequestMapper
 
@@ -75,7 +75,7 @@ class FlashcardServiceSQLAlchemy(FlashcardService):
     def list_public_ids(self, user_id: int) -> List[UUID]:
         return self.flashcard_repository.list_public_ids(user_id)
     
-    def create_one_from_request(self, user_id: int, flashcard_info:FlashcardCreateRequest) -> UUID:
+    def create_one_from_request(self, user_id: int, flashcard_info:FlashcardPostRequest) -> UUID:
         flashcard_model = self.flashcard_repository.get_by_public_id(flashcard_info.public_id)
 
         if flashcard_model:
@@ -85,7 +85,7 @@ class FlashcardServiceSQLAlchemy(FlashcardService):
         self.flashcard_repository.create_one(flashcard_model)
         return flashcard_model.public_id
     
-    def create_many_from_request(self, user_id: int, flashcards_info: List[FlashcardCreateRequest]) -> List[UUID]:
+    def create_many_from_request(self, user_id: int, flashcards_info: List[FlashcardPostRequest]) -> List[UUID]:
         for info in flashcards_info:
             flashcard_model = self.flashcard_repository.get_by_public_id(info.public_id)
 

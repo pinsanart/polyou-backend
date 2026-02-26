@@ -6,8 +6,12 @@ from ..core.schemas.flashcards.models import (
 )
 from ..core.schemas.flashcards.responses import (
     FlashcardInfoResponse,
-    FlashcardMetadataResponse,
-    FlaschardAllMetadataResponse
+    FlashcardGetSyncMetadataResponse,
+    FlashcardGetAllSyncMetadataResponse
+)
+
+from ..core.schemas.flashcards.bases import (
+    FlashcardSyncMetadataBase
 )
 
 from ..core.services.flashcards.flashcard_type import FlashcardTypeService
@@ -33,24 +37,25 @@ class FlashcardResponseMapper:
 
         return FlashcardInfoResponse(**data)
     
-    def metadata_to_response(self, user_id: int, metadata: FlashcardSyncMetadata) -> FlashcardMetadataResponse:
-        data = metadata.model_dump()
+    def sync_metadata_to_response(self, user_id: int, sync_metadata: FlashcardSyncMetadata) -> FlashcardGetSyncMetadataResponse:
+        data = sync_metadata.model_dump()
 
         flashcard_id = data.pop('flashcard_id')
         
-        data['public_id'] = self.flashcard_service.get_public_id_by_id_or_fail(user_id, flashcard_id)
-
-        return FlashcardMetadataResponse(**data)
-    
-    def all_metadata_to_response(self, user_id: int, metadatas: List[FlashcardSyncMetadata]) -> FlaschardAllMetadataResponse:
+        return FlashcardGetSyncMetadataResponse(
+            public_id= self.flashcard_service.get_public_id_by_id_or_fail(user_id, flashcard_id),
+            sync_metadata= FlashcardSyncMetadataBase(**data)
+        )
+        
+    def all_sync_metadata_to_response(self, user_id: int, sync_metadatas: List[FlashcardSyncMetadata]) -> FlashcardGetAllSyncMetadataResponse:
         public_ids = []
-        all_metadata = []
-        for metadata in metadatas:
-            data = self.metadata_to_response(user_id, metadata)
-            all_metadata.append(data)
+        all_sync_metadata = []
+        for sync_metadata in sync_metadatas:
+            data = self.sync_metadata_to_response(user_id, sync_metadata)
+            all_sync_metadata.append(data)
             public_ids.append(data.public_id)
         
-        return FlaschardAllMetadataResponse(
-            public_ids= public_ids,
-            metadatas= all_metadata
+        return FlashcardGetAllSyncMetadataResponse(
+            public_ids=public_ids,
+            sync_metadatas=all_sync_metadata
         )
