@@ -119,7 +119,7 @@ class UserProfileModel(PolyouDB):
     user: Mapped["UserModel"] = relationship(back_populates="profile")
 
 class RefreshTokenModel(PolyouDB):
-    __tablename__ = "users_refresh_tokens"
+    __tablename__ = "refresh_tokens"
 
     refresh_token_id: Mapped[int] = mapped_column(primary_key=True)
 
@@ -147,7 +147,7 @@ class RefreshTokenModel(PolyouDB):
     expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
     revoked: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
     replaced_by: Mapped[Optional[int]] = mapped_column(
-       ForeignKey("users_refresh_tokens.refresh_token_id"),
+       ForeignKey("refresh_tokens.refresh_token_id"),
         nullable=True
     )
     created_at: Mapped[datetime] = mapped_column(default=utcnow, nullable=False)

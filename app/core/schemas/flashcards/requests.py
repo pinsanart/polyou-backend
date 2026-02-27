@@ -22,7 +22,7 @@ class FlashcardPostRequest(FlashcardBase):
 class FlashcardPostBatchRequest(BaseModel):
     flashcards: List[FlashcardPostRequest]
 
-class FlashcardGetInfoRequest(BaseModel):
+class FlashcardGetInfosRequest(BaseModel):
     public_ids: List[UUID]
 
 class FlashcardGetSyncMetadataRequest(BaseModel):

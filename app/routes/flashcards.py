@@ -1,7 +1,6 @@
 from fastapi import APIRouter, Depends, Query, Body
-from typing import Annotated, List
+from typing import Annotated
 from sqlalchemy.orm import Session
-from uuid import UUID
 
 from ..services.sqlalchemy.flashcards.flashcard import FlashcardServiceSQLAlchemy
 from ..services.sqlalchemy.flashcards.flashcard_content import FlashcardContentServiceSQLAlchemy
@@ -25,7 +24,7 @@ from ..core.schemas.flashcards.requests import (
     FlashcardPatchReviewsRequest,
     FlashcardPatchAudiosRequest,
     FlashcardPatchSyncMetadataRequest,
-    FlashcardGetInfoRequest,
+    FlashcardGetInfosRequest,
     FlashcardGetSyncMetadataRequest,
     FlashcardPostBatchRequest,
     FlashcardDeleteRequest,
@@ -41,7 +40,7 @@ from ..core.schemas.flashcards.responses import (
     FlashcardPostBatchResponse,
     FlashcardPatchContentResponse,
     FlashcardPatchFSRSResponse,
-    FlaschardPatchImagesResponse,
+    FlashcardPatchImagesResponse,
     FlashcardPatchReviewsResponse,
     FlashcardPatchAudiosResponse,
     FlashcardPatchSyncMetadataResponse,
@@ -73,7 +72,7 @@ async def get_flashcards_public_ids(user: Annotated[UserIdentityResponse, Depend
     return FlashcardGetResponse(public_ids=public_ids)
 
 @router.get("/infos", response_model=FlashcardGetInfosResponse)
-def get_flashcards_info(user: Annotated[UserIdentityResponse, Depends(get_active_user)], db: Annotated[Session, Depends(get_db)], request: Annotated[FlashcardGetInfoRequest, Query()]):
+def get_flashcards_info(user: Annotated[UserIdentityResponse, Depends(get_active_user)], db: Annotated[Session, Depends(get_db)], request: Annotated[FlashcardGetInfosRequest, Query()]):
     user_id = user.user_id
     container = Container(db)
     factory = AppFactory(container)
@@ -179,7 +178,7 @@ def update_flashcard_fsrs(user: Annotated[UserIdentityResponse, Depends(get_acti
         new_fsrs=request.new_fsrs
     )
 
-@router.patch("/images", response_model=FlaschardPatchImagesResponse)
+@router.patch("/images", response_model=FlashcardPatchImagesResponse)
 def update_flashcard_images(user: Annotated[UserIdentityResponse, Depends(get_active_user)], db: Annotated[Session, Depends(get_db)], request: Annotated[FlashcardPatchImagesRequest, Body()]):
     user_id = user.user_id
     container = Container(db)
@@ -191,7 +190,7 @@ def update_flashcard_images(user: Annotated[UserIdentityResponse, Depends(get_ac
     flashcard_image_service = factory.create(FlashcadImageServiceSQLAlchemy)
     flashcard_image_service.change(flashcard_id, request.new_images)
 
-    return FlaschardPatchImagesResponse(
+    return FlashcardPatchImagesResponse(
         public_id=request.public_id, 
         new_images=request.new_images
     )

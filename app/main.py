@@ -89,11 +89,11 @@ async def language_not_available_handler(request: Request, exc: LanguageNotAvail
 
 @app.exception_handler(EmailAlreadyExistsError)
 async def email_already_exists_handler(request: Request, exc: EmailAlreadyExistsError):
-    return JSONResponse(status_code=status.HTTP_403_FORBIDDEN, content={"detail": str(exc.message)})
+    return JSONResponse(status_code=status.HTTP_409_CONFLICT, content={"detail": str(exc.message)})
 
 @app.exception_handler(TargetLanguageAlreadyExistsError)
 async def target_language_already_exists_handler(request: Request, exc: TargetLanguageAlreadyExistsError):
-    return JSONResponse(status_code=status.HTTP_406_NOT_ACCEPTABLE, content={"detail": str(exc.message)})
+    return JSONResponse(status_code=status.HTTP_409_CONFLICT, content={"detail": str(exc.message)})
 
 @app.exception_handler(NotAddedTargetLanguage)
 async def not_added_target_language_handler(request: Request, exc: NotAddedTargetLanguage):
@@ -109,11 +109,11 @@ async def user_does_not_exist_handler(request: Request, exc: UserDoesNotExist):
 
 @app.exception_handler(PublicIDAlreadyRegistedError)
 async def public_id_already_registed_handler(request: Request, exc: PublicIDAlreadyRegistedError):
-    return JSONResponse(status_code=status.HTTP_403_FORBIDDEN, content={"detail": str(exc.message)})
+    return JSONResponse(status_code=status.HTTP_409_CONFLICT, content={"detail": str(exc.message)})
 
 @app.exception_handler(PublicIDDoesNotExistError)
 async def public_id_does_not_exist_handler(request: Request, exc: PublicIDDoesNotExistError):
-    return JSONResponse(status_code=status.HTTP_403_FORBIDDEN, content={"detail": str(exc.message)})
+    return JSONResponse(status_code=status.HTTP_404_NOT_FOUND, content={"detail": str(exc.message)})
 
 @app.exception_handler(RefreshTokenExpiredError)
 async def refresh_token_expired_handler(request: Request, exc: RefreshTokenExpiredError):

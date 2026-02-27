@@ -48,7 +48,7 @@ class FlashcardPatchContentResponse(FlashcardPatchContentRequest):
 class FlashcardPatchFSRSResponse(FlashcardPatchFSRSRequest):
     pass
 
-class FlaschardPatchImagesResponse(FlashcardPatchImagesRequest):
+class FlashcardPatchImagesResponse(FlashcardPatchImagesRequest):
     pass
 
 class FlashcardPatchReviewsResponse(FlashcardPatchReviewsRequest):
