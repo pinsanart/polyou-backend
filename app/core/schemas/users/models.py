@@ -1,3 +1,6 @@
+from uuid import UUID, uuid4
+from pydantic import Field
+
 from .bases import (
     UserBase,
     UserCredentialsBase,
@@ -12,6 +15,7 @@ class UserCredentials(UserCredentialsBase):
 
 class User(UserBase):
     user_id: int
+    public_id: UUID = Field(default_factory=uuid4)
 
 class UserMetadata(UserMetadataBase):
     user_id: int

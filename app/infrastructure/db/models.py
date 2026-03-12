@@ -66,7 +66,15 @@ class UserModel(PolyouDB):
     __tablename__ = "users"
 
     user_id: Mapped[int] = mapped_column(primary_key=True)
-    
+
+    public_id: Mapped[UUID] = mapped_column(
+        PGUUID(as_uuid=True),
+        default=uuid4,
+        unique=True,
+        nullable=False,
+        index=True
+    )
+
     user_metadata: Mapped["UserMetadataModel"] = relationship(
         back_populates='user',
         uselist=False,
