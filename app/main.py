@@ -5,7 +5,8 @@ from .routes import (
     auth, 
     users, 
     languages, 
-    flashcards
+    flashcards,
+    media
 )
 
 import app.dependencies.sqlalchemy.registrations.repositories
@@ -58,6 +59,7 @@ app.include_router(auth.router)
 app.include_router(users.router)
 app.include_router(languages.router)
 app.include_router(flashcards.router)
+app.include_router(media.router)
 
 @app.exception_handler(JWTInvalidTokenError)
 async def invalid_jwt_token_handler(request: Request, exc: JWTInvalidTokenError):

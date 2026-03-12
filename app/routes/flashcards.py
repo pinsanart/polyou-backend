@@ -136,13 +136,13 @@ async def create_flashcards(user: Annotated[UserIdentityResponse, Depends(get_ac
     container = Container(db)
     factory = AppFactory(container)
 
-    flashcard_service = factory.create(FlashcardServiceSQLAlchemy)
-    flashcard_request_mapper = factory.create(FlashcardRequestMapper)
+    flashcard_service:FlashcardServiceSQLAlchemy = factory.create(FlashcardServiceSQLAlchemy)
     
-    create_infos = [flashcard_request_mapper.request_to_create(create_info) for create_info in request.flashcards]
-    public_ids = flashcard_service.create_many(user_id, create_infos)
-
-    return FlashcardPostBatchResponse(public_ids=public_ids)
+    public_ids = flashcard_service.create_many_from_request(user_id, request.flashcards)
+    
+    return FlashcardPostBatchResponse(
+        public_ids=public_ids
+    )
          
 @router.patch("/content", response_model=FlashcardPatchContentResponse)
 def update_flashcard_content(user: Annotated[UserIdentityResponse, Depends(get_active_user)], db: Annotated[Session, Depends(get_db)], request: Annotated[FlashcardPatchContentRequest, Body()]):
