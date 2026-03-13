@@ -1,13 +1,12 @@
-from ..factory                                                                      import AppFactory
+from ..factory                                                                        import AppFactory
 
 from ....infrastructure.repositories.sqlalchemy.flashcards.flashcard_content          import FlashcardContentRepositorySQLAlchemy
 from ....infrastructure.repositories.sqlalchemy.flashcards.flashcard_fsrs             import FlashcardFSRSRepositorySQLAlchemy
-from ....infrastructure.repositories.sqlalchemy.flashcards.flashcard_image            import FlashcardImageRepositorySQLAlchemy
 from ....infrastructure.repositories.sqlalchemy.flashcards.flashcard                  import FlashcardRepositorySQLAlchemy
 from ....infrastructure.repositories.sqlalchemy.flashcards.flashcard_type             import FlashcardTypeRepositorySQLAlchemy
 from ....infrastructure.repositories.sqlalchemy.flashcards.flashcard_sync_metadata    import FlashcardSyncMetadataRepositorySQLAlchemy
 from ....infrastructure.repositories.sqlalchemy.flashcards.flashcard_review           import FlashcardReviewRepositorySQLAlchemy
-from ....infrastructure.repositories.sqlalchemy.flashcards.flashcard_audio            import FlashcardAudioRepositorySQLAlchemy
+from ....infrastructure.repositories.sqlalchemy.flashcards.flashcard_media            import FlashcardMediaRepositorySQLAlchemy
 from ....infrastructure.repositories.sqlalchemy.languages.language                    import LanguageRepositorySQLAlchemy
 from ....infrastructure.repositories.sqlalchemy.users.user_target_language            import UsersTargetLanguagesRepositorySQLAlchemy
 from ....infrastructure.repositories.sqlalchemy.users.user                            import UserRepositorySQLAlchemy
@@ -20,17 +19,9 @@ from ....infrastructure.repositories.sqlalchemy.auth.refresh_token              
 def build_flashcard_content_repository(factory: AppFactory):
     return FlashcardContentRepositorySQLAlchemy(factory.container.db)
 
-@AppFactory.register(FlashcardAudioRepositorySQLAlchemy)
-def build_flashcard_audio_repository(factory: AppFactory):
-    return FlashcardAudioRepositorySQLAlchemy(factory.container.db)
-
 @AppFactory.register(FlashcardFSRSRepositorySQLAlchemy)
 def build_flashcard_fsrs_repository(factory: AppFactory):
     return FlashcardFSRSRepositorySQLAlchemy(factory.container.db)
-
-@AppFactory.register(FlashcardImageRepositorySQLAlchemy)
-def build_flashcard_image_repository(factory: AppFactory):
-    return FlashcardImageRepositorySQLAlchemy(factory.container.db)
 
 @AppFactory.register(FlashcardReviewRepositorySQLAlchemy)
 def build_flashcard_review_repository(factory: AppFactory):
@@ -75,3 +66,7 @@ def build_user_profile_repository(factory: AppFactory):
 @AppFactory.register(RefreshTokenRepositorySQLAlchemy)
 def build_user_refresh_token_repository(factory: AppFactory):
     return RefreshTokenRepositorySQLAlchemy(factory.container.db)
+
+@AppFactory.register(FlashcardMediaRepositorySQLAlchemy)
+def build_flashcard_media_repository(factory: AppFactory):
+    return FlashcardMediaRepositorySQLAlchemy(factory.container.db)

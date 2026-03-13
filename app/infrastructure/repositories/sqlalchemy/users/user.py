@@ -1,5 +1,6 @@
 from sqlalchemy.orm import Session
 from sqlalchemy import select
+from uuid import UUID
 
 from .....core.repositories.users.user import UserRepository
 from .....infrastructure.db.models import UserModel, UserCredentialsModel
@@ -21,6 +22,10 @@ class UserRepositorySQLAlchemy(UserRepository):
             .where(UserCredentialsModel.email == email)
         )
         return self.db_session.execute(stmt).scalar_one_or_none()
+    
+    def get_by_public_id(self, public_id: UUID) -> UserModel | None:
+        stmt = select(UserModel).where(UserModel.public_id == public_id)
+        return self.db_session.scalar(stmt)
     
     def delete(self, user_id: int):
         model = self.db_session.get(UserModel, user_id)

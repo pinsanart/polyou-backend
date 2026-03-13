@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, Query, Body
+from fastapi import APIRouter, Depends, Query, Body, UploadFile
 from typing import Annotated
 from sqlalchemy.orm import Session
 
@@ -6,10 +6,9 @@ from ..services.sqlalchemy.flashcards.flashcard import FlashcardServiceSQLAlchem
 from ..services.sqlalchemy.flashcards.flashcard_content import FlashcardContentServiceSQLAlchemy
 from ..services.sqlalchemy.flashcards.flashcard_sync_metadata import FlashcardSyncMetadataServiceSQLAlchemy
 from ..services.sqlalchemy.flashcards.flashcard_fsrs import FlashcardFSRSServiceSQLAlchemy
-from ..services.sqlalchemy.flashcards.flashcard_image import FlashcadImageServiceSQLAlchemy
 from ..services.sqlalchemy.flashcards.flashcard_review import FlashcardReviewServiceSQLAlchemy
-from ..services.sqlalchemy.flashcards.flashcard_audio import FlashcardAudioServiceSQLAlchemy
 from ..services.sqlalchemy.flashcards.flashcard_sync_metadata import FlashcardSyncMetadataServiceSQLAlchemy
+from ..services.sqlalchemy.flashcards.flashcard_media import FlashcardMediaServiceSQLAlchemy
 
 from ..dependencies.session import get_db
 from ..dependencies.sqlalchemy.auth.auth import get_active_user
@@ -20,15 +19,14 @@ from ..core.schemas.flashcards.requests import (
     FlashcardPostRequest,
     FlashcardPatchContentRequest,
     FlashcardPatchFSRSRequest,
-    FlashcardPatchImagesRequest,
     FlashcardPatchReviewsRequest,
-    FlashcardPatchAudiosRequest,
     FlashcardPatchSyncMetadataRequest,
     FlashcardGetInfosRequest,
     FlashcardGetSyncMetadataRequest,
     FlashcardPostBatchRequest,
     FlashcardDeleteRequest,
-    FlashcardDeleteBatchRequest
+    FlashcardDeleteBatchRequest,
+    FlashcardPutMediaRequest
 )
 
 from ..core.schemas.flashcards.responses import (
@@ -40,9 +38,7 @@ from ..core.schemas.flashcards.responses import (
     FlashcardPostBatchResponse,
     FlashcardPatchContentResponse,
     FlashcardPatchFSRSResponse,
-    FlashcardPatchImagesResponse,
     FlashcardPatchReviewsResponse,
-    FlashcardPatchAudiosResponse,
     FlashcardPatchSyncMetadataResponse,
     FlashcardDeleteResponse,
     FlashcardDeleteBatchResponse
@@ -51,7 +47,6 @@ from ..core.schemas.flashcards.responses import (
 from ..dependencies.sqlalchemy.factory import AppFactory
 from ..dependencies.sqlalchemy.container import Container
 
-from ..mappers.flashcard_request import FlashcardRequestMapper
 from ..mappers.flashcard_response import FlashcardResponseMapper
 
 router = APIRouter(
@@ -178,23 +173,6 @@ def update_flashcard_fsrs(user: Annotated[UserIdentityResponse, Depends(get_acti
         new_fsrs=request.new_fsrs
     )
 
-@router.patch("/images", response_model=FlashcardPatchImagesResponse)
-def update_flashcard_images(user: Annotated[UserIdentityResponse, Depends(get_active_user)], db: Annotated[Session, Depends(get_db)], request: Annotated[FlashcardPatchImagesRequest, Body()]):
-    user_id = user.user_id
-    container = Container(db)
-    factory = AppFactory(container)
-
-    flashcard_service = factory.create(FlashcardServiceSQLAlchemy)
-    flashcard_id = flashcard_service.get_id_by_public_id_or_fail(user_id, request.public_id)
-
-    flashcard_image_service = factory.create(FlashcadImageServiceSQLAlchemy)
-    flashcard_image_service.change(flashcard_id, request.new_images)
-
-    return FlashcardPatchImagesResponse(
-        public_id=request.public_id, 
-        new_images=request.new_images
-    )
-
 @router.patch("/reviews", response_model=FlashcardPatchReviewsResponse)
 def update_flashcard_reviews(user: Annotated[UserIdentityResponse, Depends(get_active_user)], db: Annotated[Session, Depends(get_db)], request: Annotated[FlashcardPatchReviewsRequest, Body()]):
     user_id = user.user_id
@@ -212,25 +190,8 @@ def update_flashcard_reviews(user: Annotated[UserIdentityResponse, Depends(get_a
         new_reviews=request.new_reviews
     )
 
-@router.patch("/audios", response_model=FlashcardPatchAudiosResponse)
-def update_flashcard_audio(user: Annotated[UserIdentityResponse, Depends(get_active_user)], db: Annotated[Session, Depends(get_db)], request: Annotated[FlashcardPatchAudiosRequest, Query()]):
-    user_id = user.user_id
-    container = Container(db)
-    factory = AppFactory(container)
-
-    flashcard_service = factory.create(FlashcardServiceSQLAlchemy)
-    flashcard_id = flashcard_service.get_id_by_public_id_or_fail(user_id, request.public_id)
-
-    flashcard_audio_service = factory.create(FlashcardAudioServiceSQLAlchemy)
-    flashcard_audio_service.change(flashcard_id, request.new_audios)
-
-    return FlashcardPatchAudiosResponse(
-        public_id=request.public_id, 
-        new_audios=request.new_audios
-    )
-
 @router.patch("/sync_metadata", response_model=FlashcardPatchSyncMetadataResponse)
-def update_flashcard_metadata(user: Annotated[UserIdentityResponse, Depends(get_active_user)], db: Annotated[Session, Depends(get_db)], request: Annotated[FlashcardPatchSyncMetadataRequest, Query()]):
+def update_flashcard_metadata(user: Annotated[UserIdentityResponse, Depends(get_active_user)], db: Annotated[Session, Depends(get_db)], request: Annotated[FlashcardPatchSyncMetadataRequest, Body()]):
     user_id = user.user_id
     container = Container(db)
     factory = AppFactory(container)
@@ -245,6 +206,20 @@ def update_flashcard_metadata(user: Annotated[UserIdentityResponse, Depends(get_
         public_id=request.public_id, 
         new_metadata=request.new_sync_metadata
     )
+
+from ..core.schemas.flashcards.bases import FlashcardMediaBase
+@router.put('/media')
+def add_flashcard_media(user: Annotated[UserIdentityResponse, Depends(get_active_user)], db: Annotated[Session, Depends(get_db)], request: Annotated[FlashcardPutMediaRequest, Query()], file: UploadFile):
+    user_id = user.user_id
+
+    container = Container(db)
+    factory = AppFactory(container)
+
+    flashcard_media_service:FlashcardMediaServiceSQLAlchemy = factory.create(FlashcardMediaServiceSQLAlchemy)
+
+@router.delete('/media')
+def delete_flashcard_media():
+    pass
 
 @router.delete("/", response_model=FlashcardDeleteResponse)
 def delete_flashcard(user: Annotated[UserIdentityResponse, Depends(get_active_user)], db: Annotated[Session, Depends(get_db)], request: Annotated[FlashcardDeleteRequest, Query()]):

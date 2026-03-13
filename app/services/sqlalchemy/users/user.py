@@ -1,3 +1,5 @@
+from uuid import UUID
+
 from ....core.services.users.user import UserService
 from ....infrastructure.repositories.sqlalchemy.users.user import UserRepositorySQLAlchemy
 from ....infrastructure.db.models import (
@@ -8,7 +10,7 @@ from ....infrastructure.db.models import (
 )
 from ....core.schemas.users.creates import UserCreateInfo
 from ....core.security.password import hash_password
-from ....core.exceptions.user import EmailAlreadyExistsError
+from ....core.exceptions.user import EmailAlreadyExistsError, UserDoesNotExist
 
 class UserServiceSQLAlchemy(UserService):
     def __init__(self, user_repository: UserRepositorySQLAlchemy):
@@ -36,7 +38,15 @@ class UserServiceSQLAlchemy(UserService):
             )
         )
 
-    def register(self, register_information: UserCreateInfo):
+    def get_public_id_or_fail(self, user_id: int) -> UUID:
+        model = self.user_repository.get_by_id(user_id)
+
+        if not model:
+            raise UserDoesNotExist("The authenticated user does not exist.")
+        
+        return model.public_id
+
+    def register(self, register_information: UserCreateInfo) -> None:
         email = register_information.credentials.email
         user_model = self.user_repository.get_by_email(email)
 

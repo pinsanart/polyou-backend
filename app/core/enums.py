@@ -4,6 +4,10 @@ class Fields(str, Enum):
     front = "front"
     back = "back"
 
+class MediaType(str, Enum):
+    image = "image"
+    audio = "audio"
+
 class FSRSState(int, Enum):
     LEARNING = 1
     REVIEW = 2

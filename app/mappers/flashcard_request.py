@@ -9,9 +9,7 @@ from ..infrastructure.db.models import (
     FlashcardSyncMetadataModel,
     FlashcardContentModel,
     FlashcardFSRSModel,
-    FlashcardReviewModel,
-    FlashcardImageModel,
-    FlashcardAudioModel
+    FlashcardReviewModel
 )
 
 class FlashcardRequestMapper:
@@ -45,17 +43,5 @@ class FlashcardRequestMapper:
                 FlashcardReviewModel(**review.model_dump())
                 for review in create_info.reviews
             ]
-
-        if create_info.images:
-            flashcard_model.images = [
-                FlashcardImageModel(**image.model_dump())
-                for image in create_info.images
-            ]
-
-        if create_info.audios:
-            flashcard_model.audios = [
-                FlashcardAudioModel(**audio.model_dump())
-                for audio in create_info.audios
-            ]
-
+        
         return flashcard_model

@@ -2,7 +2,6 @@ from ..factory                                                                  
 
 from ....infrastructure.repositories.sqlalchemy.flashcards.flashcard_content          import FlashcardContentRepositorySQLAlchemy
 from ....infrastructure.repositories.sqlalchemy.flashcards.flashcard_fsrs             import FlashcardFSRSRepositorySQLAlchemy
-from ....infrastructure.repositories.sqlalchemy.flashcards.flashcard_image            import FlashcardImageRepositorySQLAlchemy
 from ....infrastructure.repositories.sqlalchemy.flashcards.flashcard                  import FlashcardRepositorySQLAlchemy
 from ....infrastructure.repositories.sqlalchemy.flashcards.flashcard_type             import FlashcardTypeRepositorySQLAlchemy
 from ....infrastructure.repositories.sqlalchemy.flashcards.flashcard_sync_metadata    import FlashcardSyncMetadataRepositorySQLAlchemy
@@ -13,8 +12,8 @@ from ....infrastructure.repositories.sqlalchemy.users.user_credentials          
 from ....infrastructure.repositories.sqlalchemy.users.user_metadata                   import UserMetadataRepositorySQLAlchemy
 from ....infrastructure.repositories.sqlalchemy.users.user_profile                    import UserProfileRepositorySQLAlchemy
 from ....infrastructure.repositories.sqlalchemy.flashcards.flashcard_review           import FlashcardReviewRepositorySQLAlchemy
-from ....infrastructure.repositories.sqlalchemy.flashcards.flashcard_audio            import FlashcardAudioRepositorySQLAlchemy
 from ....infrastructure.repositories.sqlalchemy.auth.refresh_token                    import RefreshTokenRepositorySQLAlchemy
+from ....infrastructure.repositories.sqlalchemy.flashcards.flashcard_media            import FlashcardMediaRepositorySQLAlchemy
 
 from ....services.sqlalchemy.auth.auth                                              import AuthServiceSQLAlchemy
 from ....services.sqlalchemy.users.user_target_language                             import UserTargetLanguageServiceSQLAlchemy
@@ -25,13 +24,13 @@ from ....services.sqlalchemy.users.user_profile                                 
 from ....services.sqlalchemy.flashcards.flashcard                                   import FlashcardServiceSQLAlchemy
 from ....services.sqlalchemy.flashcards.flashcard_content                           import FlashcardContentServiceSQLAlchemy                  
 from ....services.sqlalchemy.flashcards.flashcard_fsrs                              import FlashcardFSRSServiceSQLAlchemy
-from ....services.sqlalchemy.flashcards.flashcard_image                             import FlashcadImageServiceSQLAlchemy
 from ....services.sqlalchemy.flashcards.flashcard_type                              import FlashcardTypeServiceSQLAlchemy
 from ....services.sqlalchemy.flashcards.flashcard_sync_metadata                     import FlashcardSyncMetadataServiceSQLAlchemy
 from ....services.sqlalchemy.languages.language                                     import LanguageServiceSQLAlchemy
 from ....services.sqlalchemy.flashcards.flashcard_review                            import FlashcardReviewServiceSQLAlchemy
-from ....services.sqlalchemy.flashcards.flashcard_audio                             import FlashcardAudioServiceSQLAlchemy
 from ....services.sqlalchemy.auth.refresh_token                                     import RefreshTokenServiceSQLAlchemy
+from ....services.sqlalchemy.flashcards.flashcard_media                             import FlashcardMediaServiceSQLAlchemy
+
 
 from ....mappers.flashcard_request                                                  import FlashcardRequestMapper
 
@@ -39,12 +38,6 @@ from ....mappers.flashcard_request                                              
 def build_user_credentials_service(factory: AppFactory):
     return UserCredentialsServiceSQLAlchemy(
         user_credentials_repository= factory.create(UserCredentialsRepositorySQLAlchemy)
-    )
-
-@AppFactory.register(FlashcardAudioServiceSQLAlchemy)
-def build_flashcard_audio_service(factory: AppFactory):
-    return FlashcardAudioServiceSQLAlchemy(
-        flashcard_audio_repository= factory.create(FlashcardAudioRepositorySQLAlchemy)
     )
 
 @AppFactory.register(UserProfileServiceSQLAlchemy)
@@ -98,12 +91,6 @@ def build_flashcard_fsrs_service(factory: AppFactory):
         flashcard_fsrs_repository= factory.create(FlashcardFSRSRepositorySQLAlchemy)
     )
 
-@AppFactory.register(FlashcadImageServiceSQLAlchemy)
-def build_flashcard_image_service(factory: AppFactory):
-    return FlashcadImageServiceSQLAlchemy(
-        flashcard_image_repository= factory.create(FlashcardImageRepositorySQLAlchemy)
-    )
-
 @AppFactory.register(FlashcardTypeServiceSQLAlchemy)
 def build_flashcard_type_service(factory: AppFactory):
     return FlashcardTypeServiceSQLAlchemy(
@@ -132,4 +119,10 @@ def build_flashcard_review_service(factory: AppFactory):
 def build_user_refresh_token_service(factory: AppFactory):
     return RefreshTokenServiceSQLAlchemy(
         refresh_token_repository= factory.create(RefreshTokenRepositorySQLAlchemy)
+    )
+
+@AppFactory.register(FlashcardMediaServiceSQLAlchemy)
+def build_flashcard_media_service(factory: AppFactory):
+    return FlashcardMediaServiceSQLAlchemy(
+        flashcard_media_repository= factory.create(FlashcardMediaRepositorySQLAlchemy)
     )

@@ -10,6 +10,10 @@ class UserRepository(ABC):
         pass
 
     @abstractmethod
+    def get_by_public_id(self, public_id):
+        pass
+
+    @abstractmethod
     def create(self, user_model):
         pass
     

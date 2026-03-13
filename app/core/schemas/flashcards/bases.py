@@ -4,6 +4,8 @@ from typing import List
 
 from uuid import UUID
 
+from ....dependencies.time.utc_safe import utcnow
+
 # =============================
 # ENUMS
 # =============================
@@ -11,7 +13,8 @@ from uuid import UUID
 from ...enums import (
     Fields,
     FSRSRating,
-    FSRSState
+    FSRSState,
+    MediaType
 )
 
 # =============================
@@ -23,18 +26,6 @@ class FlashcardTypeBase(BaseModel):
 
     name: str
     description: str | None = None
-
-class FlashcardImageBase(BaseModel):
-    model_config = ConfigDict(from_attributes=True)
-    
-    field: Fields
-    url: str
-
-class FlashcardAudioBase(BaseModel):
-    model_config = ConfigDict(from_attributes=True)
-
-    field: Fields
-    url: str
 
 class FlashcardContentBase(BaseModel):
     model_config = ConfigDict(from_attributes=True)
@@ -77,6 +68,19 @@ class FlashcardSyncMetadataBase(BaseModel):
     last_image_updated_at: datetime | None = None
     last_audio_updated_at: datetime | None = None
 
+class FlashcardMediaBase(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    field: Fields
+    media_type: MediaType
+
+    filename: str
+    original_name: str
+    path: str
+    file_type: str
+    file_size: int
+    created_at: datetime = Field(default_factory=utcnow)
+
 class FlashcardBase(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
@@ -87,5 +91,4 @@ class FlashcardBase(BaseModel):
     content: FlashcardContentBase
     fsrs: FlashcardFSRSBase
     reviews: List[FlashcardReviewBase] | None = None
-    images: List[FlashcardImageBase] | None = None
-    audios: List[FlashcardAudioBase] | None = None
+    media: List[FlashcardMediaBase] | None = None

@@ -23,7 +23,8 @@ from ...dependencies.time.utc_safe import utcnow
 from ...core.enums import (
     Fields,
     FSRSRating,
-    FSRSState
+    FSRSState,
+    MediaType
 )
 
 # =========================================================
@@ -294,13 +295,7 @@ class FlashcardModel(PolyouDB):
         passive_deletes=True
     )
 
-    images: Mapped[List["FlashcardImageModel"]] = relationship(
-        back_populates="flashcard",
-        cascade="all, delete-orphan",
-        passive_deletes=True
-    )
-
-    audios: Mapped[List["FlashcardAudioModel"]] = relationship(
+    media: Mapped["FlashcardMediaModel"] = relationship(
         back_populates="flashcard",
         cascade="all, delete-orphan",
         passive_deletes=True
@@ -377,41 +372,38 @@ class FlashcardReviewModel(PolyouDB):
         passive_deletes = True
     )
 
+class FlashcardMediaModel(PolyouDB):
+    __tablename__ = 'flashcards_media'
 
-class FlashcardImageModel(PolyouDB):
-    __tablename__ = "flashcards_images"
+    media_id: Mapped[int] = mapped_column(primary_key=True)
 
-    image_id: Mapped[int] = mapped_column(primary_key=True)
-    
+    public_id: Mapped[UUID] = mapped_column(
+        PGUUID(as_uuid=True),
+        default=uuid4,
+        unique=True,
+        nullable=False,
+        index=True
+    )
+
     flashcard_id: Mapped[int] = mapped_column(
         ForeignKey("flashcards.flashcard_id", ondelete="CASCADE"),
-        nullable=False
+        nullable=False,
+        index=True
     )
 
     field: Mapped[Fields] = mapped_column(SQLEnum(Fields), nullable=False)
-    url: Mapped[str] = mapped_column(String, nullable=False)
+    media_type: Mapped[MediaType] = mapped_column(SQLEnum(MediaType), nullable=False)
+
+    filename: Mapped[str] = mapped_column(nullable=False)
+    original_name: Mapped[str] = mapped_column(nullable=False)
+    path: Mapped[str] = mapped_column(nullable=False)
+    file_type: Mapped[str] = mapped_column(nullable=False)
+    file_size: Mapped[int] = mapped_column(nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow, nullable=False)
 
     flashcard: Mapped["FlashcardModel"] = relationship(
-        back_populates="images",
-        passive_deletes=True
-    )
-
-class FlashcardAudioModel(PolyouDB):
-    __tablename__ = "flashcards_audios"
-
-    audio_id: Mapped[int] = mapped_column(primary_key=True)
-    
-    flashcard_id: Mapped[int] = mapped_column(
-        ForeignKey("flashcards.flashcard_id", ondelete="CASCADE"),
-        nullable=False
-    )
-    
-    field: Mapped[Fields] = mapped_column(SQLEnum(Fields), nullable=False)
-    url: Mapped[str] = mapped_column(String, nullable=False)
-
-    flashcard: Mapped["FlashcardModel"] = relationship(
-        back_populates="audios",
-        passive_deletes=True
+        back_populates="media",
+        passive_deletes = True
     )
 
 # =========================================================

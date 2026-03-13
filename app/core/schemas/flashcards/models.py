@@ -1,14 +1,14 @@
-from pydantic import ConfigDict
+from pydantic import Field
+from uuid import UUID, uuid4
 
 from .bases import (
     FlashcardBase,
     FlashcardContentBase,
-    FlashcardAudioBase,
     FlashcardFSRSBase,
-    FlashcardImageBase,
     FlashcardSyncMetadataBase,
     FlashcardReviewBase,
-    FlashcardTypeBase
+    FlashcardTypeBase,
+    FlashcardMediaBase
 )
 
 class Flashcard(FlashcardBase):    
@@ -20,15 +20,7 @@ class Flashcard(FlashcardBase):
 class FlashcardContent(FlashcardContentBase):
     flashcard_id: int
 
-class FlashcardAudio(FlashcardAudioBase):
-    audio_id: int
-    flashcard_id: int
-
 class FlashcardFSRS(FlashcardFSRSBase):
-    flashcard_id: int
-
-class FlashcardImage(FlashcardImageBase):
-    image_id: int
     flashcard_id: int
 
 class FlashcardSyncMetadata(FlashcardSyncMetadataBase):
@@ -37,6 +29,10 @@ class FlashcardSyncMetadata(FlashcardSyncMetadataBase):
 class FlashcardReview(FlashcardReviewBase):
     review_id: int
     flashcard_id: int
+
+class FlashcardMedia(FlashcardMediaBase):
+    media_id: int
+    public_id: UUID = Field(default_factory=uuid4)
 
 class FlashcardType(FlashcardTypeBase):
     flashcard_type_id: int

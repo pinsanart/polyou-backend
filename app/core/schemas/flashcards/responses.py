@@ -10,9 +10,7 @@ from .bases import (
 from .requests import (
     FlashcardPatchContentRequest,
     FlashcardPatchFSRSRequest,
-    FlashcardPatchImagesRequest,
     FlashcardPatchReviewsRequest,
-    FlashcardPatchAudiosRequest,
     FlashcardPatchSyncMetadataRequest
 )
 
@@ -48,13 +46,7 @@ class FlashcardPatchContentResponse(FlashcardPatchContentRequest):
 class FlashcardPatchFSRSResponse(FlashcardPatchFSRSRequest):
     pass
 
-class FlashcardPatchImagesResponse(FlashcardPatchImagesRequest):
-    pass
-
 class FlashcardPatchReviewsResponse(FlashcardPatchReviewsRequest):
-    pass
-
-class FlashcardPatchAudiosResponse(FlashcardPatchAudiosRequest):
     pass
 
 class FlashcardPatchSyncMetadataResponse(FlashcardPatchSyncMetadataRequest):
