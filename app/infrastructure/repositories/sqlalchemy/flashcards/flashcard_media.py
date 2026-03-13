@@ -5,11 +5,15 @@ from typing import List
 from uuid import UUID
 
 from .....core.repositories.flashcards.flashcard_media import FlashcardMediaRepository
-from .....infrastructure.db.models import FlashcardMediaModel
+from .....infrastructure.db.models import FlashcardMediaModel, FlashcardModel
 
 class FlashcardMediaRepositorySQLAlchemy(FlashcardMediaRepository):
     def __init__(self, db_session: Session):
         self.db_session = db_session
+
+    def get_by_user_id(self, user_id: int) -> List[FlashcardMediaModel]:
+        stmt = select(FlashcardMediaModel).join(FlashcardModel).where(FlashcardModel.user_id == user_id)
+        return self.db_session.scalars(stmt).all()
 
     def get_by_id(self, id: int) -> FlashcardMediaModel | None:
         return self.db_session.get(FlashcardMediaModel, id)

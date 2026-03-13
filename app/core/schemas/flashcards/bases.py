@@ -76,7 +76,6 @@ class FlashcardMediaBase(BaseModel):
 
     filename: str
     original_name: str
-    path: str
     file_type: str
     file_size: int
     created_at: datetime = Field(default_factory=utcnow)

@@ -38,7 +38,7 @@ class UserServiceSQLAlchemy(UserService):
             )
         )
 
-    def get_public_id_or_fail(self, user_id: int) -> UUID:
+    def get_public_id_by_id_or_fail(self, user_id: int) -> UUID:
         model = self.user_repository.get_by_id(user_id)
 
         if not model:

@@ -396,7 +396,6 @@ class FlashcardMediaModel(PolyouDB):
 
     filename: Mapped[str] = mapped_column(nullable=False)
     original_name: Mapped[str] = mapped_column(nullable=False)
-    path: Mapped[str] = mapped_column(nullable=False)
     file_type: Mapped[str] = mapped_column(nullable=False)
     file_size: Mapped[int] = mapped_column(nullable=False)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow, nullable=False)

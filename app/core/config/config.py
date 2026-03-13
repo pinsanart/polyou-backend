@@ -1,8 +1,12 @@
 from pydantic_settings import BaseSettings
+from pathlib import Path
 
 class Settings(BaseSettings):
-    APP_NAME: str = "Polyou API"
+    APP_NAME: str = "Polyou-API"
     DEBUG: bool = False
+
+    APP_PATH: Path = Path.home() / APP_NAME 
+    USERS_MEDIA_PATH: Path = APP_PATH / 'media' / 'users'
 
     SECRET_KEY: str
     JWT_ALGORITHM: str = "HS256"

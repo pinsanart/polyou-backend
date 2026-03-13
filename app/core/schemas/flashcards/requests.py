@@ -13,6 +13,11 @@ from .bases import (
 
 from ..languages.bases import ISOCode
 
+from ....core.enums import (
+    Fields, 
+    MediaType
+)
+
 class FlashcardPostRequest(BaseModel):
     model_config = ConfigDict(from_attributes=True)
     
@@ -53,6 +58,11 @@ class FlashcardPatchSyncMetadataRequest(BaseModel):
 
 class FlashcardPutMediaRequest(BaseModel):
     flashcard_public_id: UUID
+    field: Fields
+    media_type: MediaType
+
+class FlashcardDeleteMediaRequest(BaseModel):
+    media_public_id: UUID
 
 class FlashcardDeleteRequest(BaseModel):
     public_id: UUID

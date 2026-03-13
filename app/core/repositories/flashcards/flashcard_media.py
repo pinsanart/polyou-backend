@@ -3,6 +3,10 @@ from typing import List
 
 class FlashcardMediaRepository(ABC):
     @abstractmethod
+    def get_by_user_id(self, user_id):
+        pass
+
+    @abstractmethod
     def get_by_id(self, id):
         pass
 

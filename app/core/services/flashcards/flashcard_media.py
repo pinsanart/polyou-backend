@@ -3,11 +3,19 @@ from typing import List
 
 class FlashcardMediaService(ABC):
     @abstractmethod
-    def list_public_ids(self, flashcard_id):
+    def list_public_ids_by_user_id(self, user_id):
         pass
 
     @abstractmethod
-    def info(self, flashcard_id):
+    def list_public_ids_by_flashcard_id(self, flashcard_id):
+        pass
+
+    @abstractmethod
+    def info_by_flashcard_id(self, flashcard_id):
+        pass
+
+    @abstractmethod
+    def info_by_public_id(self, public_id):
         pass
 
     @abstractmethod

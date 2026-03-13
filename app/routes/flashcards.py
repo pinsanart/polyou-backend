@@ -2,13 +2,15 @@ from fastapi import APIRouter, Depends, Query, Body, UploadFile
 from typing import Annotated
 from sqlalchemy.orm import Session
 
+from ..core.config.config import settings
+
 from ..services.sqlalchemy.flashcards.flashcard import FlashcardServiceSQLAlchemy
 from ..services.sqlalchemy.flashcards.flashcard_content import FlashcardContentServiceSQLAlchemy
 from ..services.sqlalchemy.flashcards.flashcard_sync_metadata import FlashcardSyncMetadataServiceSQLAlchemy
 from ..services.sqlalchemy.flashcards.flashcard_fsrs import FlashcardFSRSServiceSQLAlchemy
 from ..services.sqlalchemy.flashcards.flashcard_review import FlashcardReviewServiceSQLAlchemy
 from ..services.sqlalchemy.flashcards.flashcard_sync_metadata import FlashcardSyncMetadataServiceSQLAlchemy
-from ..services.sqlalchemy.flashcards.flashcard_media import FlashcardMediaServiceSQLAlchemy
+from ..services.managers.flashcard_media import FlashcardMediaManager
 
 from ..dependencies.session import get_db
 from ..dependencies.sqlalchemy.auth.auth import get_active_user
@@ -26,6 +28,7 @@ from ..core.schemas.flashcards.requests import (
     FlashcardPostBatchRequest,
     FlashcardDeleteRequest,
     FlashcardDeleteBatchRequest,
+    FlashcardDeleteMediaRequest,
     FlashcardPutMediaRequest
 )
 
@@ -110,6 +113,16 @@ def get_all_flashcards_metadata(user: Annotated[UserIdentityResponse, Depends(ge
 
     flashcard_response_mapper:FlashcardResponseMapper = factory.create(FlashcardResponseMapper)
     return flashcard_response_mapper.all_sync_metadata_to_response(user_id, metadatas)
+
+@router.get('/media')
+def get_all_media_public_ids(user: Annotated[UserIdentityResponse, Depends(get_active_user)], db: Annotated[Session, Depends(get_db)]):
+    user_id = user.user_id
+    container = Container(db)
+    factory = AppFactory(container)
+
+    flashcard_media_manager:FlashcardMediaManager = factory.create(FlashcardMediaManager)
+
+    return flashcard_media_manager.list_public_ids(user_id)
 
 @router.post("/", response_model=FlashcardPostResponse)
 def create_flashcard(user: Annotated[UserIdentityResponse, Depends(get_active_user)], db: Annotated[Session, Depends(get_db)], request: Annotated[FlashcardPostRequest, Body()]):
@@ -207,7 +220,6 @@ def update_flashcard_metadata(user: Annotated[UserIdentityResponse, Depends(get_
         new_metadata=request.new_sync_metadata
     )
 
-from ..core.schemas.flashcards.bases import FlashcardMediaBase
 @router.put('/media')
 def add_flashcard_media(user: Annotated[UserIdentityResponse, Depends(get_active_user)], db: Annotated[Session, Depends(get_db)], request: Annotated[FlashcardPutMediaRequest, Query()], file: UploadFile):
     user_id = user.user_id
@@ -215,11 +227,27 @@ def add_flashcard_media(user: Annotated[UserIdentityResponse, Depends(get_active
     container = Container(db)
     factory = AppFactory(container)
 
-    flashcard_media_service:FlashcardMediaServiceSQLAlchemy = factory.create(FlashcardMediaServiceSQLAlchemy)
-
+    flashcard_media_manager:FlashcardMediaManager = factory.create(FlashcardMediaManager)
+    flashcard_media_manager.add(
+        user_id                 =user_id, 
+        flashcard_public_id     =request.flashcard_public_id, 
+        field                   =request.field, 
+        media_type              =request.media_type, 
+        file_type               =file.content_type,
+        file_size               =file.size,
+        filename                =file.filename,
+        file_stream             =file.file
+    )
+    
 @router.delete('/media')
-def delete_flashcard_media():
-    pass
+def delete_flashcard_media(user: Annotated[UserIdentityResponse, Depends(get_active_user)], db: Annotated[Session, Depends(get_db)], request: Annotated[FlashcardDeleteMediaRequest, Query()]):
+    user_id = user.user_id
+
+    container = Container(db)
+    factory = AppFactory(container)
+
+    flashcard_media_manager:FlashcardMediaManager = factory.create(FlashcardMediaManager)
+    flashcard_media_manager.delete(user_id, request.media_public_id)
 
 @router.delete("/", response_model=FlashcardDeleteResponse)
 def delete_flashcard(user: Annotated[UserIdentityResponse, Depends(get_active_user)], db: Annotated[Session, Depends(get_db)], request: Annotated[FlashcardDeleteRequest, Query()]):
